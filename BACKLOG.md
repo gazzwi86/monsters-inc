@@ -1,195 +1,227 @@
-# Backlog — Deferred & Optional Work
+# Backlog — leftover and optional work (plain-English)
 
-Status as of the 2026-05-27 council remediation. The core model is complete and
-verified: `make all` is green (exactly 3 intentional SHACL violations, all six
-query suites + detector tests pass), `make materialize` passes 6/6, `make drift`
-is clean. The items below were **deliberately deferred or left optional** — none
-is a half-finished change. Each is written to be actioned independently.
+This is a to-do list you can pick up cold, months from now, having forgotten
+everything. Each item explains **what it is in simple terms** before any detail.
 
-History: `.claude/plans/council-review-2026-05-27-round2.md` (the executed plan)
-and the three commits on `main` (`git log`).
-
----
-
-## 1. C4 model diagrams for the service catalog  ·  Priority: Low
-
-**What:** Add C4 (Context / Container / Component) diagrams for the application &
-technology services, complementing the existing ArchiMate-style PlantUML.
-
-**Why:** You flagged this as a low-priority fidelity enhancement. The services are
-now real RDF individuals (see item context below), so the diagrams can be derived
-from data rather than hand-drawn.
-
-**Where / how:**
-- Source of truth for services: `ontologies/mi-governance.ttl` — `mi:ApplicationService`
-  / `mi:TechnologyService` individuals (LFMS, DPCS, ELS, HRCP, CDACG, RDLMS + 6 tech
-  services), with `mi:dependsOn`, `mi:servesDomain`, `mi:accessesDataset`.
-- Add a new section to `docs/07-service-catalog.md` (or a new `docs/16-c4-views.md`)
-  with 3 PlantUML diagrams: System Context (Monsters Inc + CDA + Grid + Monsters U),
-  Container (the 12 services + RDF store + event bus), Component (decompose LFMS).
-- Use `!theme plain` + `skinparam backgroundColor #FFFFFF`. PlantUML supports the
-  C4 stdlib via `!include <C4/C4_Container>` if the local server has it; otherwise
-  model the boxes manually.
-- Optionally generate dependency edges from a SPARQL query over `mi:dependsOn`
-  (GV5 already returns the dependency map).
-
-**Verify:** render via the local PlantUML server (`localhost:8080/png/~h<hex>`); add
-nav links; run `make drift` if you add any source excerpts.
+**First, the big picture.** This project is a pretend company — Monsters, Inc. —
+modelled as a "knowledge graph": a big web of facts written in standard data
+formats so that software (and AI agents) can read the company's rules and act
+safely within them. Everything below is **optional polish or deferred extras**.
+The project already works: running `make all` builds and checks everything and
+passes. Nothing here is broken or half-done.
 
 ---
 
-## 2. `mi:EnergyLedger` URI collision (SKOS concept vs DCAT dataset)  ·  Priority: Medium
+## Mini-glossary (what the jargon means)
 
-**What:** The IRI `mi:EnergyLedger` is used for **two different things**: a
-`skos:Concept` (a narrower term of `mi:LaughEnergy`) in `ontologies/mi-glossary.ttl`
-(~line 204), AND a `dcat:Dataset` in `ontologies/mi-catalog.ttl` (~line 79) that
-also carries `mi:dataClassification` + `mi:governedByPolicy` in
-`ontologies/mi-governance.ttl`.
+- **`.ttl` files** (in `ontologies/`) — the model itself, written in "Turtle".
+  Think of them as the spreadsheets of facts and definitions.
+- **SHACL** (files in `shapes/`) — automatic rules that check the data and
+  complain when something is wrong. We deliberately leave 3 broken records in the
+  data so we can see the checker catch them ("3 intentional violations").
+- **SPARQL** (files in `queries/`) — saved questions you can ask the data. They're
+  grouped into "suites", each run by a `make` command:
+  - `make query` → **business** questions (named Q1, Q2, …)
+  - `make query-cv` → **compliance** questions (CV1, CV2, …)
+  - `make query-agent` → **agent** questions (AA1, …) — what an AI agent is allowed to do
+  - `make query-human` → **human/wellbeing** questions (HC1, …)
+  - `make query-gov` → **governance** questions (GV1, …) — who can access what data
+  - `make query-con` → **constitution** questions (CN1, …) — our principles and whether we enforce them
+- **SKOS** (`ontologies/mi-glossary.ttl`) — a controlled dictionary of terms.
+- **DCAT** (`ontologies/mi-catalog.ttl`) — a catalogue that lists our datasets.
+- **ODRL** (in `ontologies/mi-governance.ttl`) — machine-readable access rules:
+  "role X may *read* dataset Y; nobody may *share* it externally."
+- **R2RML** (`mappings/mi-db.r2rml.ttl`) — instructions for turning a normal SQL
+  database into graph facts.
+- **`make <something>`** — runs a command. See the list at the very bottom.
 
-**Why it matters:** When the graphs are merged, a DCAT dataset appears as a
-"narrower term of Laugh Energy", and a glossary concept appears as an
-access-controlled asset. A dataset is not a kind of energy — this is semantically
-wrong (unlike the *documented* dual-use OWL-class/SKOS-concept pattern for
-`mi:CDAIncident`/`mi:Comedian`/`mi:ChildProfile`, see comment at
-`mi-glossary.ttl` ~line 488).
-
-**How to fix (pick one):**
-- **Rename the glossary concept** to a distinct IRI, e.g. `mi:EnergyLedgerConcept`,
-  and update its `skos:broader`/the parent's `skos:narrower` (the `mi:LaughEnergy`
-  block lists `mi:EnergyLedger` as `skos:narrower` ~line 49). Leave the DCAT
-  dataset IRI unchanged. This is the lower-blast-radius option (the dataset IRI is
-  referenced from catalog + governance + the `make catalog` script).
-- Or rename the dataset (higher blast radius: `mi-catalog.ttl`, `mi-governance.ttl`
-  classification/policy triples, README/docs references).
-
-**Verify:** `make ontology`/`make all` still green; `make drift`; grep that no
-dangling reference to the old IRI remains: `grep -rn "EnergyLedger" ontologies docs scripts`.
+**Priority key:** ⭐ nice-to-have · ⭐⭐ worth doing · (none here are urgent).
 
 ---
 
-## 3. Undocumented class+concept punning (`DoorStatus`, `TrainingProgram`)  ·  Priority: Low
+## 1. Add "C4" architecture diagrams for the systems ⭐
 
-**What:** `mi:DoorStatus` is an `owl:Class` (enumeration, `mi-core.ttl` ~line 23)
-AND a `skos:Concept` (`mi-glossary.ttl` ~line 345). Same for `mi:TrainingProgram`
-(`mi-core.ttl` ~line 78 / `mi-glossary.ttl` ~line 452). These puns are NOT covered
-by the documented dual-use note (which only sanctions CDAIncident/Comedian/ChildProfile).
+**What it is, plainly:** C4 is a popular way to draw software systems at four
+zoom levels (whole-context → containers → components → code). We already describe
+our IT systems in `docs/07-service-catalog.md`, but with ArchiMate-style diagrams,
+not C4. This item is just "draw a few more diagrams, C4-style."
 
-**Why it matters:** Under OWL DL this is punning that a strict reasoner flags; an
-agent treating the glossary as the authoritative concept set sees an enumeration
-class as a vocabulary term with no documented contract.
+**Why it's here:** You said it's a nice extra for richer documentation, not urgent.
 
-**How to fix (pick one):**
-- Extend the dual-use comment in `mi-glossary.ttl` (~line 488) to explicitly list
-  `DoorStatus` and `TrainingProgram` as sanctioned puns, and add `skos:exactMatch`
-  alignments between the concept and the class — cheapest, documents intent.
-- Or give the SKOS concepts distinct IRIs (`mi:DoorStatusConcept`, etc.).
+**To do it:**
+- The 12 systems already exist as data in `ontologies/mi-governance.ttl` (look for
+  `mi:ApplicationService` and `mi:TechnologyService`, e.g. `mi:LFMS`). Their
+  links are `mi:dependsOn`, `mi:servesDomain`, `mi:accessesDataset`.
+- Add 3 PlantUML diagrams (in `docs/07-service-catalog.md` or a new
+  `docs/16-c4-views.md`): one "big picture", one "the systems and how they
+  connect", one "zoom into one system (e.g. LFMS)".
+- Diagrams are written as ```plantuml code blocks. Render them with the local
+  PlantUML server you mentioned (`localhost:8080`) to check they look right.
 
-**Verify:** `make all` green; `make drift`.
-
----
-
-## 4. GV6 governance gaps — restricted datasets without an ODRL policy  ·  Priority: Medium
-
-**What:** `make query-gov` → **GV6** currently returns 3 rows: `CDAIncidentLog`,
-`CDAComplianceReports`, `RDPrototypes` are classified `Restricted` but have no
-`mi:governedByPolicy` ODRL policy. (GV6 exists *to find* these — it is an honest
-self-audit, not a bug.)
-
-**Why it matters:** To present full governance coverage rather than a known gap,
-these restricted datasets should each have an access/usage policy.
-
-**How to fix:** In `ontologies/mi-governance.ttl`, add `odrl:Set` policies modelled
-on the existing `mi:ChildProfileDataPolicy` / `mi:EmployeeDataPolicy`:
-- `mi:CDAIncidentDataPolicy` — read by `mi:CDADirector`; prohibit external distribute.
-- `mi:RDPrototypeDataPolicy` — read by `mi:RDDirector`.
-- A policy for `mi:CDAComplianceReports` (read by `mi:CDADirector`).
-Then add `mi:<Dataset> mi:governedByPolicy mi:<Policy> .` for each.
-
-**Acceptance:** `make query-gov` → **GV6 returns 0 rows**; GV4 lists the new
-policies. `make all` still green. (Use real W3C ODRL terms — see item 8.)
+**Done when:** the diagrams render correctly and are linked from the docs.
 
 ---
 
-## 5. CN2 — the one unenforced principle (`Prin_JoyOverFear`)  ·  Priority: Low
+## 2. Fix a name clash on "EnergyLedger" ⭐⭐
 
-**What:** `make query-con` → **CN2** returns 1 row: `Prin_JoyOverFear` has no
-`mi:enforcedByShape`/`mi:enforcedByQuery`, so it is aspirational (correctly flagged
-by the defensibility audit).
+**What it is, plainly:** We accidentally used the exact same name (`mi:EnergyLedger`)
+for **two different things**: (a) a dictionary term meaning "the energy record-keeping
+concept", and (b) an actual dataset in the catalogue. Because they share one name,
+tools get confused — the energy *dataset* shows up as if it were a *type of energy*
+in the glossary, and the glossary *term* shows up as if it were an access-controlled
+dataset. They should be two separate names.
 
-**Why it matters:** Culture principles are intrinsically hard to make machine-
-enforceable; today this is honestly surfaced as a gap. Optional to close.
+**Why it's here:** It's a genuine modelling mistake (not just style), but fixing it
+means renaming something that's referenced in several files, so it was left for a
+focused pass.
 
-**How to fix (if desired):** Bind it to a measurable proxy. A
-`mi:WellbeingPulse`-based query already exists (HC5). Add to
-`ontologies/mi-constitution.ttl`:
-`mi:Prin_JoyOverFear mi:enforcedByQuery "HC5" .` (or author a dedicated query that
-checks the joy-based culture is improving, e.g. ComedyNPS trend) and link it.
+**To do it (easier option):**
+- Rename the **glossary term** to something distinct, e.g. `mi:EnergyLedgerConcept`,
+  in `ontologies/mi-glossary.ttl` (the entry is around line 204). Also update the
+  place that points to it: the `mi:LaughEnergy` entry lists `mi:EnergyLedger` under
+  `skos:narrower` (around line 49) — change that to the new name too.
+- Leave the **dataset** `mi:EnergyLedger` alone (it's used by the catalogue and
+  governance files, so renaming the dataset would touch more places).
 
-**Acceptance:** `make query-con` → **CN2 returns 0 rows**; CN1 shows the binding.
+**Done when:** `make all` is still green, and
+`grep -rn "EnergyLedger" ontologies docs scripts` shows no leftover/old references.
 
 ---
 
-## 6. Gate `make materialize` into CI  ·  Priority: Low
+## 3. Tidy up two "double-labelled" terms ⭐
 
-**What:** `make materialize` (the R2RML execution test) is opt-in and NOT part of
-`make all`, because it needs heavy optional deps (morph-kgc, SQLAlchemy, pandas,
-duckdb) pulled via `uv run --with`.
+**What it is, plainly:** Two names — `mi:DoorStatus` and `mi:TrainingProgram` — are
+each labelled as BOTH a "type of thing" (a class) AND a "dictionary term" (a SKOS
+concept) at the same time. That's allowed if you say so on purpose, and we *do*
+document it for three other terms — but these two were never added to that
+"on purpose" note. So it looks accidental.
 
-**Why it matters:** The R2RML mapping is only validated when someone remembers to
-run `make materialize`; a regression in the mapping could land without CI catching it.
+**Why it's here:** Minor cleanliness; doesn't break anything.
 
-**How to fix:** Add an optional dependency group to `pyproject.toml`, e.g.
+**To do it (easiest option):**
+- In `ontologies/mi-glossary.ttl`, find the comment that explains the
+  "dual-use pattern" (around line 488) and add `DoorStatus` and `TrainingProgram`
+  to the list it sanctions. Optionally add a `skos:exactMatch` line linking each
+  concept to its class.
+
+**Done when:** `make all` is green and `make drift` reports no problems.
+
+---
+
+## 4. Write access rules for 3 sensitive datasets ⭐⭐
+
+**What it is, plainly:** "Governance" = rules about who may use which data. One of
+our governance questions, **GV6**, deliberately asks: *"which sensitive datasets do
+NOT yet have an access rule written for them?"* Right now it finds **3 datasets**
+that are marked "restricted" but have no rule saying who may use them:
+`CDAIncidentLog`, `CDAComplianceReports`, `RDPrototypes`. (This isn't a bug — the
+question exists precisely to find these. It's a "to-write" list.) If you want the
+model to look fully complete, write an access rule for each.
+
+**See it for yourself:** run `make query-gov` and look at the GV6 result (3 rows).
+
+**To do it:**
+- In `ontologies/mi-governance.ttl`, copy the style of the rules that already
+  exist (search for `mi:ChildProfileDataPolicy` — it's an `odrl:Set` with a
+  "permission" saying who may read, and a "prohibition" saying it can't be shared).
+- Add three new rules, e.g. `mi:CDAIncidentDataPolicy` (the CDA Director may read),
+  `mi:RDPrototypeDataPolicy` (the R&D Director may read), and one for compliance
+  reports. Then connect each dataset to its rule with a line like:
+  `mi:CDAIncidentLog mi:governedByPolicy mi:CDAIncidentDataPolicy .`
+
+**Done when:** `make query-gov` shows **GV6 = 0 rows** (no more gaps), and `make all`
+is still green.
+
+---
+
+## 5. Decide what to do about the "Joy over fear" principle ⭐
+
+**What it is, plainly:** Our "constitution" lists the company's principles, and for
+each one we try to attach an automatic check that proves we follow it. One
+constitution question, **CN2**, asks: *"which principles have NO automatic check?"*
+It finds exactly **one**: *"Joy over fear"* (the company's culture value about
+laughter beating scaring). Culture values are hard to check automatically, so today
+we honestly flag it as "we believe this but don't auto-check it."
+
+**See it for yourself:** run `make query-con` and look at the CN2 result (1 row).
+
+**To do it (only if you want zero gaps):**
+- Attach it to a stand-in measurement. We already have a wellbeing question (HC5).
+  In `ontologies/mi-constitution.ttl`, find `mi:Prin_JoyOverFear` and add a line:
+  `mi:Prin_JoyOverFear mi:enforcedByQuery "HC5" .`
+
+**Done when:** `make query-con` shows **CN2 = 0 rows**.
+
+---
+
+## 6. Make the database-conversion test run automatically ⭐
+
+**What it is, plainly:** We have a test (`make materialize`) that takes our R2RML
+instructions, builds a small real SQL database, converts it to graph facts, and
+checks the result matches our hand-made data. It works, but it needs some heavy
+extra software, so it does NOT run as part of `make all` — you have to remember to
+run it. This item is "make it run automatically so a future mistake gets caught."
+
+**Why it's here:** Convenience/safety, not correctness — the test passes today.
+
+**To do it:**
+- In `pyproject.toml`, add an optional dependency group:
+  ```
+  [dependency-groups]
+  r2rml = ["morph-kgc", "sqlalchemy"]
+  ```
+- Change the `materialize` target in the `Makefile` to use that group, and add
+  `materialize` to the `all` target. Trade-off: `make all` gets slower and pulls
+  the heavy software.
+
+**Done when:** `make all` runs the materialise test and stays green.
+
+---
+
+## 7. Put the project on GitHub (so PR reviews work) ⭐
+
+**What it is, plainly:** The project is only on your computer — there's no GitHub
+copy. That's why the `/review` command had nothing to review. If you want online
+reviews/PRs, push it up.
+
+**To do it:**
 ```
-[dependency-groups]
-r2rml = ["morph-kgc", "sqlalchemy"]
+gh repo create monsters-inc-ea --private --source=. --remote=origin --push
 ```
-then either change the `materialize` target to `uv run --group r2rml python …` and
-add `materialize` to the `all` target, or add a separate CI job that runs
-`make materialize`. Trade-off: `make all` becomes slower and pulls the heavy deps.
+Then open a pull request for the work on the `main` branch.
 
-**Verify:** `make all` (with materialize folded in) green end-to-end.
+**Done when:** the repo exists on GitHub and a PR is open.
 
 ---
 
-## 7. Publish to a Git remote + open a PR  ·  Priority: As needed
+## 8. Use the official wording for one access-rule action ⭐ (tiny)
 
-**What:** The repo is local-only (`git remote -v` is empty), so the `/review`
-slash command had no PR to run against and `gh` cannot operate.
+**What it is, plainly:** In the access rules (item 4's world), we wrote the action
+as `odrl:read`. The official ODRL standard uses `odrl:use` for that; `odrl:read`
+is common in examples but isn't an official term. Nothing checks this, so it
+doesn't break anything — it's just "use the exact official word."
 
-**How to fix:** `gh repo create <name> --private --source=. --remote=origin --push`
-(or add an existing remote), then open a PR for the work on `main`. `make all` +
-`make materialize` should be the PR's check gate.
+**To do it:** in `ontologies/mi-governance.ttl`, replace `odrl:read` with
+`odrl:use` (or define your own `mi:read` action). If you change the word, also
+check the GV4 query still reads nicely.
 
----
-
-## 8. Use canonical W3C ODRL action terms  ·  Priority: Low (nicety)
-
-**What:** `ontologies/mi-governance.ttl` uses `odrl:read` as an action. `odrl:distribute`
-is a standard ODRL action; `odrl:read` is widely used in examples but is not a core
-ODRL 2.2 action term.
-
-**Why it matters:** Purely semantic accuracy — nothing in this project validates
-against the ODRL action vocabulary, so it does not break any build.
-
-**How to fix (if you want strict ODRL):** replace `odrl:read` with `odrl:use` (the
-core "use" action) or define a local sub-action `mi:read rdfs:subPropertyOf odrl:use`
-(actions are usually modelled as instances of `odrl:Action`; define
-`mi:read a odrl:Action ; rdfs:subClassOf …` per your chosen ODRL profile). Then
-update the GV4 query if the action localname changes.
-
-**Verify:** `make query-gov` (GV4 still lists the rules); `make all` green.
+**Done when:** `make query-gov` still works and `make all` is green.
 
 ---
 
-## Quick reference — verification commands
+## Cheat-sheet — commands to check things
 
 ```bash
-make all          # seed → ontology → validate → tests → all 6 query suites (green)
-make validate     # exactly 3 intentional violations, named
-make test         # 7 detector unit tests
-make materialize  # R2RML executed against SQLite, 6/6 checks (needs --with deps)
-make drift        # docs excerpts ↔ source-of-truth (0 drift)
-make query-gov    # GV6 = current governance gaps (item 4)
-make query-con    # CN2 = current unenforced principles (item 5)
-make status       # artifact inventory
+make all          # build + check EVERYTHING (should pass). Run this after any change.
+make validate     # the rule-checker; should show exactly 3 deliberate problems
+make test         # 7 small logic tests
+make materialize  # the database-conversion test (needs extra software; see item 6)
+make drift        # checks the docs haven't drifted from the real files
+make query-gov    # governance questions — GV6 shows the gaps in item 4
+make query-con    # constitution questions — CN2 shows the gap in item 5
+make status       # how many files of each kind exist
 ```
+
+**Where the history lives:** the executed remediation plan is in
+`.claude/plans/council-review-2026-05-27-round2.md`; the commit history is in
+`git log` (the messages explain what changed and why).
