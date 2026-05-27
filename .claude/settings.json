@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv *)",
+      "Bash(make *)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(find . *)",
+      "Bash(find .)",
+      "Bash(ls *)",
+      "Bash(jq *)"
+    ]
+  },
+  "plansDirectory": ".claude/plans",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/gareth/Sites/obpm/.claude/validate-ttl.sh",
+            "statusMessage": "Validating Turtle...",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/gareth/Sites/obpm/.claude/validate-sparql.sh",
+            "statusMessage": "Validating SPARQL...",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/gareth/Sites/obpm/.claude/progress.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

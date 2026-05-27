@@ -1,0 +1,91 @@
+# =============================================================================
+# Monsters, Inc. — Constitution & Defensibility Queries
+# Turn "we comply" into evidence: every principle/regulatory requirement is
+# linked to the SHACL shape and SPARQL query that enforce it. These queries make
+# the constitution auditable and expose any principle that is NOT yet defensible.
+# Base ontology: https://vocab.monstersinc.com/ontology#
+# =============================================================================
+
+
+# CN1: Principles → pillar → enforcement binding
+# Question: For each company principle, which pillar does it serve and which
+#   SHACL shape / SPARQL query makes it defensible?
+# Returns: principle, pillar, enforcing shape, enforcing query id
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# GROUP_CONCAT collapses the multiple pillars/shapes a principle may have into
+# one row per principle (avoids an OPTIONAL cross-product).
+SELECT ?principle
+       (GROUP_CONCAT(DISTINCT ?pillarName; SEPARATOR=", ") AS ?pillars)
+       (GROUP_CONCAT(DISTINCT ?shapeName; SEPARATOR=", ") AS ?enforcingShapes)
+       (GROUP_CONCAT(DISTINCT ?qName; SEPARATOR=", ") AS ?enforcingQueries)
+WHERE {
+    ?p a mi:Principle ; rdfs:label ?principle .
+    OPTIONAL { ?p mi:relatesToPillar ?pillar }
+    OPTIONAL { ?p mi:enforcedByShape ?shape }
+    OPTIONAL { ?p mi:enforcedByQuery ?query }
+    BIND(COALESCE(STRAFTER(STR(?pillar), "#"), "") AS ?pillarName)
+    BIND(COALESCE(STRAFTER(STR(?shape), "#"), "") AS ?shapeName)
+    BIND(COALESCE(?query, "") AS ?qName)
+}
+GROUP BY ?principle
+ORDER BY ?principle
+
+
+# CN2: DEFENSIBILITY GAP — principles/requirements with NO enforcement binding
+# Question: Which commitments are still aspirational (no shape AND no query)?
+#   Each row is a principle that cannot yet be evidenced. (Honest self-audit.)
+# Returns: rule, label
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?label
+WHERE {
+    { ?rule a mi:Principle } UNION { ?rule a mi:RegulatoryRequirement }
+    ?rule rdfs:label ?label .
+    FILTER NOT EXISTS { ?rule mi:enforcedByShape ?s }
+    FILTER NOT EXISTS { ?rule mi:enforcedByQuery ?q }
+}
+ORDER BY ?label
+
+
+# CN3: Pillar coverage — how many principles touch each of the six pillars?
+# Returns: pillar, principle count
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+
+SELECT (STRAFTER(STR(?pillar), "#") AS ?pillar) (COUNT(DISTINCT ?p) AS ?principleCount)
+WHERE {
+    ?pillar a mi:Pillar .
+    OPTIONAL { ?p a mi:Principle ; mi:relatesToPillar ?pillar }
+}
+GROUP BY ?pillar
+ORDER BY DESC(?principleCount)
+
+
+# CN4: Regulatory traceability — requirement → upheld principle → enforcement
+# Question: For each CDA regulatory requirement, which principle does it uphold
+#   and what enforces it? Full compliance evidence chain.
+# Returns: requirement, upheld principle, enforcing shape, enforcing query
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?requirement
+       (GROUP_CONCAT(DISTINCT ?prLabel; SEPARATOR=", ") AS ?upheldPrinciples)
+       (GROUP_CONCAT(DISTINCT ?shapeName; SEPARATOR=", ") AS ?enforcingShapes)
+       (GROUP_CONCAT(DISTINCT ?qName; SEPARATOR=", ") AS ?enforcingQueries)
+WHERE {
+    ?r a mi:RegulatoryRequirement ; rdfs:label ?requirement .
+    OPTIONAL { ?r mi:upholdsPrinciple ?pr . ?pr rdfs:label ?prLabelRaw }
+    OPTIONAL { ?r mi:enforcedByShape ?shape }
+    OPTIONAL { ?r mi:enforcedByQuery ?query }
+    BIND(COALESCE(?prLabelRaw, "") AS ?prLabel)
+    BIND(COALESCE(STRAFTER(STR(?shape), "#"), "") AS ?shapeName)
+    BIND(COALESCE(?query, "") AS ?qName)
+}
+GROUP BY ?requirement
+ORDER BY ?requirement

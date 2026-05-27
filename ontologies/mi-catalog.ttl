@@ -1,0 +1,263 @@
+@prefix dcat:  <http://www.w3.org/ns/dcat#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+
+# ── Catalog ──────────────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/catalog> a dcat:Catalog ;
+    dct:title "Monsters, Inc. Enterprise Data Catalog"@en ;
+    dct:description "DCAT 3 catalog of all Monsters, Inc. data assets, covering operational, compliance, and R&D datasets."@en ;
+    dct:publisher <https://vocab.monstersinc.com/org/monsters-inc> ;
+    dct:created "2024-01-01"^^xsd:date ;
+    dct:modified "2026-05-27"^^xsd:date ;
+    dcat:dataset
+        mi:MonsterRegistry,
+        mi:DoorInventory,
+        mi:PerformanceRecordsDataset,
+        mi:EnergyLedger,
+        mi:CDAIncidentLog,
+        mi:TrainingRegistry,
+        mi:ChildProfiles,
+        mi:RDPrototypes,
+        mi:CDAComplianceReports,
+        mi:EnergyGridForecast,
+        mi:KnowledgeModels ;
+    dcat:service mi:SPARQLEndpoint .
+
+# ── Dataset 1: Monster Registry (D4 — HR & Training) ─────────────────────────
+
+mi:MonsterRegistry a dcat:Dataset ;
+    dct:title "Monster Employee Registry"@en ;
+    dct:description "All monster employees including roles, credentials, and certification status."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/hr-training> ;
+    dct:modified "2026-05-27"^^xsd:date ;
+    dcat:theme <https://vocab.monstersinc.com/domain/hr-training> ;
+    dcat:keyword "monsters", "employees", "credentials", "certification" ;
+    dcat:distribution mi:MonsterRegistry_TTL, mi:MonsterRegistry_JSONLD ;
+    dcat:spatialResolutionInMeters "0"^^xsd:decimal .
+
+mi:MonsterRegistry_TTL a dcat:Distribution ;
+    dct:title "Monster Registry — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/registry.ttl> .
+
+mi:MonsterRegistry_JSONLD a dcat:Distribution ;
+    dct:title "Monster Registry — JSON-LD"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/application/ld+json> ;
+    dcat:downloadURL <https://data.monstersinc.com/registry.jsonld> .
+
+# ── Dataset 2: Door Inventory (D3 — Door Operations) ─────────────────────────
+
+mi:DoorInventory a dcat:Dataset ;
+    dct:title "Child Door Inventory"@en ;
+    dct:description "Full inventory of all child bedroom doors, including status, maintenance schedules, and dimensional identifiers."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/door-operations> ;
+    dct:modified "2026-05-27"^^xsd:date ;
+    dcat:theme <https://vocab.monstersinc.com/domain/door-operations> ;
+    dcat:keyword "doors", "inventory", "maintenance", "portals" ;
+    dcat:distribution mi:DoorInventory_TTL, mi:DoorInventory_Parquet .
+
+mi:DoorInventory_TTL a dcat:Distribution ;
+    dct:title "Door Inventory — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/doors.ttl> .
+
+mi:DoorInventory_Parquet a dcat:Distribution ;
+    dct:title "Door Inventory — Parquet"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/application/vnd.apache.parquet> ;
+    dcat:downloadURL <https://data.monstersinc.com/doors.parquet> .
+
+# ── Dataset 3: Energy Ledger (D1 — Energy) ───────────────────────────────────
+
+mi:EnergyLedger a dcat:Dataset ;
+    dct:title "Energy Production Ledger"@en ;
+    dct:description "Real-time ledger of laugh energy harvested per performance, linked to canister fills, storage levels, and grid dispatch events."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/energy> ;
+    dct:modified "2026-05-27"^^xsd:date ;
+    dcat:theme <https://vocab.monstersinc.com/domain/energy> ;
+    dcat:keyword "energy", "laugh", "ledger", "real-time" ;
+    dct:accrualPeriodicity <http://purl.org/cld/freq/continuous> ;
+    dcat:distribution mi:EnergyLedger_TTL, mi:EnergyLedger_TimeSeries .
+
+mi:EnergyLedger_TTL a dcat:Distribution ;
+    dct:title "Energy Ledger — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/energy-ledger.ttl> .
+
+mi:EnergyLedger_TimeSeries a dcat:Distribution ;
+    dct:title "Energy Ledger — Time Series (JSON)"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/application/json> ;
+    dcat:downloadURL <https://data.monstersinc.com/energy-ledger-timeseries.json> .
+
+# ── Dataset 4: Performance Records (D2 — Laugh Operations, DatasetSeries) ────
+
+mi:PerformanceRecordsDataset a dcat:DatasetSeries ;
+    dct:title "Comedian Performance Records"@en ;
+    dct:description "Daily slices of comedian performance data — laugh yield, door assignments, shift scores, and energy output per performance event."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/laugh-operations> ;
+    dct:modified "2026-05-27"^^xsd:date ;
+    dcat:theme <https://vocab.monstersinc.com/domain/laugh-operations> ;
+    dct:accrualPeriodicity <http://purl.org/cld/freq/daily> ;
+    dcat:keyword "performance", "laugh", "comedians", "daily" .
+
+# ── Dataset 5: CDA Incident Log (D5 — CDA Compliance) ────────────────────────
+
+mi:CDAIncidentLog a dcat:Dataset ;
+    dct:title "CDA Incident Log"@en ;
+    dct:description "Regulatory incident log for Child Detection Agency compliance events, including containment actions, severity ratings, and resolution outcomes."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/cda-compliance> ;
+    dcat:theme <https://vocab.monstersinc.com/domain/cda-compliance> ;
+    dcat:keyword "CDA", "incidents", "compliance", "containment" ;
+    dct:temporal [ a dct:PeriodOfTime ; dcat:endDate "2027-01-01"^^xsd:date ] ;
+    dcat:distribution mi:CDAIncidentLog_TTL .
+
+mi:CDAIncidentLog_TTL a dcat:Distribution ;
+    dct:title "CDA Incident Log — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/cda-incidents.ttl> .
+
+# ── Dataset 6: Training Registry (D4 — HR & Training) ────────────────────────
+
+mi:TrainingRegistry a dcat:Dataset ;
+    dct:title "Monster Training Registry"@en ;
+    dct:description "Records of comedian training programmes, certification milestones, competency assessments, and laugh-technique curricula."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/hr-training> ;
+    dcat:theme <https://vocab.monstersinc.com/domain/hr-training> ;
+    dcat:keyword "training", "certification", "competency", "comedians" ;
+    dcat:distribution mi:TrainingRegistry_TTL .
+
+mi:TrainingRegistry_TTL a dcat:Distribution ;
+    dct:title "Training Registry — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/training-registry.ttl> .
+
+# ── Dataset 7: Child Profiles (D3 — Door Operations) ─────────────────────────
+
+mi:ChildProfiles a dcat:Dataset ;
+    dct:title "Child Target Profiles"@en ;
+    dct:description "Anonymised profiles of child targets associated with assigned doors, including laugh-response ratings and session history."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/door-operations> ;
+    dcat:theme <https://vocab.monstersinc.com/domain/door-operations> ;
+    dcat:keyword "children", "profiles", "doors", "laugh-response" ;
+    dct:accessRights <https://vocab.monstersinc.com/policy/restricted> ;
+    mi:dataClassification mi:SensitivePersonalData ;
+    dct:temporal [ a dct:PeriodOfTime ; dcat:endDate "2030-01-01"^^xsd:date ] ;
+    dcat:distribution mi:ChildProfiles_TTL .
+
+mi:ChildProfiles_TTL a dcat:Distribution ;
+    dct:title "Child Profiles — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/child-profiles.ttl> .
+
+# ── Dataset 8: R&D Prototypes (D6 — R&D) ─────────────────────────────────────
+
+mi:RDPrototypes a dcat:Dataset ;
+    dct:title "R&D Laugh Device Prototypes"@en ;
+    dct:description "Research and development dataset covering prototype laugh-amplification devices, test results, approval status, and energy yield projections."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/rd> ;
+    dcat:theme <https://vocab.monstersinc.com/domain/rd> ;
+    dcat:keyword "R&D", "prototypes", "innovation", "laugh-amplification" ;
+    dcat:distribution mi:RDPrototypes_TTL .
+
+mi:RDPrototypes_TTL a dcat:Distribution ;
+    dct:title "R&D Prototypes — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/rd-prototypes.ttl> .
+
+# ── Dataset 9: CDA Compliance Reports (D5 — CDA Compliance) ──────────────────
+
+mi:CDAComplianceReports a dcat:Dataset ;
+    dct:title "CDA Compliance Reports"@en ;
+    dct:description "Periodic formal compliance reports submitted to the Child Detection Agency, documenting protocol adherence, violation remediation, and audit outcomes."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/cda-compliance> ;
+    dcat:theme <https://vocab.monstersinc.com/domain/cda-compliance> ;
+    dcat:keyword "CDA", "compliance", "audit", "reports" ;
+    dcat:distribution mi:CDAComplianceReports_TTL .
+
+mi:CDAComplianceReports_TTL a dcat:Distribution ;
+    dct:title "CDA Compliance Reports — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/cda-reports.ttl> .
+
+# ── Dataset 10: Energy Grid Forecast (D1 — Energy) ───────────────────────────
+
+mi:EnergyGridForecast a dcat:Dataset ;
+    dct:title "Energy Grid Demand Forecast"@en ;
+    dct:description "Forward-looking energy demand projections for Monstropolis grid dispatch, derived from laugh yield trends and seasonal child-activity patterns."@en ;
+    dct:publisher <https://vocab.monstersinc.com/domain/energy> ;
+    dcat:theme <https://vocab.monstersinc.com/domain/energy> ;
+    dct:accrualPeriodicity <http://purl.org/cld/freq/weekly> ;
+    dcat:keyword "energy", "grid", "forecast", "demand" ;
+    dcat:distribution mi:EnergyGridForecast_TTL .
+
+mi:EnergyGridForecast_TTL a dcat:Distribution ;
+    dct:title "Energy Grid Forecast — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:accessURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:downloadURL <https://data.monstersinc.com/energy-grid-forecast.ttl> .
+
+# ── DataService: SPARQL Endpoint ─────────────────────────────────────────────
+
+mi:SPARQLEndpoint a dcat:DataService ;
+    dct:title "Monsters Inc. SPARQL Endpoint"@en ;
+    dcat:endpointURL <https://vocab.monstersinc.com/sparql> ;
+    dcat:endpointDescription <https://vocab.monstersinc.com/sparql/description> ;
+    dcat:servesDataset
+        mi:MonsterRegistry,
+        mi:DoorInventory,
+        mi:EnergyLedger,
+        mi:PerformanceRecordsDataset,
+        mi:CDAIncidentLog,
+        mi:TrainingRegistry,
+        mi:ChildProfiles,
+        mi:RDPrototypes,
+        mi:CDAComplianceReports,
+        mi:EnergyGridForecast .
+
+# ── Dataset 11: Knowledge & Governance Models (cross-domain) ─────────────────
+# Catalogues the agent-grade semantic modules added in the 2026 council
+# remediation: the authority model, motivation/capability layer, data-governance
+# (identity + ODRL) layer, and the company constitution.
+
+mi:KnowledgeModels a dcat:Dataset ;
+    dct:title "Monsters, Inc. Knowledge & Governance Models"@en ;
+    dct:description "OWL/SKOS/ODRL modules an autonomous agent loads to reason within company rules: agent authority + HITL, motivation/capability, data governance + access policy, and the company constitution."@en ;
+    dct:publisher <https://vocab.monstersinc.com/org/monsters-inc> ;
+    dct:modified "2026-05-27"^^xsd:date ;
+    dcat:keyword "authority", "HITL", "ODRL", "data-classification", "constitution", "capability" ;
+    dcat:distribution
+        mi:AgentModel_TTL, mi:Motivation_TTL, mi:Governance_TTL, mi:Constitution_TTL .
+
+mi:AgentModel_TTL a dcat:Distribution ;
+    dct:title "Agent Authority Model — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:downloadURL <https://vocab.monstersinc.com/ontology/agent-model> .
+
+mi:Motivation_TTL a dcat:Distribution ;
+    dct:title "Motivation & Capability Model — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:downloadURL <https://vocab.monstersinc.com/ontology/motivation> .
+
+mi:Governance_TTL a dcat:Distribution ;
+    dct:title "Data Governance & Identity Model — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:downloadURL <https://vocab.monstersinc.com/ontology/governance> .
+
+mi:Constitution_TTL a dcat:Distribution ;
+    dct:title "Company Constitution — Turtle"@en ;
+    dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+    dcat:downloadURL <https://vocab.monstersinc.com/ontology/constitution> .

@@ -1,0 +1,559 @@
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix bpmno: <http://dkm.fbk.eu/index.php/BPMN2_Ontology#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+
+# ── Ontology Header ───────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/ontology/process>
+    a owl:Ontology ;
+    owl:imports <https://vocab.monstersinc.com/ontology> ;
+    rdfs:label "Monsters, Inc. Process Ontology" ;
+    rdfs:comment "Models the seven Monsters, Inc. business processes (P1–P7) using OWL classes and BPMN-O annotations." ;
+    owl:versionInfo "0.1.0" ;
+    dct:creator "Monsters, Inc. Enterprise Architecture Team" .
+
+# ── Process Meta-Classes ──────────────────────────────────────────────────────
+
+mi:BusinessProcess a owl:Class ;
+    rdfs:label "Business Process" ;
+    rdfs:comment "A named, repeatable sequence of steps that transforms inputs into business outputs across one or more domains." .
+
+mi:ProcessStep a owl:Class ;
+    rdfs:label "Process Step" ;
+    rdfs:comment "An atomic unit of work within a BusinessProcess, performed by a specific domain actor." .
+
+mi:ProcessEvent a owl:Class ;
+    rdfs:label "Process Event" ;
+    rdfs:comment "A trigger or boundary event that starts, ends, or interrupts a BusinessProcess." .
+
+# ── Process Properties ────────────────────────────────────────────────────────
+
+mi:hasStep a owl:ObjectProperty ;
+    rdfs:domain mi:BusinessProcess ;
+    rdfs:range  mi:ProcessStep ;
+    rdfs:label  "has step" ;
+    rdfs:comment "Links a BusinessProcess to each of its constituent ProcessSteps." .
+
+mi:triggeredBy a owl:ObjectProperty ;
+    rdfs:domain mi:BusinessProcess ;
+    rdfs:range  mi:ProcessEvent ;
+    rdfs:label  "triggered by" ;
+    rdfs:comment "Identifies the event that initiates a BusinessProcess." .
+
+mi:produces a owl:ObjectProperty ;
+    rdfs:label  "produces" ;
+    rdfs:comment "Links a BusinessProcess or ProcessStep to the artefact it creates." .
+
+mi:consumesInput a owl:ObjectProperty ;
+    rdfs:label  "consumes input" ;
+    rdfs:comment "Links a BusinessProcess or ProcessStep to the artefact it requires as input." .
+
+mi:stepOrder a owl:DatatypeProperty ;
+    rdfs:domain mi:ProcessStep ;
+    rdfs:range  xsd:integer ;
+    rdfs:label  "step order" ;
+    rdfs:comment "Integer sequence number of this step within its parent process." .
+
+mi:performedBy a owl:ObjectProperty ;
+    rdfs:domain mi:ProcessStep ;
+    rdfs:range  mi:Domain ;
+    rdfs:label  "performed by" ;
+    rdfs:comment "The organisational domain responsible for executing this ProcessStep." .
+
+mi:subProcess a owl:ObjectProperty ;
+    rdfs:domain mi:ProcessStep ;
+    rdfs:range  mi:BusinessProcess ;
+    rdfs:label  "sub-process" ;
+    rdfs:comment "Links an exception step to the subprocess it invokes." .
+
+mi:hasException a owl:ObjectProperty ;
+    rdfs:domain mi:ProcessStep ;
+    rdfs:range  mi:ProcessStep ;
+    rdfs:label  "has exception" ;
+    rdfs:comment "Links a nominal step to its exception/error handling step." .
+
+mi:belongsToProcess a owl:ObjectProperty ;
+    owl:inverseOf mi:hasStep ;
+    rdfs:domain mi:ProcessStep ;
+    rdfs:range  mi:BusinessProcess ;
+    rdfs:label  "belongs to process" .
+
+# ── Trigger Events ────────────────────────────────────────────────────────────
+
+mi:ShiftStartEvent a mi:ProcessEvent ;
+    rdfs:label "Shift Start Event" ;
+    rdfs:comment "Occurs twice daily (AM and PM), initiating a full cycle of P1 across all 100 comedy stations." .
+
+mi:CDAAlertEvent a mi:ProcessEvent ;
+    rdfs:label "CDA Alert Event" ;
+    rdfs:comment "Triggered when a ContaminationAlert is detected at any station, initiating P5." .
+
+mi:NewHireEvent a mi:ProcessEvent ;
+    rdfs:label "New Hire Event" ;
+    rdfs:comment "Triggered when a new Monster is onboarded, initiating P4 comedian onboarding." .
+
+mi:PrototypeClearanceEvent a mi:ProcessEvent ;
+    rdfs:label "Prototype Clearance Event" ;
+    rdfs:comment "Triggered when an R&D prototype reaches approved status, initiating P7 deployment." .
+
+mi:PortalActivationRequest a mi:ProcessEvent ;
+    rdfs:label "Portal Activation Request" ;
+    rdfs:comment "Triggered by the shift dispatcher when a door is requested for a session, initiating P2 door dispatch." .
+
+mi:CanisterFilledEvent a mi:ProcessEvent ;
+    rdfs:label "Canister Filled Event" ;
+    rdfs:comment "Triggered when a sealed LaughCanister is handed to the energy station, initiating P3 energy processing." .
+
+mi:MonthEndEvent a mi:ProcessEvent ;
+    rdfs:label "Month End Event" ;
+    rdfs:comment "Recurs at each month end, initiating P6 performance review and ladder decisions." .
+
+# ── P1: Daily Laugh Run ───────────────────────────────────────────────────────
+
+mi:P1_DailyLaughRun a mi:BusinessProcess ;
+    rdfs:label       "P1 — Daily Laugh Run" ;
+    rdfs:comment     "Core value-creating process: two shifts per day, 100 comedy stations. Transforms child laughter into sealed canisters (~14.5 MWh each) and logs EnergyUnits to the grid." ;
+    mi:triggeredBy   mi:ShiftStartEvent ;
+    mi:produces      mi:PerformanceRecord, mi:EnergyUnit ;
+    mi:consumesInput mi:ChildDoor, mi:LaughCanister ;
+    mi:hasStep
+        mi:S1_IssueDoorRequests,
+        mi:S2_RetrieveDoor,
+        mi:S3_InstallDoor,
+        mi:S4_PerformRoutine,
+        mi:S5_SealCanister,
+        mi:S6_ExtractEnergy,
+        mi:S7_ReturnDoor,
+        mi:S8_ComplianceCheck,
+        mi:S9_CloseShift .
+
+mi:S1_IssueDoorRequests a mi:ProcessStep ;
+    rdfs:label      "S1 — Issue Door Activation Requests" ;
+    rdfs:comment    "Dispatcher issues 100 door activation requests at shift start, one per comedy station." ;
+    mi:stepOrder    1 ;
+    mi:performedBy  mi:LaughOperations .
+
+mi:S2_RetrieveDoor a mi:ProcessStep ;
+    rdfs:label      "S2 — Retrieve Door from Vault" ;
+    rdfs:comment    "Door Technician retrieves assigned ChildDoor from the vault and performs a quality check. Doors that fail are quarantined and a replacement is requested." ;
+    mi:stepOrder    2 ;
+    mi:performedBy  mi:DoorManagement ;
+    mi:consumesInput mi:ChildDoor ;
+    mi:hasException mi:SE2a_QuarantineDoor .
+
+mi:SE2a_QuarantineDoor a mi:ProcessStep ;
+    rdfs:label      "SE2a — Quarantine Door and Request Replacement" ;
+    rdfs:comment    "Exception: ChildDoor fails quality check. Status set to quarantined; replacement door retrieved from vault." ;
+    mi:stepOrder    2 ;
+    mi:performedBy  mi:DoorManagement .
+
+mi:S3_InstallDoor a mi:ProcessStep ;
+    rdfs:label      "S3 — Install Door at Station" ;
+    rdfs:comment    "Door Technician installs the quality-checked ChildDoor at the designated LaughFloorStation. Door status transitions to active." ;
+    mi:stepOrder    3 ;
+    mi:performedBy  mi:DoorManagement .
+
+mi:S4_PerformRoutine a mi:ProcessStep ;
+    rdfs:label      "S4 — Perform Comedy Routine" ;
+    rdfs:comment    "Comedian receives brief (door code, child profile, technique guidance), enters the child's room, performs the comedy routine, and returns with a filled LaughCanister." ;
+    mi:stepOrder    4 ;
+    mi:performedBy  mi:LaughOperations ;
+    mi:consumesInput mi:ChildProfile ;
+    mi:produces     mi:LaughCanister .
+
+mi:S5_SealCanister a mi:ProcessStep ;
+    rdfs:label      "S5 — Seal Canister" ;
+    rdfs:comment    "Comedian seals the filled LaughCanister (sealStatus → true) before handing it to the Energy Station." ;
+    mi:stepOrder    5 ;
+    mi:performedBy  mi:LaughOperations .
+
+mi:S6_ExtractEnergy a mi:ProcessStep ;
+    rdfs:label      "S6 — Extract Energy and Log EnergyUnit" ;
+    rdfs:comment    "Energy Station receives the sealed canister, scans the barcode, extracts laugh energy, and logs the resulting EnergyUnit to the grid ledger." ;
+    mi:stepOrder    6 ;
+    mi:performedBy  mi:EnergyProduction ;
+    mi:consumesInput mi:LaughCanister ;
+    mi:produces     mi:EnergyUnit .
+
+mi:S7_ReturnDoor a mi:ProcessStep ;
+    rdfs:label      "S7 — Return Door to Vault" ;
+    rdfs:comment    "Door Technician removes the ChildDoor from the station, logs the return, transports the door to the vault, and schedules the next maintenance window." ;
+    mi:stepOrder    7 ;
+    mi:performedBy  mi:DoorManagement .
+
+mi:S8_ComplianceCheck a mi:ProcessStep ;
+    rdfs:label      "S8 — Automated Compliance Check" ;
+    rdfs:comment    "CDA Monitor runs an automated compliance check per station at end of each cycle. Two exception paths: ContaminationAlert triggers Protocol 2319 (subprocess P5); below-threshold laugh score pauses the station pending supervisor review." ;
+    mi:stepOrder    8 ;
+    mi:performedBy  mi:CDACompliance ;
+    mi:hasException mi:SE8a_2319Protocol, mi:SE8b_ThresholdPause ;
+    mi:subProcess   mi:P5_CDADecontamination .
+
+mi:SE8a_2319Protocol a mi:ProcessStep ;
+    rdfs:label      "SE8a — 2319 Contamination Protocol (subprocess P5)" ;
+    rdfs:comment    "Exception: ContaminationAlert detected. Station sealed; CDA notified; P5 decontamination subprocess invoked within 30 minutes." ;
+    mi:stepOrder    8 ;
+    mi:performedBy  mi:CDACompliance ;
+    mi:subProcess   mi:P5_CDADecontamination ;
+    mi:produces     mi:CDAIncident .
+
+mi:SE8b_ThresholdPause a mi:ProcessStep ;
+    rdfs:label      "SE8b — Station Paused — Below Laugh Threshold" ;
+    rdfs:comment    "Exception: Comedian's laugh score is below the minimum threshold. Station is paused and a supervisor intervenes to assess technique and determine resumption." ;
+    mi:stepOrder    8 ;
+    mi:performedBy  mi:CDACompliance .
+
+mi:S9_CloseShift a mi:ProcessStep ;
+    rdfs:label      "S9 — Close Shift and Create Performance Records" ;
+    rdfs:comment    "Dispatcher closes the shift, aggregates performance data across all 100 stations, and creates a PerformanceRecord per Comedian." ;
+    mi:stepOrder    9 ;
+    mi:performedBy  mi:LaughOperations ;
+    mi:produces     mi:PerformanceRecord .
+
+# ── P2: Door Dispatch & Return ────────────────────────────────────────────────
+
+mi:P2_DoorDispatch a mi:BusinessProcess ;
+    rdfs:label      "P2 — Door Dispatch and Return" ;
+    rdfs:comment    "Door Management and Laugh Operations domain process that retrieves a ChildDoor from the vault, dispatches it to a comedy station, runs the session, and returns the door to the vault." ;
+    mi:triggeredBy  mi:PortalActivationRequest ;
+    mi:produces     mi:PerformanceRecord ;
+    mi:consumesInput mi:ChildDoor ;
+    mi:hasStep
+        mi:P2S1_DispatchRequest,
+        mi:P2S2_VaultRetrieval,
+        mi:P2S3_QualityCheck,
+        mi:P2S4_PortalActivation,
+        mi:P2S5_SessionRun,
+        mi:P2S6_PortalDeactivation,
+        mi:P2S7_ReturnToVault,
+        mi:P2S8_MaintenanceScheduling .
+
+mi:P2S1_DispatchRequest a mi:ProcessStep ;
+    rdfs:label   "P2-S1 — Dispatch Request Received" ;
+    mi:stepOrder 1 ;
+    mi:performedBy mi:LaughOperations .
+
+mi:P2S2_VaultRetrieval a mi:ProcessStep ;
+    rdfs:label   "P2-S2 — Vault Retrieval" ;
+    mi:stepOrder 2 ;
+    mi:performedBy mi:DoorManagement ;
+    mi:consumesInput mi:ChildDoor .
+
+mi:P2S3_QualityCheck a mi:ProcessStep ;
+    rdfs:label   "P2-S3 — Quality Check" ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:DoorManagement ;
+    mi:hasException mi:P2SE3a_QuarantineDoor .
+
+mi:P2SE3a_QuarantineDoor a mi:ProcessStep ;
+    rdfs:label   "P2-SE3a — Quarantine Door and Request Replacement" ;
+    rdfs:comment "Exception: door fails quality check, status set to quarantined, replacement requested." ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:DoorManagement .
+
+mi:P2S4_PortalActivation a mi:ProcessStep ;
+    rdfs:label   "P2-S4 — Portal Activation" ;
+    mi:stepOrder 4 ;
+    mi:performedBy mi:DoorManagement .
+
+mi:P2S5_SessionRun a mi:ProcessStep ;
+    rdfs:label   "P2-S5 — Comedy Session Run" ;
+    mi:stepOrder 5 ;
+    mi:performedBy mi:LaughOperations ;
+    mi:produces   mi:PerformanceRecord .
+
+mi:P2S6_PortalDeactivation a mi:ProcessStep ;
+    rdfs:label   "P2-S6 — Portal Deactivation" ;
+    mi:stepOrder 6 ;
+    mi:performedBy mi:DoorManagement .
+
+mi:P2S7_ReturnToVault a mi:ProcessStep ;
+    rdfs:label   "P2-S7 — Return Door to Vault" ;
+    mi:stepOrder 7 ;
+    mi:performedBy mi:DoorManagement .
+
+mi:P2S8_MaintenanceScheduling a mi:ProcessStep ;
+    rdfs:label   "P2-S8 — Schedule Next Maintenance" ;
+    mi:stepOrder 8 ;
+    mi:performedBy mi:DoorManagement .
+
+# ── P3: Energy Processing & Distribution ──────────────────────────────────────
+
+mi:P3_EnergyProcessing a mi:BusinessProcess ;
+    rdfs:label      "P3 — Energy Processing and Distribution" ;
+    rdfs:comment    "Energy Production domain process that receives sealed LaughCanisters, extracts laugh energy, creates EnergyUnits, and dispatches them to the Monstropolis Power Grid." ;
+    mi:triggeredBy  mi:CanisterFilledEvent ;
+    mi:produces     mi:EnergyUnit ;
+    mi:consumesInput mi:LaughCanister ;
+    mi:hasStep
+        mi:P3S1_CanisterIntake,
+        mi:P3S2_BarcodeScanning,
+        mi:P3S3_EnergyExtraction,
+        mi:P3S4_EnergyUnitCreation,
+        mi:P3S5_GridDispatch,
+        mi:P3S6_LedgerReconciliation,
+        mi:P3S7_GridAcknowledgement .
+
+mi:P3S1_CanisterIntake a mi:ProcessStep ;
+    rdfs:label   "P3-S1 — Canister Intake" ;
+    mi:stepOrder 1 ;
+    mi:performedBy mi:EnergyProduction ;
+    mi:consumesInput mi:LaughCanister .
+
+mi:P3S2_BarcodeScanning a mi:ProcessStep ;
+    rdfs:label   "P3-S2 — Barcode Scan and Verify" ;
+    mi:stepOrder 2 ;
+    mi:performedBy mi:EnergyProduction .
+
+mi:P3S3_EnergyExtraction a mi:ProcessStep ;
+    rdfs:label   "P3-S3 — Laugh Energy Extraction" ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:EnergyProduction .
+
+mi:P3S4_EnergyUnitCreation a mi:ProcessStep ;
+    rdfs:label   "P3-S4 — EnergyUnit Record Creation" ;
+    mi:stepOrder 4 ;
+    mi:performedBy mi:EnergyProduction ;
+    mi:produces   mi:EnergyUnit .
+
+mi:P3S5_GridDispatch a mi:ProcessStep ;
+    rdfs:label   "P3-S5 — Grid Dispatch" ;
+    mi:stepOrder 5 ;
+    mi:performedBy mi:EnergyProduction .
+
+mi:P3S6_LedgerReconciliation a mi:ProcessStep ;
+    rdfs:label   "P3-S6 — Energy Ledger Reconciliation" ;
+    mi:stepOrder 6 ;
+    mi:performedBy mi:EnergyProduction .
+
+mi:P3S7_GridAcknowledgement a mi:ProcessStep ;
+    rdfs:label   "P3-S7 — Grid Authority Acknowledgement" ;
+    mi:stepOrder 7 ;
+    mi:performedBy mi:EnergyProduction ;
+    mi:hasException mi:P3SE7a_GridSLAEscalation .
+
+mi:P3SE7a_GridSLAEscalation a mi:ProcessStep ;
+    rdfs:label   "P3-SE7a — Grid SLA Breach Escalation" ;
+    rdfs:comment "Exception: grid authority does not acknowledge dispatch within SLA → escalate to VP Energy for manual reconciliation." ;
+    mi:stepOrder 7 ;
+    mi:performedBy mi:EnergyProduction .
+
+# ── P4: Comedian Onboarding & Certification ───────────────────────────────────
+
+mi:P4_ComedianOnboarding a mi:BusinessProcess ;
+    rdfs:label      "P4 — Comedian Onboarding and Certification" ;
+    rdfs:comment    "HR & Training and Laugh Operations domain process that onboards new Comedians, assigns training programmes, and records certification level upon successful completion." ;
+    mi:triggeredBy  mi:NewHireEvent ;
+    mi:produces     mi:TrainingRecord ;
+    mi:hasStep
+        mi:P4S1_HireEvent,
+        mi:P4S2_WelcomeBriefing,
+        mi:P4S3_SafetyTraining,
+        mi:P4S4_TechniqueTraining,
+        mi:P4S5_CertificationExam,
+        mi:P4S6_CertLevelAssignment,
+        mi:P4S7_StationAssignment .
+
+mi:P4S1_HireEvent a mi:ProcessStep ;
+    rdfs:label   "P4-S1 — New Hire Event Received" ;
+    mi:stepOrder 1 ;
+    mi:performedBy mi:HRTraining .
+
+mi:P4S2_WelcomeBriefing a mi:ProcessStep ;
+    rdfs:label   "P4-S2 — Welcome and Company Briefing" ;
+    mi:stepOrder 2 ;
+    mi:performedBy mi:HRTraining .
+
+mi:P4S3_SafetyTraining a mi:ProcessStep ;
+    rdfs:label   "P4-S3 — CDA Safety Training" ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:HRTraining .
+
+mi:P4S4_TechniqueTraining a mi:ProcessStep ;
+    rdfs:label   "P4-S4 — Comedy Technique Training" ;
+    mi:stepOrder 4 ;
+    mi:performedBy mi:HRTraining .
+
+mi:P4S5_CertificationExam a mi:ProcessStep ;
+    rdfs:label   "P4-S5 — Certification Examination" ;
+    mi:stepOrder 5 ;
+    mi:performedBy mi:HRTraining ;
+    mi:hasException mi:P4SE5a_RemedialTraining .
+
+mi:P4SE5a_RemedialTraining a mi:ProcessStep ;
+    rdfs:label   "P4-SE5a — Remedial Training Loop (max 3 attempts)" ;
+    rdfs:comment "Exception: exam failed. Comedian enters remedial training and re-sits, up to 3 total attempts." ;
+    mi:stepOrder 5 ;
+    mi:performedBy mi:HRTraining .
+
+mi:P4S6_CertLevelAssignment a mi:ProcessStep ;
+    rdfs:label   "P4-S6 — Certification Level Assignment" ;
+    mi:stepOrder 6 ;
+    mi:performedBy mi:HRTraining ;
+    mi:produces   mi:TrainingRecord .
+
+mi:P4S7_StationAssignment a mi:ProcessStep ;
+    rdfs:label   "P4-S7 — Laugh Floor Station Assignment" ;
+    mi:stepOrder 7 ;
+    mi:performedBy mi:LaughOperations .
+
+# ── P5: CDA Decontamination Protocol (2319) ───────────────────────────────────
+
+mi:P5_CDADecontamination a mi:BusinessProcess ;
+    rdfs:label      "P5 — CDA Decontamination Protocol (2319)" ;
+    rdfs:comment    "CDA Compliance domain subprocess invoked on ContaminationAlert. Seals the affected station, isolates personnel, decontaminates equipment, and closes the CDAIncident within 30 minutes (SLA)." ;
+    mi:triggeredBy  mi:CDAAlertEvent ;
+    mi:produces     mi:CDAIncident ;
+    mi:hasStep
+        mi:P5S1_ContaminationDetected,
+        mi:P5S2_StationSealed,
+        mi:P5S3_PersonnelIsolated,
+        mi:P5S4_CDANotified,
+        mi:P5S5_DecontaminationDispatched,
+        mi:P5S6_SceneCleared,
+        mi:P5S7_CDAReportFiled,
+        mi:P5S8_IncidentClosed .
+
+mi:P5S1_ContaminationDetected a mi:ProcessStep ;
+    rdfs:label   "P5-S1 — Contamination Detected" ;
+    rdfs:comment "ContaminationAlert fires: human article detected on personnel or floor. Timestamp recorded as mi:detectedAt." ;
+    mi:stepOrder 1 ;
+    mi:performedBy mi:CDACompliance ;
+    mi:produces   mi:CDAIncident .
+
+mi:P5S2_StationSealed a mi:ProcessStep ;
+    rdfs:label   "P5-S2 — Affected Station Sealed" ;
+    rdfs:comment "LaughFloorStation is immediately taken offline. ChildDoor status transitions to quarantined." ;
+    mi:stepOrder 2 ;
+    mi:performedBy mi:CDACompliance .
+
+mi:P5S3_PersonnelIsolated a mi:ProcessStep ;
+    rdfs:label   "P5-S3 — Comedian Isolated for Decontamination" ;
+    rdfs:comment "Involved Comedian is escorted to decontamination area. Comedy routine suspended." ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:CDACompliance .
+
+mi:P5S4_CDANotified a mi:ProcessStep ;
+    rdfs:label   "P5-S4 — CDA Notified — Incident Reported" ;
+    rdfs:comment "CDA receives formal notification within 30 minutes of detection (mi:reportedAt). Late reporting is a regulatory violation." ;
+    mi:stepOrder 4 ;
+    mi:performedBy mi:CDACompliance ;
+    mi:hasException mi:P5SE4a_LateEscalation .
+
+mi:P5SE4a_LateEscalation a mi:ProcessStep ;
+    rdfs:label   "P5-SE4a — Late Escalation — Severity ≥ 4 CCO Notification" ;
+    rdfs:comment "Exception: if severity ≥ 4 OR 30-minute window is at risk, escalate immediately to CCO (Mike Wazowski) and CDA Liaison Director (Roz)." ;
+    mi:stepOrder 4 ;
+    mi:performedBy mi:CDACompliance .
+
+mi:P5S5_DecontaminationDispatched a mi:ProcessStep ;
+    rdfs:label   "P5-S5 — Decontamination Team Dispatched" ;
+    mi:stepOrder 5 ;
+    mi:performedBy mi:CDACompliance .
+
+mi:P5S6_SceneCleared a mi:ProcessStep ;
+    rdfs:label   "P5-S6 — Scene Cleared and Certified Safe" ;
+    rdfs:comment "CDA decontamination team certifies the area clean. mi:resolvedAt timestamp recorded." ;
+    mi:stepOrder 6 ;
+    mi:performedBy mi:CDACompliance .
+
+mi:P5S7_CDAReportFiled a mi:ProcessStep ;
+    rdfs:label   "P5-S7 — CDA Compliance Report Filed" ;
+    mi:stepOrder 7 ;
+    mi:performedBy mi:CDACompliance ;
+    mi:produces   mi:CDAComplianceReport .
+
+mi:P5S8_IncidentClosed a mi:ProcessStep ;
+    rdfs:label   "P5-S8 — CDA Incident Closed" ;
+    rdfs:comment "Incident status transitions to mi:Closed (or mi:SubmittedToRegulator once CDA acknowledges)." ;
+    mi:stepOrder 8 ;
+    mi:performedBy mi:CDACompliance .
+
+# ── P6: Performance Review & Ladder Decision ──────────────────────────────────
+
+mi:P6_PerformanceReview a mi:BusinessProcess ;
+    rdfs:label      "P6 — Performance Review and Ladder Decision" ;
+    rdfs:comment    "HR & Training domain process that aggregates PerformanceRecords over a review period, benchmarks against the Laugh Floor leaderboard, and determines promotion, remediation, or dismissal." ;
+    mi:triggeredBy  mi:MonthEndEvent ;
+    mi:consumesInput mi:PerformanceRecord ;
+    mi:hasStep
+        mi:P6S1_AggregateRecords,
+        mi:P6S2_BenchmarkLeaderboard,
+        mi:P6S3_LadderDecision,
+        mi:P6S4_ComedianNotification .
+
+mi:P6S1_AggregateRecords a mi:ProcessStep ;
+    rdfs:label   "P6-S1 — Aggregate Performance Records" ;
+    mi:stepOrder 1 ;
+    mi:performedBy mi:HRTraining ;
+    mi:consumesInput mi:PerformanceRecord .
+
+mi:P6S2_BenchmarkLeaderboard a mi:ProcessStep ;
+    rdfs:label   "P6-S2 — Benchmark Against Laugh Floor Leaderboard" ;
+    mi:stepOrder 2 ;
+    mi:performedBy mi:HRTraining .
+
+mi:P6S3_LadderDecision a mi:ProcessStep ;
+    rdfs:label   "P6-S3 — Promotion / Remediation / Dismissal Decision" ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:HRTraining ;
+    mi:hasException mi:P6SE3a_DismissalEscalation .
+
+mi:P6SE3a_DismissalEscalation a mi:ProcessStep ;
+    rdfs:label   "P6-SE3a — Dismissal Escalation to Chief People Officer" ;
+    rdfs:comment "Exception: if dismissal is recommended, escalate to the Chief People Officer for approval. A wellbeing check (mi:WellbeingPulse) must accompany the recommendation — humans decide, not the optimiser." ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:HRTraining .
+
+mi:P6S4_ComedianNotification a mi:ProcessStep ;
+    rdfs:label   "P6-S4 — Comedian Notified of Outcome" ;
+    mi:stepOrder 4 ;
+    mi:performedBy mi:HRTraining .
+
+# ── P7: R&D Prototype Deployment ─────────────────────────────────────────────
+
+mi:P7_PrototypeDeployment a mi:BusinessProcess ;
+    rdfs:label      "P7 — R&D Prototype Deployment" ;
+    rdfs:comment    "R&D Laughter Initiative domain process that transitions an approved RDPrototype into a controlled pilot on the Laugh Floor, measures yield delta, and feeds results back to the research pipeline." ;
+    mi:triggeredBy  mi:PrototypeClearanceEvent ;
+    mi:consumesInput mi:RDPrototype ;
+    mi:produces     mi:PerformanceRecord ;
+    mi:hasStep
+        mi:P7S1_PrototypeApproved,
+        mi:P7S2_PilotSetup,
+        mi:P7S3_PilotRun,
+        mi:P7S4_YieldMeasurement .
+
+mi:P7S1_PrototypeApproved a mi:ProcessStep ;
+    rdfs:label   "P7-S1 — Prototype Approved and Cleared" ;
+    mi:stepOrder 1 ;
+    mi:performedBy mi:RDLaughter ;
+    mi:consumesInput mi:RDPrototype .
+
+mi:P7S2_PilotSetup a mi:ProcessStep ;
+    rdfs:label   "P7-S2 — Pilot Setup on Laugh Floor" ;
+    mi:stepOrder 2 ;
+    mi:performedBy mi:LaughOperations .
+
+mi:P7S3_PilotRun a mi:ProcessStep ;
+    rdfs:label   "P7-S3 — Controlled Pilot Run" ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:LaughOperations ;
+    mi:produces   mi:PerformanceRecord ;
+    mi:hasException mi:P7SE3a_PilotAbort .
+
+mi:P7SE3a_PilotAbort a mi:ProcessStep ;
+    rdfs:label   "P7-SE3a — Pilot Abort on Negative Yield" ;
+    rdfs:comment "Exception: if the measured yield delta is negative, abort the pilot and return the prototype to R&D for redesign." ;
+    mi:stepOrder 3 ;
+    mi:performedBy mi:RDLaughter .
+
+mi:P7S4_YieldMeasurement a mi:ProcessStep ;
+    rdfs:label   "P7-S4 — Yield Delta Measurement and R&D Feedback" ;
+    mi:stepOrder 4 ;
+    mi:performedBy mi:RDLaughter .

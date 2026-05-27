@@ -1,0 +1,453 @@
+[
+  {
+    "portalCode": "NYC-4821",
+    "ageRange": "5-7",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-30",
+    "assignedComedianId": "EMP-001",
+    "timezone": "America/New_York"
+  },
+  {
+    "portalCode": "NYC-4822",
+    "ageRange": "4-6",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-27",
+    "assignedComedianId": "EMP-002",
+    "timezone": "America/New_York"
+  },
+  {
+    "portalCode": "LAX-0091",
+    "ageRange": "6-8",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-24",
+    "assignedComedianId": "EMP-011",
+    "timezone": "America/Los_Angeles"
+  },
+  {
+    "portalCode": "LAX-0092",
+    "ageRange": "3-5",
+    "bedroomType": "shared",
+    "doorStatus": "maintenance",
+    "lastMaintained": "2026-04-21",
+    "assignedComedianId": null,
+    "timezone": "America/Los_Angeles"
+  },
+  {
+    "portalCode": "CHI-2201",
+    "ageRange": "7-9",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-18",
+    "assignedComedianId": "EMP-012",
+    "timezone": "America/Chicago"
+  },
+  {
+    "portalCode": "CHI-2202",
+    "ageRange": "5-7",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-15",
+    "assignedComedianId": "EMP-014",
+    "timezone": "America/Chicago"
+  },
+  {
+    "portalCode": "LON-0338",
+    "ageRange": "4-6",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-12",
+    "assignedComedianId": "EMP-015",
+    "timezone": "Europe/London"
+  },
+  {
+    "portalCode": "LON-0339",
+    "ageRange": "6-8",
+    "bedroomType": "single",
+    "doorStatus": "quarantined",
+    "lastMaintained": "2026-04-09",
+    "assignedComedianId": null,
+    "timezone": "Europe/London"
+  },
+  {
+    "portalCode": "TKY-0551",
+    "ageRange": "3-5",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-06",
+    "assignedComedianId": "EMP-016",
+    "timezone": "Asia/Tokyo"
+  },
+  {
+    "portalCode": "TKY-0552",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-03",
+    "assignedComedianId": "EMP-017",
+    "timezone": "Asia/Tokyo"
+  },
+  {
+    "portalCode": "SYD-0771",
+    "ageRange": "7-9",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-31",
+    "assignedComedianId": "EMP-018",
+    "timezone": "Australia/Sydney"
+  },
+  {
+    "portalCode": "SYD-0772",
+    "ageRange": "4-6",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-28",
+    "assignedComedianId": "EMP-019",
+    "timezone": "Australia/Sydney"
+  },
+  {
+    "portalCode": "PAR-0101",
+    "ageRange": "6-8",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-25",
+    "assignedComedianId": "EMP-023",
+    "timezone": "Europe/Paris"
+  },
+  {
+    "portalCode": "PAR-0102",
+    "ageRange": "3-5",
+    "bedroomType": "shared",
+    "doorStatus": "decommissioned",
+    "lastMaintained": "2026-03-22",
+    "assignedComedianId": null,
+    "timezone": "Europe/Paris"
+  },
+  {
+    "portalCode": "BER-0214",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-19",
+    "assignedComedianId": "EMP-024",
+    "timezone": "Europe/Berlin"
+  },
+  {
+    "portalCode": "NYC-0099",
+    "ageRange": "6-8",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2023-09-01",
+    "assignedComedianId": "EMP-009",
+    "timezone": "America/New_York",
+    "intentionalViolation": "stale_maintenance_210_days"
+  },
+  {
+    "portalCode": "NYC-1001",
+    "ageRange": "4-6",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-16",
+    "assignedComedianId": null,
+    "timezone": "America/New_York"
+  },
+  {
+    "portalCode": "NYC-1002",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-13",
+    "assignedComedianId": null,
+    "timezone": "America/New_York"
+  },
+  {
+    "portalCode": "LAX-1101",
+    "ageRange": "7-9",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-10",
+    "assignedComedianId": null,
+    "timezone": "America/Los_Angeles"
+  },
+  {
+    "portalCode": "LAX-1102",
+    "ageRange": "3-5",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-07",
+    "assignedComedianId": null,
+    "timezone": "America/Los_Angeles"
+  },
+  {
+    "portalCode": "CHI-3301",
+    "ageRange": "4-6",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-04",
+    "assignedComedianId": null,
+    "timezone": "America/Chicago"
+  },
+  {
+    "portalCode": "LON-0441",
+    "ageRange": "6-8",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-03-01",
+    "assignedComedianId": null,
+    "timezone": "Europe/London"
+  },
+  {
+    "portalCode": "TKY-0661",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "maintenance",
+    "lastMaintained": "2026-02-26",
+    "assignedComedianId": null,
+    "timezone": "Asia/Tokyo"
+  },
+  {
+    "portalCode": "MUM-0881",
+    "ageRange": "4-6",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-02-23",
+    "assignedComedianId": null,
+    "timezone": "Asia/Kolkata"
+  },
+  {
+    "portalCode": "MUM-0882",
+    "ageRange": "3-5",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-02-20",
+    "assignedComedianId": null,
+    "timezone": "Asia/Kolkata"
+  },
+  {
+    "portalCode": "SAO-0991",
+    "ageRange": "6-8",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-02-17",
+    "assignedComedianId": null,
+    "timezone": "America/Sao_Paulo"
+  },
+  {
+    "portalCode": "SAO-0992",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-02-14",
+    "assignedComedianId": null,
+    "timezone": "America/Sao_Paulo"
+  },
+  {
+    "portalCode": "JOH-1111",
+    "ageRange": "7-9",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-02-11",
+    "assignedComedianId": null,
+    "timezone": "Africa/Johannesburg"
+  },
+  {
+    "portalCode": "JOH-1112",
+    "ageRange": "4-6",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-02-08",
+    "assignedComedianId": null,
+    "timezone": "Africa/Johannesburg"
+  },
+  {
+    "portalCode": "SEO-1221",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-02-05",
+    "assignedComedianId": null,
+    "timezone": "Asia/Seoul"
+  },
+  {
+    "portalCode": "SEO-1222",
+    "ageRange": "3-5",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-02-02",
+    "assignedComedianId": null,
+    "timezone": "Asia/Seoul"
+  },
+  {
+    "portalCode": "MEX-1331",
+    "ageRange": "6-8",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-30",
+    "assignedComedianId": null,
+    "timezone": "America/Mexico_City"
+  },
+  {
+    "portalCode": "MEX-1332",
+    "ageRange": "4-6",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-27",
+    "assignedComedianId": null,
+    "timezone": "America/Mexico_City"
+  },
+  {
+    "portalCode": "CAI-1441",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-24",
+    "assignedComedianId": null,
+    "timezone": "Africa/Cairo"
+  },
+  {
+    "portalCode": "CAI-1442",
+    "ageRange": "7-9",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-21",
+    "assignedComedianId": null,
+    "timezone": "Africa/Cairo"
+  },
+  {
+    "portalCode": "TOR-1551",
+    "ageRange": "3-5",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-18",
+    "assignedComedianId": null,
+    "timezone": "America/Toronto"
+  },
+  {
+    "portalCode": "TOR-1552",
+    "ageRange": "5-7",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-15",
+    "assignedComedianId": null,
+    "timezone": "America/Toronto"
+  },
+  {
+    "portalCode": "STO-1661",
+    "ageRange": "6-8",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-12",
+    "assignedComedianId": null,
+    "timezone": "Europe/Stockholm"
+  },
+  {
+    "portalCode": "STO-1662",
+    "ageRange": "4-6",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-09",
+    "assignedComedianId": null,
+    "timezone": "Europe/Stockholm"
+  },
+  {
+    "portalCode": "DUB-1771",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-06",
+    "assignedComedianId": null,
+    "timezone": "Europe/Dublin"
+  },
+  {
+    "portalCode": "DUB-1772",
+    "ageRange": "3-5",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-01-03",
+    "assignedComedianId": null,
+    "timezone": "Europe/Dublin"
+  },
+  {
+    "portalCode": "SIN-1881",
+    "ageRange": "6-8",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2025-12-31",
+    "assignedComedianId": null,
+    "timezone": "Asia/Singapore"
+  },
+  {
+    "portalCode": "SIN-1882",
+    "ageRange": "4-6",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-30",
+    "assignedComedianId": null,
+    "timezone": "Asia/Singapore"
+  },
+  {
+    "portalCode": "AMS-1991",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-27",
+    "assignedComedianId": null,
+    "timezone": "Europe/Amsterdam"
+  },
+  {
+    "portalCode": "AMS-1992",
+    "ageRange": "7-9",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-24",
+    "assignedComedianId": null,
+    "timezone": "Europe/Amsterdam"
+  },
+  {
+    "portalCode": "OSL-2001",
+    "ageRange": "3-5",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-21",
+    "assignedComedianId": null,
+    "timezone": "Europe/Oslo"
+  },
+  {
+    "portalCode": "OSL-2002",
+    "ageRange": "5-7",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-18",
+    "assignedComedianId": null,
+    "timezone": "Europe/Oslo"
+  },
+  {
+    "portalCode": "HEL-2101",
+    "ageRange": "4-6",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-15",
+    "assignedComedianId": null,
+    "timezone": "Europe/Helsinki"
+  },
+  {
+    "portalCode": "HEL-2102",
+    "ageRange": "6-8",
+    "bedroomType": "shared",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-12",
+    "assignedComedianId": null,
+    "timezone": "Europe/Helsinki"
+  },
+  {
+    "portalCode": "WAR-2201",
+    "ageRange": "5-7",
+    "bedroomType": "single",
+    "doorStatus": "active",
+    "lastMaintained": "2026-04-09",
+    "assignedComedianId": null,
+    "timezone": "Europe/Warsaw"
+  }
+]

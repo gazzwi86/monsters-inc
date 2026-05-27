@@ -1,0 +1,136 @@
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+
+# ── Ontology Header ──────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/provenance>
+    a owl:Ontology ;
+    rdfs:label "Monsters, Inc. Provenance — EnergyUnit EU-20240315-042-001" ;
+    rdfs:comment "PROV-O instance file capturing the complete data lineage chain from child laughter capture through canister sealing and energy extraction to grid dispatch." ;
+    owl:versionInfo "0.1.0" ;
+    dct:creator "Monsters, Inc. Enterprise Architecture Team" ;
+    dct:created "2024-03-15T10:26:00Z"^^xsd:dateTime .
+
+# ── Agents ────────────────────────────────────────────────────────────────────
+
+mi:Agent_Sulley a prov:Agent, mi:Comedian ;
+    rdfs:label "James P. 'Sulley' Sullivan" ;
+    mi:employeeId "EMP-001" ;
+    mi:certLevel "5"^^xsd:integer ;
+    owl:sameAs <https://vocab.monstersinc.com/comedian/emp-001> .
+
+mi:Agent_EnergyProcessingPlant a prov:Agent ;
+    rdfs:label "Monsters Inc. Energy Processing Plant" .
+
+mi:Agent_MonstropolisGrid a prov:Agent ;
+    rdfs:label "Monstropolis Power Grid Authority" .
+
+mi:Agent_DoorVault a prov:Agent ;
+    rdfs:label "Door Vault Management System" .
+
+# ── Entities: Infrastructure ──────────────────────────────────────────────────
+
+mi:LaughFloorStation_042 a mi:LaughFloorStation, prov:Entity ;
+    rdfs:label "Laugh Floor Station 042" ;
+    mi:stationId "STATION-042" .
+
+mi:ChildDoor_NYC4821 a mi:ChildDoor, prov:Entity ;
+    rdfs:label "Child Door NYC-4821" ;
+    mi:portalCode "NYC-4821" ;
+    prov:wasGeneratedBy mi:DoorManufacturingActivity .
+
+# ── Activities: Door Manufacturing ───────────────────────────────────────────
+
+mi:DoorManufacturingActivity a prov:Activity ;
+    rdfs:label "Door Manufacturing Activity — NYC-4821" ;
+    prov:wasAssociatedWith mi:Agent_DoorVault .
+
+# ── Activities: Shift Start ───────────────────────────────────────────────────
+
+mi:ShiftStartActivity a prov:Activity ;
+    rdfs:label "AM Shift Start — 2024-03-15" ;
+    prov:startedAtTime "2024-03-15T08:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2024-03-15T09:00:00Z"^^xsd:dateTime .
+
+# ── Entity: ChildLaugh ────────────────────────────────────────────────────────
+
+mi:ChildLaugh_20240315_042 a prov:Entity ;
+    rdfs:label "Child Laugh captured at Station 042 — 2024-03-15" ;
+    prov:wasGeneratedBy mi:LaughCollectionActivity .
+
+mi:LaughCollectionActivity prov:generated mi:ChildLaugh_20240315_042 .
+
+# ── Activity: Laugh Collection ────────────────────────────────────────────────
+
+mi:LaughCollectionActivity a prov:Activity ;
+    rdfs:label "Laugh Collection Activity — Station 042" ;
+    prov:wasAssociatedWith mi:Agent_Sulley ;
+    prov:used mi:LaughFloorStation_042 ;
+    prov:used mi:ChildDoor_NYC4821 ;
+    prov:wasInformedBy mi:ShiftStartActivity ;
+    prov:startedAtTime "2024-03-15T09:00:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2024-03-15T09:47:00Z"^^xsd:dateTime .
+
+# ── Entity: LaughCanister ─────────────────────────────────────────────────────
+
+mi:LaughCanister_CAN20240315042 a mi:LaughCanister, prov:Entity ;
+    rdfs:label "Laugh Canister CAN-20240315-042" ;
+    mi:fillLevel    "1.0"^^xsd:decimal ;
+    mi:sealStatus   "true"^^xsd:boolean ;
+    mi:capacity     "14.5"^^xsd:decimal ;
+    mi:energyType   mi:laughEnergy ;
+    prov:wasDerivedFrom mi:ChildLaugh_20240315_042 ;
+    prov:wasGeneratedBy mi:CanisterSealingActivity .
+
+# ── Activity: Canister Sealing ────────────────────────────────────────────────
+
+mi:CanisterSealingActivity a prov:Activity ;
+    rdfs:label "Canister Sealing Activity — CAN-20240315-042" ;
+    prov:wasAssociatedWith mi:Agent_Sulley ;
+    prov:wasAssociatedWith mi:LaughFloorStation_042 ;
+    prov:wasAssociatedWith mi:ChildDoor_NYC4821 ;
+    prov:generated mi:LaughCanister_CAN20240315042 ;
+    prov:startedAtTime "2024-03-15T09:47:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2024-03-15T09:48:30Z"^^xsd:dateTime .
+
+# ── Activity: Energy Extraction ───────────────────────────────────────────────
+
+mi:EnergyExtractionActivity a prov:Activity ;
+    rdfs:label "Energy Extraction Activity — CAN-20240315-042" ;
+    prov:used mi:LaughCanister_CAN20240315042 ;
+    prov:wasAssociatedWith mi:Agent_EnergyProcessingPlant ;
+    prov:startedAtTime "2024-03-15T10:15:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2024-03-15T10:22:00Z"^^xsd:dateTime .
+
+# ── Entity: EnergyUnit ────────────────────────────────────────────────────────
+
+mi:EnergyUnit_EU20240315042001 a mi:EnergyUnit, prov:Entity ;
+    rdfs:label "Energy Unit EU-20240315-042-001" ;
+    mi:megawattHours "14.5"^^xsd:decimal ;
+    mi:generatedAt   "2024-03-15T10:22:00Z"^^xsd:dateTime ;
+    mi:gridZone      "Zone-A" ;
+    prov:wasDerivedFrom mi:LaughCanister_CAN20240315042 ;
+    prov:wasGeneratedBy mi:EnergyExtractionActivity .
+
+mi:EnergyExtractionActivity prov:generated mi:EnergyUnit_EU20240315042001 .
+
+# ── Activity: Grid Dispatch ───────────────────────────────────────────────────
+
+mi:GridDispatchActivity a prov:Activity ;
+    rdfs:label "Grid Dispatch Activity — EU-20240315-042-001" ;
+    prov:used mi:EnergyUnit_EU20240315042001 ;
+    prov:wasAssociatedWith mi:Agent_MonstropolisGrid ;
+    prov:startedAtTime "2024-03-15T10:25:00Z"^^xsd:dateTime ;
+    prov:endedAtTime   "2024-03-15T10:26:00Z"^^xsd:dateTime .
+
+# ── Provenance Bundle ─────────────────────────────────────────────────────────
+
+mi:EnergyLineageBundle a prov:Bundle ;
+    rdfs:label "Provenance bundle for EnergyUnit EU-20240315-042-001" ;
+    dct:created "2024-03-15T10:26:00Z"^^xsd:dateTime ;
+    prov:wasGeneratedBy mi:GridDispatchActivity .

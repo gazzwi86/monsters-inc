@@ -1,0 +1,352 @@
+# =============================================================================
+# Monsters, Inc. — Business Questions SPARQL Queries
+# Base ontology: https://vocab.monstersinc.com/ontology#
+# Each query is standalone with full PREFIX declarations.
+# =============================================================================
+
+
+# Q1: Top 10 comedians by energy yield this month
+# Business question: Who are the highest-producing comedians this month?
+# Returns: comedian name, cert level, total MWh, ranked by descending yield
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?name ?certLevel (SUM(?mwh) AS ?totalMWh)
+WHERE {
+    ?comedian a mi:Comedian ;
+              mi:name ?name ;
+              mi:certLevel ?certLevel .
+    ?record a mi:PerformanceRecord ;
+            mi:comedian ?comedian ;
+            mi:date ?date ;
+            mi:energyGenerated ?mwh .
+    FILTER (MONTH(?date) = MONTH(NOW()) && YEAR(?date) = YEAR(NOW()))
+}
+GROUP BY ?comedian ?name ?certLevel
+ORDER BY DESC(?totalMWh)
+LIMIT 10
+
+
+# Q2: Doors with maintenance overdue (last maintained more than 180 days ago)
+# Business question: Which active child doors are past their maintenance window?
+# Returns: door URI, portal code, last maintained date, days overdue
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?door (STR(?portalCode) AS ?portalCode) (STR(?lastMaintained) AS ?lastMaintainedDate)
+WHERE {
+    ?door a mi:ChildDoor ;
+          mi:portalCode ?portalCode ;
+          mi:lastMaintained ?lastMaintained .
+    FILTER (xsd:dateTime(CONCAT(STR(?lastMaintained), "T00:00:00Z")) < (NOW() - "P180D"^^xsd:duration))
+}
+ORDER BY ASC(?lastMaintained)
+
+
+# Q3: CDA incidents per quarter (last 4 quarters)
+# Business question: How many CDA incidents occurred each quarter?
+# Returns: year, quarter (1–4), incident count
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?year ?quarter (COUNT(?incident) AS ?incidentCount)
+WHERE {
+    ?incident a mi:CDAIncident ;
+              mi:detectedAt ?detectedAt .
+    BIND(YEAR(?detectedAt) AS ?year)
+    BIND((FLOOR((MONTH(?detectedAt) - 1) / 3) + 1) AS ?quarter)
+    FILTER (?detectedAt >= (NOW() - "P365D"^^xsd:duration))
+}
+GROUP BY ?year ?quarter
+ORDER BY ASC(?year) ASC(?quarter)
+
+
+# Q4: Average laugh-to-energy conversion rate by comedian certification level
+# Business question: Do higher-certified comedians convert laughter to energy more efficiently?
+# Returns: cert level, average conversion rate (MWh per laugh unit)
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?certLevel (AVG(?conversionRate) AS ?avgConversionRate)
+WHERE {
+    ?comedian a mi:Comedian ;
+              mi:certLevel ?certLevel .
+    ?record a mi:PerformanceRecord ;
+            mi:comedian ?comedian ;
+            mi:laughScore ?laughScore ;
+            mi:energyGenerated ?energyGenerated .
+    FILTER (?laughScore > 0)
+    BIND((?energyGenerated / ?laughScore) AS ?conversionRate)
+}
+GROUP BY ?certLevel
+ORDER BY ASC(?certLevel)
+
+
+# Q5: Training certifications expiring in the next 30 days
+# Business question: Which comedians need to renew certifications urgently?
+# Returns: comedian name, cert level, training record, expiry date
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?comedianName ?certLevel ?trainingRecord ?expiresAt
+WHERE {
+    ?comedian a mi:Comedian ;
+              mi:name ?comedianName ;
+              mi:certLevel ?certLevel .
+    ?trainingRecord a mi:TrainingRecord ;
+                    mi:trainee ?comedian ;
+                    mi:expiresAt ?expiresAt .
+    BIND(xsd:dateTime(CONCAT(STR(?expiresAt), "T00:00:00Z")) AS ?expDateTime)
+    FILTER (?expDateTime > NOW())
+    FILTER (?expDateTime <= (NOW() + "P30D"^^xsd:duration))
+}
+ORDER BY ASC(?expiresAt)
+
+
+# Q6: Monthly energy production trend (last 12 months, MWh)
+# Business question: What is the month-by-month energy output trajectory?
+# Returns: year, month, total MWh produced
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?year ?month (SUM(?mwh) AS ?totalMWh)
+WHERE {
+    ?record a mi:PerformanceRecord ;
+            mi:date ?date ;
+            mi:energyGenerated ?mwh .
+    BIND(YEAR(?date)  AS ?year)
+    BIND(MONTH(?date) AS ?month)
+    FILTER (xsd:dateTime(CONCAT(STR(?date), "T00:00:00Z")) >= (NOW() - "P365D"^^xsd:duration))
+}
+GROUP BY ?year ?month
+ORDER BY ASC(?year) ASC(?month)
+
+
+# Q7: Child profiles assigned to more than one door (data integrity check)
+# Business question: Are there duplicate door-to-child-profile assignments?
+# Returns: child profile URI, count of doors assigned
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?childProfile (COUNT(?door) AS ?doorCount)
+WHERE {
+    ?door a mi:ChildDoor ;
+          mi:childProfile ?childProfile .
+}
+GROUP BY ?childProfile
+HAVING (COUNT(?door) > 1)
+ORDER BY DESC(?doorCount)
+
+
+# Q8: Full PROV-O lineage chain for a given EnergyUnit
+# Business question: What is the complete provenance chain from laugh to grid energy?
+# Returns: energy unit, source canister, derived laugh canister, laugh activity,
+#          associated comedian, station, and door
+# Note: Requires mi-provenance.ttl to be loaded into the graph.
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?energyUnit ?sourceCanister ?sealingActivity ?comedian ?station ?door
+WHERE {
+    ?energyUnit a mi:EnergyUnit ;
+                prov:wasDerivedFrom ?sourceCanister .
+    ?sourceCanister a mi:LaughCanister .
+    OPTIONAL {
+        ?sealingActivity a prov:Activity ;
+                       prov:generated ?sourceCanister .
+        OPTIONAL { ?sealingActivity prov:wasAssociatedWith ?comedian .
+                   ?comedian a mi:Comedian . }
+        OPTIONAL { ?sealingActivity prov:wasAssociatedWith ?station .
+                   ?station a mi:LaughFloorStation . }
+        OPTIONAL { ?sealingActivity prov:wasAssociatedWith ?door .
+                   ?door a mi:ChildDoor . }
+    }
+}
+ORDER BY ?energyUnit
+
+
+# Q9: Shared child profiles — full door and profile detail
+# Business question: Which child profiles span more than one door, and what do we know about them?
+# Returns: one row per door assignment — portal code, door status, profile attributes, total door count
+# Note: shared-profile-001 has intentionally inconsistent ageRange/timezone values (data quality anomaly)
+
+PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+
+SELECT (STRAFTER(STR(?childProfile), "/profile/") AS ?profileId) ?portalCode ?doorStatus ?ageRange ?bedroomType ?timezone ?totalDoors
+WHERE {
+    {
+        SELECT ?childProfile (COUNT(?d) AS ?totalDoors)
+        WHERE {
+            ?d a mi:ChildDoor ;
+               mi:childProfile ?childProfile .
+        }
+        GROUP BY ?childProfile
+        HAVING (COUNT(?d) > 1)
+    }
+    ?door a mi:ChildDoor ;
+          mi:childProfile ?childProfile ;
+          mi:portalCode ?portalCode ;
+          mi:doorStatus ?rawStatus .
+    BIND(STRAFTER(STR(?rawStatus), "#") AS ?doorStatus)
+    OPTIONAL { ?childProfile mi:ageRange ?ageRange }
+    OPTIONAL { ?childProfile mi:bedroomType ?bedroomType }
+    OPTIONAL { ?childProfile mi:timezone ?timezone }
+}
+ORDER BY ?childProfile ?portalCode
+
+
+# Q10: Live Laugh Floor map — comedian, station, and active door
+# Business question: What is the current operational layout of the Laugh Floor?
+# Returns: station ID, comedian name, cert level, current laugh score, portal code, door status
+
+PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?stationId ?comedianName ?certLevel ?currentLaughScore ?portalCode ?doorStatus
+WHERE {
+    ?station a mi:LaughFloorStation ;
+             mi:stationId ?stationId ;
+             mi:assignedComedian ?comedian .
+    ?comedian a mi:Comedian ;
+              mi:name ?comedianName ;
+              mi:certLevel ?certLevel ;
+              mi:currentLaughScore ?currentLaughScore .
+    OPTIONAL {
+        ?station mi:activeDoor ?door .
+        ?door mi:portalCode ?portalCode ;
+              mi:doorStatus ?rawStatus .
+        BIND(STRAFTER(STR(?rawStatus), "#") AS ?doorStatus)
+    }
+}
+ORDER BY ?stationId
+
+
+# Q11: Idle stations — comedians on duty without an active door assigned
+# Business question: Which laugh floor stations are staffed but have no door active?
+# Returns: station ID, comedian name, cert level, shift — these stations contribute zero energy
+
+PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?stationId ?comedianName ?certLevel (STRAFTER(STR(?shift), "#") AS ?shift)
+WHERE {
+    ?station a mi:LaughFloorStation ;
+             mi:stationId ?stationId ;
+             mi:shift ?shift ;
+             mi:assignedComedian ?comedian .
+    ?comedian a mi:Comedian ;
+              mi:name ?comedianName ;
+              mi:certLevel ?certLevel .
+    FILTER NOT EXISTS { ?station mi:activeDoor ?door }
+}
+ORDER BY ?stationId
+
+
+# Q12: Door status inventory — count of doors by operational status
+# Business question: How many doors are in each status category right now?
+# Returns: status label, count — active/maintenance/quarantined/decommissioned breakdown
+
+PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT (STRAFTER(STR(?rawStatus), "#") AS ?doorStatus) (COUNT(?door) AS ?doorCount)
+WHERE {
+    ?door a mi:ChildDoor ;
+          mi:doorStatus ?rawStatus .
+}
+GROUP BY ?rawStatus
+ORDER BY DESC(?doorCount)
+
+
+# Q13: Comedian laugh score drift — current score vs historical performance average
+# Business question: Which comedians are trending above or below their own historical baseline?
+# Returns: comedian name, cert level, current live score, historical average, drift (positive = improving)
+
+PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?comedianName ?certLevel ?currentLaughScore
+       (ROUND(AVG(?recordedScore) * 100) / 100 AS ?avgHistoricalScore)
+       (ROUND((?currentLaughScore - AVG(?recordedScore)) * 100) / 100 AS ?scoreDrift)
+WHERE {
+    ?comedian a mi:Comedian ;
+              mi:name ?comedianName ;
+              mi:certLevel ?certLevel ;
+              mi:currentLaughScore ?currentLaughScore .
+    ?record a mi:PerformanceRecord ;
+            mi:comedian ?comedian ;
+            mi:laughScore ?recordedScore .
+}
+GROUP BY ?comedian ?comedianName ?certLevel ?currentLaughScore
+ORDER BY ASC(?scoreDrift)
+
+
+# Q14: Comedians with no performance records on file
+# Business question: Are there active comedians who have never had a performance logged?
+# Returns: employee ID, name, cert level, current laugh score — expected 0 rows confirms 100% coverage
+
+PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?employeeId ?comedianName ?certLevel ?currentLaughScore
+WHERE {
+    ?comedian a mi:Comedian ;
+              mi:employeeId ?employeeId ;
+              mi:name ?comedianName ;
+              mi:certLevel ?certLevel .
+    OPTIONAL { ?comedian mi:currentLaughScore ?currentLaughScore }
+    FILTER NOT EXISTS {
+        ?record a mi:PerformanceRecord ;
+                mi:comedian ?comedian .
+    }
+}
+ORDER BY ?employeeId
+
+
+# Q15: Direct reports to the CEO — first-level organisational hierarchy
+# Business question: Who are the direct reports to James P. Sullivan, and what domains do they own?
+# Returns: employee ID, name, title role, department — the executive team reporting line
+
+PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?employeeId ?name
+       (STRAFTER(STR(?rawRole), "#") AS ?titleRole)
+       (STRAFTER(STR(?rawDept), "#") AS ?domain)
+WHERE {
+    ?employee mi:reportsTo <https://vocab.monstersinc.com/comedian/emp-001> ;
+              mi:name ?name ;
+              mi:employeeId ?employeeId .
+    OPTIONAL { ?employee mi:holdsTitleRole ?rawRole }
+    OPTIONAL { ?employee mi:department ?rawDept }
+}
+ORDER BY ?employeeId
+
+
+# Q16: Strategy traceability — goal → capability → process → owning domain
+# Business question: For each strategic goal, which capabilities serve it, which
+#   business processes realise those capabilities, and which domain owns them?
+# Returns: goal, capability, realising process, owning domain
+# Demonstrates the strategy→capability→process chain is connected in RDF, not
+# just prose — an agent can reason from intent down to execution.
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?goal ?capability ?process (STRAFTER(STR(?domain), "#") AS ?owningDomain)
+WHERE {
+    ?cap a mi:Capability ;
+         rdfs:label ?capability ;
+         mi:servesGoal ?g ;
+         mi:ownedByDomain ?domain .
+    ?g rdfs:label ?goal .
+    ?proc a mi:BusinessProcess ;
+          rdfs:label ?process ;
+          mi:realizesCapability ?cap .
+}
+ORDER BY ?goal ?capability

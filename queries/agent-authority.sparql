@@ -1,0 +1,120 @@
+# =============================================================================
+# Monsters, Inc. — Agent Authority & Human-in-the-Loop Queries
+# These queries prove that an autonomous agent can consume mi-agent-model.ttl to
+# resolve: "may I perform action A on entity E?", "must I escalate to a human?",
+# and "is this step safe to automate?" — the core of safe agent orchestration.
+# Base ontology: https://vocab.monstersinc.com/ontology#
+# =============================================================================
+
+
+# AA1: Authorisation decision — which named employees satisfy each permission?
+# Question: For every policy permission, which real employee (resolved via their
+#   title role's authority level) is ALLOWed, and where is the effect a DENY?
+# Returns: employee, role, action, entity class, effect, decision
+# An agent runs this to answer "may employee E do action A on entity-class C?"
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?employee (STRAFTER(STR(?role), "#") AS ?role) ?action
+       (STRAFTER(STR(?entity), "#") AS ?onEntity) ?effect ?decision
+WHERE {
+    ?policy a mi:Policy ; mi:hasPermission ?perm .
+    ?perm mi:action ?action ;
+          mi:effect ?effect ;
+          mi:onEntity ?entity ;
+          mi:requiresRole ?reqRole ;
+          mi:authorityLevel ?reqAuth .
+    ?emp mi:holdsTitleRole ?role ; mi:name ?employee .
+    ?role mi:authorityLevel ?empAuth .
+    FILTER (?role = ?reqRole)
+    BIND(IF(?effect = "deny", "DENY (explicit prohibition)",
+         IF(?empAuth >= ?reqAuth, "ALLOW", "DENY (insufficient authority)")) AS ?decision)
+}
+ORDER BY ?onEntity ?employee
+
+
+# AA2: Which human-in-the-loop triggers fire at each process step?
+# Question: When an agent reaches a process step, what HITL triggers must it
+#   evaluate, who does each escalate to, and within what deadline?
+# Returns: process step, trigger, escalates-to role, escalation deadline
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT (STRAFTER(STR(?step), "#") AS ?processStep) ?trigger
+       (STRAFTER(STR(?role), "#") AS ?escalatesTo) ?deadline
+WHERE {
+    ?t a mi:HITLTrigger ;
+       rdfs:label ?trigger ;
+       mi:triggeredByStep ?step ;
+       mi:escalatesTo ?role ;
+       mi:escalationDeadline ?deadline .
+}
+ORDER BY ?processStep
+
+
+# AA3: Human-only vs agent-executable steps across all processes
+# Question: Which process steps may an agent execute autonomously, and which
+#   MUST be performed by a human? (false = human-only)
+# Returns: process step, automatable flag, step label
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT (STRAFTER(STR(?step), "#") AS ?processStep) ?automatable ?stepLabel
+WHERE {
+    ?step a mi:ProcessStep ;
+          mi:automatable ?automatable ;
+          rdfs:label ?stepLabel .
+}
+ORDER BY ?automatable ?processStep
+
+
+# AA4: Escalation coverage gaps (governance self-check)
+# Question: Does every HITL trigger have a target, a deadline AND a binding
+#   to a process step? Any row = an incomplete trigger an agent cannot action.
+# Returns: trigger, the missing element. Expected: 0 rows.
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?trigger ?missing
+WHERE {
+    ?trigger a mi:HITLTrigger .
+    {
+        FILTER NOT EXISTS { ?trigger mi:escalatesTo ?r }
+        BIND("missing escalatesTo" AS ?missing)
+    } UNION {
+        FILTER NOT EXISTS { ?trigger mi:escalationDeadline ?d }
+        BIND("missing escalationDeadline" AS ?missing)
+    } UNION {
+        FILTER NOT EXISTS { ?trigger mi:triggeredByStep ?s }
+        BIND("missing triggeredByStep" AS ?missing)
+    }
+}
+ORDER BY ?trigger
+
+
+# AA5: Sensitive-data disclosure policy — who may read sensitive personal data?
+# Question: Which entity classes are SensitivePersonalData, and which role (if
+#   any) is permitted to read them? A class with no read permission = default deny.
+# Returns: sensitive class, role permitted to read, effect
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+
+SELECT (STRAFTER(STR(?entity), "#") AS ?sensitiveClass)
+       (STRAFTER(STR(?role), "#") AS ?readPermittedRole) ?effect
+WHERE {
+    ?entity a owl:Class ;
+            mi:dataClassification mi:SensitivePersonalData .
+    OPTIONAL {
+        ?policy mi:hasPermission ?perm .
+        ?perm mi:onEntity ?entity ;
+              mi:action "read" ;
+              mi:requiresRole ?role ;
+              mi:effect ?effect .
+    }
+}
+ORDER BY ?sensitiveClass

@@ -1,0 +1,125 @@
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+
+# ── Ontology Header ───────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/ontology/motivation>
+    a owl:Ontology ;
+    owl:imports <https://vocab.monstersinc.com/ontology> ,
+                <https://vocab.monstersinc.com/ontology/process> ;
+    rdfs:label "Monsters, Inc. Motivation & Capability Ontology" ;
+    rdfs:comment "ArchiMate-style Strategy/Motivation layer: Drivers, Goals, Outcomes and Capabilities, and the realizesCapability/servesGoal links that connect strategy → capability → process → data into one queryable chain." ;
+    owl:versionInfo "0.1.0" ;
+    dct:creator "Monsters, Inc. Enterprise Architecture Team" .
+
+# ── Motivation classes (ArchiMate Motivation layer) ───────────────────────────
+
+mi:Driver  a owl:Class ; rdfs:label "Driver" ;
+    rdfs:comment "An external or internal force that motivates the organisation (e.g. regulation, demand, culture change)." .
+mi:Goal    a owl:Class ; rdfs:label "Goal" ;
+    rdfs:comment "A high-level strategic intent the organisation pursues." .
+mi:Outcome a owl:Class ; rdfs:label "Outcome" ;
+    rdfs:comment "An end result or benefit that achieving a goal delivers." .
+mi:Capability a owl:Class ; rdfs:label "Capability" ;
+    rdfs:comment "An ability the organisation possesses, realised by processes/services and owned by a domain." .
+
+# ── Motivation / capability properties ────────────────────────────────────────
+
+mi:drivenBy a owl:ObjectProperty ;
+    rdfs:domain mi:Goal ; rdfs:range mi:Driver ; rdfs:label "driven by" .
+mi:deliversOutcome a owl:ObjectProperty ;
+    rdfs:domain mi:Goal ; rdfs:range mi:Outcome ; rdfs:label "delivers outcome" .
+mi:servesGoal a owl:ObjectProperty ;
+    rdfs:domain mi:Capability ; rdfs:range mi:Goal ; rdfs:label "serves goal" .
+mi:realizesCapability a owl:ObjectProperty ;
+    rdfs:domain mi:BusinessProcess ; rdfs:range mi:Capability ; rdfs:label "realizes capability" .
+mi:capabilityMaturity a owl:DatatypeProperty ;
+    rdfs:domain mi:Capability ; rdfs:range xsd:integer ; rdfs:label "capability maturity (1–5)" .
+mi:ownedByDomain a owl:ObjectProperty ;
+    rdfs:domain mi:Capability ; rdfs:range mi:Domain ; rdfs:label "owned by domain" .
+
+# ── Drivers ───────────────────────────────────────────────────────────────────
+
+mi:Driver_EnergyShortage a mi:Driver ; rdfs:label "Monstropolis Energy Shortage" .
+mi:Driver_Regulation     a mi:Driver ; rdfs:label "CDA Regulatory Mandate" .
+mi:Driver_CultureShift   a mi:Driver ; rdfs:label "Scaring → Laughter Culture Transformation" .
+
+# ── Outcomes ──────────────────────────────────────────────────────────────────
+
+mi:Outcome_GridSupply    a mi:Outcome ; rdfs:label "Reliable clean energy supply to the Monstropolis grid" .
+mi:Outcome_ZeroIncidents a mi:Outcome ; rdfs:label "Zero unreported / late CDA incidents" .
+mi:Outcome_Retention     a mi:Outcome ; rdfs:label "High comedian retention and wellbeing" .
+
+# ── Goals (Strategy pillar) ───────────────────────────────────────────────────
+
+mi:Goal_CleanEnergy a mi:Goal ;
+    rdfs:label "Maximise clean laugh-energy output" ;
+    mi:drivenBy mi:Driver_EnergyShortage ;
+    mi:deliversOutcome mi:Outcome_GridSupply .
+
+mi:Goal_Compliance a mi:Goal ;
+    rdfs:label "Maintain full CDA regulatory compliance" ;
+    mi:drivenBy mi:Driver_Regulation ;
+    mi:deliversOutcome mi:Outcome_ZeroIncidents .
+
+mi:Goal_WorkerWellbeing a mi:Goal ;
+    rdfs:label "Protect worker wellbeing and psychological safety" ;
+    mi:drivenBy mi:Driver_CultureShift ;
+    mi:deliversOutcome mi:Outcome_Retention .
+
+mi:Goal_Innovation a mi:Goal ;
+    rdfs:label "Lead laughter-technique innovation" ;
+    mi:drivenBy mi:Driver_CultureShift .
+
+# ── Capabilities (the docs/02 inventory, now as queryable individuals) ────────
+
+mi:Cap_LaughEnergyCapture a mi:Capability ; rdfs:label "Laugh Energy Capture" ;
+    mi:capabilityMaturity 5 ; mi:ownedByDomain mi:LaughOperations ;
+    mi:servesGoal mi:Goal_CleanEnergy .
+mi:Cap_DoorPortalOperations a mi:Capability ; rdfs:label "Door Portal Operations" ;
+    mi:capabilityMaturity 4 ; mi:ownedByDomain mi:DoorManagement ;
+    mi:servesGoal mi:Goal_CleanEnergy .
+mi:Cap_EnergyProcessing a mi:Capability ; rdfs:label "Energy Processing" ;
+    mi:capabilityMaturity 4 ; mi:ownedByDomain mi:EnergyProduction ;
+    mi:servesGoal mi:Goal_CleanEnergy .
+mi:Cap_EnergyGridIntegration a mi:Capability ; rdfs:label "Energy Grid Integration" ;
+    mi:capabilityMaturity 4 ; mi:ownedByDomain mi:EnergyProduction ;
+    mi:servesGoal mi:Goal_CleanEnergy .
+mi:Cap_CDACompliance a mi:Capability ; rdfs:label "CDA Compliance" ;
+    mi:capabilityMaturity 3 ; mi:ownedByDomain mi:CDACompliance ;
+    mi:servesGoal mi:Goal_Compliance .
+mi:Cap_RegulatoryReporting a mi:Capability ; rdfs:label "Regulatory Reporting" ;
+    mi:capabilityMaturity 3 ; mi:ownedByDomain mi:CDACompliance ;
+    mi:servesGoal mi:Goal_Compliance .
+mi:Cap_ComedianRecruitment a mi:Capability ; rdfs:label "Comedian Recruitment" ;
+    mi:capabilityMaturity 3 ; mi:ownedByDomain mi:HRTraining ;
+    mi:servesGoal mi:Goal_WorkerWellbeing .
+mi:Cap_ComedianTraining a mi:Capability ; rdfs:label "Comedian Training & Certification" ;
+    mi:capabilityMaturity 4 ; mi:ownedByDomain mi:HRTraining ;
+    mi:servesGoal mi:Goal_WorkerWellbeing, mi:Goal_CleanEnergy .
+mi:Cap_DoorMaintenance a mi:Capability ; rdfs:label "Door Maintenance" ;
+    mi:capabilityMaturity 3 ; mi:ownedByDomain mi:DoorManagement ;
+    mi:servesGoal mi:Goal_Compliance .
+mi:Cap_PerformanceAnalytics a mi:Capability ; rdfs:label "Performance Analytics" ;
+    mi:capabilityMaturity 2 ; mi:ownedByDomain mi:LaughOperations ;
+    mi:servesGoal mi:Goal_WorkerWellbeing .
+mi:Cap_LaughYieldOptimisation a mi:Capability ; rdfs:label "Laugh Yield Optimisation" ;
+    mi:capabilityMaturity 2 ; mi:ownedByDomain mi:RDLaughter ;
+    mi:servesGoal mi:Goal_Innovation, mi:Goal_CleanEnergy .
+mi:Cap_LaughterRD a mi:Capability ; rdfs:label "Laughter Technique R&D" ;
+    mi:capabilityMaturity 2 ; mi:ownedByDomain mi:RDLaughter ;
+    mi:servesGoal mi:Goal_Innovation .
+
+# ── Process → Capability realisation (closes the chain) ───────────────────────
+
+mi:P1_DailyLaughRun        mi:realizesCapability mi:Cap_LaughEnergyCapture .
+mi:P2_DoorDispatch         mi:realizesCapability mi:Cap_DoorPortalOperations .
+mi:P3_EnergyProcessing     mi:realizesCapability mi:Cap_EnergyProcessing, mi:Cap_EnergyGridIntegration .
+mi:P4_ComedianOnboarding   mi:realizesCapability mi:Cap_ComedianTraining, mi:Cap_ComedianRecruitment .
+mi:P5_CDADecontamination   mi:realizesCapability mi:Cap_CDACompliance .
+mi:P6_PerformanceReview    mi:realizesCapability mi:Cap_PerformanceAnalytics .
+mi:P7_PrototypeDeployment  mi:realizesCapability mi:Cap_LaughterRD, mi:Cap_LaughYieldOptimisation .

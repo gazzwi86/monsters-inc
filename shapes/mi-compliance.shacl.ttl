@@ -1,0 +1,170 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ── Prefix Declaration Block (for sh:prefixes references) ────────────────────
+
+mi: sh:declare [
+    sh:prefix "mi" ;
+    sh:namespace "https://vocab.monstersinc.com/ontology#"^^xsd:anyURI
+] .
+
+# ============================================================================
+# CDA Compliance SHACL Shapes
+# These shapes enforce Child Detection Agency (CDA) regulatory constraints.
+# All three shapes apply cross-domain: D5 (Compliance) touches D3 (Doors)
+# and D1 (Canisters) through direct property constraints and SPARQL rules.
+# ============================================================================
+
+# ============================================================================
+# Shape C1: CDAIncidentCompleteShape
+# Ensures every CDA Incident has all mandatory fields required for regulatory
+# submission: incidentCode, severity (1–5), reportedAt, detectedAt, involvedDoor.
+# ============================================================================
+
+mi:CDAIncidentCompleteShape a sh:NodeShape ;
+    sh:targetClass mi:CDAIncident ;
+    sh:name "CDA Incident Completeness Shape" ;
+
+    sh:property [
+        sh:path mi:incidentCode ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "CDAIncident must have an incidentCode for regulatory tracking."
+    ] ;
+
+    sh:property [
+        sh:path mi:severity ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:severity sh:Violation ;
+        sh:message "CDAIncident severity must be an integer between 1 and 5."
+    ] ;
+
+    sh:property [
+        sh:path mi:reportedAt ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "CDAIncident must have a reportedAt dateTime."
+    ] ;
+
+    sh:property [
+        sh:path mi:detectedAt ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "CDAIncident must have a detectedAt dateTime."
+    ] ;
+
+    sh:property [
+        sh:path mi:involvedDoor ;
+        sh:minCount 1 ;
+        sh:class mi:ChildDoor ;
+        sh:severity sh:Warning ;
+        sh:message "CDAIncident should reference an involved ChildDoor where known."
+    ] .
+
+# ============================================================================
+# Shape C2: DoorContaminationShape
+# Any ChildDoor implicated in a CDA Incident must be placed in quarantined
+# status. This is a SPARQL-based cross-resource check (D3 ↔ D5).
+# ============================================================================
+
+mi:DoorContaminationShape a sh:NodeShape ;
+    sh:targetClass mi:ChildDoor ;
+    sh:name "Door Contamination Quarantine Shape" ;
+
+    sh:sparql [
+        sh:message "ChildDoor {$this} is involved in a CDA incident but has not been quarantined (doorStatus must be mi:quarantined)." ;
+        sh:severity sh:Violation ;
+        sh:prefixes mi: ;
+        sh:select """
+            PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+            SELECT $this
+            WHERE {
+                ?incident a mi:CDAIncident ;
+                          mi:involvedDoor $this .
+                FILTER NOT EXISTS {
+                    $this mi:doorStatus mi:quarantined .
+                }
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# Shape C3: CanisterHandlingShape
+# LaughCanisters must have a sealed status, a positive fill level, and a
+# declared energy type before any dispatch or transport operation.
+# ============================================================================
+
+mi:CanisterHandlingShape a sh:NodeShape ;
+    sh:targetClass mi:LaughCanister ;
+    sh:name "Canister Handling Compliance Shape" ;
+
+    sh:property [
+        sh:path mi:sealStatus ;
+        sh:minCount 1 ;
+        sh:hasValue "true"^^xsd:boolean ;
+        sh:severity sh:Violation ;
+        sh:message "LaughCanister sealStatus must be true for CDA-compliant handling."
+    ] ;
+
+    sh:property [
+        sh:path mi:fillLevel ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:severity sh:Violation ;
+        sh:message "LaughCanister must declare a fillLevel for CDA-compliant handling."
+    ] ;
+
+    sh:sparql [
+        sh:message "LaughCanister {$this} has a fillLevel of 0.0 or less — cannot be dispatched." ;
+        sh:severity sh:Violation ;
+        sh:prefixes mi: ;
+        sh:select """
+            PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this ?fillLevel
+            WHERE {
+                $this mi:fillLevel ?fillLevel .
+                FILTER (?fillLevel <= 0.0)
+            }
+        """ ;
+    ] ;
+
+    sh:property [
+        sh:path mi:energyType ;
+        sh:minCount 1 ;
+        sh:class mi:EnergyType ;
+        sh:severity sh:Violation ;
+        sh:message "LaughCanister must declare an energyType (mi:laughEnergy or mi:screamEnergy) for CDA-compliant handling."
+    ] .
+
+# ============================================================================
+# Shape C4: CDAIncidentLifecycleShape (3.3)
+# A CDAIncident with status mi:Closed must have a resolvedAt timestamp.
+# ============================================================================
+
+mi:CDAIncidentLifecycleShape a sh:NodeShape ;
+    sh:targetClass mi:CDAIncident ;
+    sh:name "CDA Incident Lifecycle Shape" ;
+
+    sh:sparql [
+        sh:message "CDAIncident {$this} is marked Closed but has no resolvedAt timestamp." ;
+        sh:severity sh:Violation ;
+        sh:prefixes mi: ;
+        sh:select """
+            PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+            SELECT $this
+            WHERE {
+                $this mi:incidentStatus mi:Closed .
+                FILTER NOT EXISTS { $this mi:resolvedAt ?t }
+            }
+        """ ;
+    ] .

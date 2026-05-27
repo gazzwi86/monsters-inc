@@ -1,0 +1,219 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Prefix Declaration Block (for sh:prefixes references) ────────────────────
+
+mi: sh:declare [
+    sh:prefix "mi" ;
+    sh:namespace "https://vocab.monstersinc.com/ontology#"^^xsd:anyURI
+] .
+
+# ============================================================================
+# Shape 1: ComedianCertShape
+# A Comedian assigned to a station must hold a non-expired TrainingRecord.
+# Intentional violation: Randall Boggs (EMP-009) has an expired cert.
+# ============================================================================
+
+mi:ComedianCertShape a sh:NodeShape ;
+    sh:targetClass mi:Comedian ;
+    sh:name "Comedian Certification Shape" ;
+
+    sh:property [
+        sh:path mi:certLevel ;
+        sh:minCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:severity sh:Violation ;
+        sh:message "Comedian must have a certLevel integer value between 1 and 5."
+    ] ;
+
+    # SPARQL-based: if assigned to station, must have non-expired TrainingRecord.
+    # Date comparison uses lexicographic str() — ISO 8601 dates sort correctly.
+    sh:sparql [
+        sh:message "Comedian {$this} is assigned to a station but has no valid (non-expired) TrainingRecord." ;
+        sh:severity sh:Violation ;
+        sh:prefixes mi: ;
+        sh:select """
+            PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this
+            WHERE {
+                $this mi:assignedStation ?station .
+                FILTER NOT EXISTS {
+                    ?tr a mi:TrainingRecord ;
+                        mi:trainee $this ;
+                        mi:expiresAt ?exp .
+                    FILTER (str(?exp) > SUBSTR(str(NOW()), 1, 10))
+                }
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# Shape 2: DoorDispatchShape
+# A ChildDoor actively assigned to a LaughFloorStation (via mi:activeDoor)
+# must have been maintained within the last 180 days.
+# Intentional violation: Door NYC-0099 has lastMaintained = 2023-09-01 (stale).
+# ============================================================================
+
+mi:DoorDispatchShape a sh:NodeShape ;
+    sh:targetClass mi:ChildDoor ;
+    sh:name "Door Dispatch Shape" ;
+
+    # lastMaintained must exist on every door
+    sh:property [
+        sh:path mi:lastMaintained ;
+        sh:minCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Warning ;
+        sh:message "ChildDoor should have a lastMaintained date."
+    ] ;
+
+    # SPARQL-based: only fires for doors actively assigned to a station.
+    # Uses xsd:dayTimeDuration arithmetic: dateTime subtraction yields an
+    # xsd:duration, compared against the 180-day window. Portable and exact at
+    # month/year boundaries (unlike YEAR*365 + MONTH*30 approximations).
+    sh:sparql [
+        sh:message "Door {$this} is assigned to a laugh floor station but last maintained more than 180 days ago (limit: 180 days)." ;
+        sh:severity sh:Violation ;
+        sh:prefixes mi: ;
+        sh:select """
+            PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this ?lastMaintained
+            WHERE {
+                ?station a mi:LaughFloorStation ;
+                         mi:activeDoor $this .
+                $this mi:lastMaintained ?lastMaintained .
+                FILTER (xsd:dateTime(CONCAT(STR(?lastMaintained), "T00:00:00Z")) < (NOW() - "P180D"^^xsd:duration))
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# Shape 3: CanisterTransportShape
+# ============================================================================
+
+mi:CanisterTransportShape a sh:NodeShape ;
+    sh:targetClass mi:LaughCanister ;
+    sh:name "Canister Transport Shape" ;
+
+    sh:property [
+        sh:path mi:sealStatus ;
+        sh:minCount 1 ;
+        sh:hasValue "true"^^xsd:boolean ;
+        sh:severity sh:Violation ;
+        sh:message "LaughCanister must be sealed (sealStatus = true) before transport."
+    ] ;
+
+    sh:property [
+        sh:path mi:fillLevel ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:severity sh:Violation ;
+        sh:message "LaughCanister fillLevel must be between 0.0 and 1.0 inclusive."
+    ] .
+
+# ============================================================================
+# Shape 4: CDAReportingShape
+# ============================================================================
+
+mi:CDAReportingShape a sh:NodeShape ;
+    sh:targetClass mi:CDAIncident ;
+    sh:name "CDA Incident Reporting Shape" ;
+
+    sh:property [
+        sh:path mi:reportedAt ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "CDAIncident must have a reportedAt dateTime value."
+    ] ;
+
+    sh:property [
+        sh:path mi:detectedAt ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "CDAIncident must have a detectedAt dateTime value."
+    ] ;
+
+    sh:sparql [
+        sh:message "CDA Incident {$this} reported more than 30 minutes after detection (regulatory violation)." ;
+        sh:severity sh:Violation ;
+        sh:prefixes mi: ;
+        sh:select """
+            PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this ?reportedAt ?detectedAt
+            WHERE {
+                $this mi:reportedAt ?reportedAt ;
+                      mi:detectedAt ?detectedAt .
+                FILTER (?reportedAt > (?detectedAt + "PT30M"^^xsd:duration))
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# Shape 5: ChildAgeShape
+# ============================================================================
+
+mi:ChildAgeShape a sh:NodeShape ;
+    sh:targetClass mi:ChildDoor ;
+    sh:name "Child Age Shape" ;
+
+    sh:sparql [
+        sh:message "Door {$this} is assigned to an aged-out child profile (age 13+)." ;
+        sh:severity sh:Violation ;
+        sh:prefixes mi: ;
+        sh:select """
+            PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT $this ?profile ?ageRange
+            WHERE {
+                $this mi:childProfile ?profile .
+                ?profile mi:ageRange ?ageRange .
+                BIND(xsd:integer(REPLACE(STR(?ageRange), "[^0-9].*$", "")) AS ?lowerAge)
+                FILTER (?lowerAge >= 13)
+            }
+        """ ;
+    ] .
+
+# ============================================================================
+# Shape 6: PerformanceRecordShape
+# ============================================================================
+
+mi:PerformanceRecordShape a sh:NodeShape ;
+    sh:targetClass mi:PerformanceRecord ;
+    sh:name "Performance Record Shape" ;
+
+    sh:property [
+        sh:path mi:comedian ;
+        sh:minCount 1 ;
+        sh:class mi:Comedian ;
+        sh:severity sh:Violation ;
+        sh:message "PerformanceRecord must reference a Comedian."
+    ] ;
+
+    sh:property [
+        sh:path mi:date ;
+        sh:minCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Violation ;
+        sh:message "PerformanceRecord must have a date (xsd:date)."
+    ] ;
+
+    sh:property [
+        sh:path mi:laughScore ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:severity sh:Warning ;
+        sh:message "PerformanceRecord must have a laughScore (xsd:decimal)."
+    ] .

@@ -1,0 +1,148 @@
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Monsters, Inc. — Company Constitution
+# A machine-defensible articulation of the company's principles, the regulatory
+# requirements it must meet, and — crucially — the EXACT SHACL shape and SPARQL
+# query that ENFORCE each one. This makes "we comply with X" a queryable,
+# evidence-backed claim rather than prose. Ties the Strategy, Culture and
+# Compliance pillars together.
+# ─────────────────────────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/ontology/constitution>
+    a owl:Ontology ;
+    owl:imports <https://vocab.monstersinc.com/ontology> ;
+    rdfs:label "Monsters, Inc. Company Constitution" ;
+    rdfs:comment "Principles, regulatory requirements and their enforcement bindings (SHACL shapes + SPARQL queries), mapped to the six strategic pillars." ;
+    owl:versionInfo "0.1.0" ;
+    dct:creator "Monsters, Inc. Enterprise Architecture Team" .
+
+# ── Classes ───────────────────────────────────────────────────────────────────
+
+mi:Constitution a owl:Class ; rdfs:label "Constitution" .
+mi:Principle a owl:Class ; rdfs:label "Principle" ;
+    rdfs:comment "A foundational commitment the company holds itself to." .
+mi:RegulatoryRequirement a owl:Class ; rdfs:label "Regulatory Requirement" ;
+    rdfs:comment "An external obligation (here, imposed by the CDA) the company must satisfy." .
+mi:Pillar a owl:Class ; rdfs:label "Strategic Pillar" ;
+    rdfs:comment "One of the six enterprise strategy pillars." .
+
+# ── Properties ──────────────────────────────────────────────────────────────
+
+mi:hasPrinciple a owl:ObjectProperty ; rdfs:domain mi:Constitution ; rdfs:range mi:Principle ; rdfs:label "has principle" .
+mi:relatesToPillar a owl:ObjectProperty ; rdfs:range mi:Pillar ; rdfs:label "relates to pillar" .
+mi:enforcedByShape a owl:ObjectProperty ; rdfs:label "enforced by SHACL shape" ;
+    rdfs:comment "Links a principle/requirement to the SHACL NodeShape that enforces it." .
+mi:enforcedByQuery a owl:DatatypeProperty ; rdfs:range xsd:string ; rdfs:label "enforced by SPARQL query" ;
+    rdfs:comment "The id of the SPARQL query (e.g. 'CV3') that detects violations of this rule." .
+mi:upholdsPrinciple a owl:ObjectProperty ; rdfs:range mi:Principle ; rdfs:label "upholds principle" .
+mi:mandatedByDriver a owl:ObjectProperty ; rdfs:range mi:Driver ; rdfs:label "mandated by driver" .
+
+# ── The six strategic pillars (now queryable individuals) ─────────────────────
+
+mi:Pillar_Strategy   a mi:Pillar ; rdfs:label "Strategy" .
+mi:Pillar_Methods    a mi:Pillar ; rdfs:label "Methods" .
+mi:Pillar_People     a mi:Pillar ; rdfs:label "People" .
+mi:Pillar_Culture    a mi:Pillar ; rdfs:label "Culture" .
+mi:Pillar_Technology a mi:Pillar ; rdfs:label "Technology" .
+mi:Pillar_Operations a mi:Pillar ; rdfs:label "Operations" .
+
+# ── Principles ────────────────────────────────────────────────────────────────
+
+mi:Prin_ChildSafetyFirst a mi:Principle ;
+    rdfs:label "Child safety is paramount" ;
+    skos:definition "No energy target justifies risking a child's safety; contamination is contained and reported immediately." ;
+    mi:relatesToPillar mi:Pillar_Operations, mi:Pillar_Culture ;
+    mi:enforcedByShape mi:CDAReportingShape, mi:DoorContaminationShape ;
+    mi:enforcedByQuery "CV3" .
+
+mi:Prin_TimelyTransparency a mi:Principle ;
+    rdfs:label "Timely regulatory transparency" ;
+    skos:definition "Incidents are reported to the CDA within the mandated window; nothing is concealed." ;
+    mi:relatesToPillar mi:Pillar_Operations ;
+    mi:enforcedByShape mi:CDAReportingShape ;
+    mi:enforcedByQuery "CV3" .
+
+mi:Prin_DataMinimisation a mi:Principle ;
+    rdfs:label "Sensitive data minimisation" ;
+    skos:definition "Children's personal data is read only for a legitimate purpose, by an authorised role, and never distributed externally." ;
+    mi:relatesToPillar mi:Pillar_Technology, mi:Pillar_Culture ;
+    mi:enforcedByShape mi:PermissionShape ;
+    mi:enforcedByQuery "AA5" .
+
+mi:Prin_HumanOversight a mi:Principle ;
+    rdfs:label "Human oversight of high-stakes actions" ;
+    skos:definition "Agents must escalate to the right human for safety-critical, dismissal and high-severity decisions." ;
+    mi:relatesToPillar mi:Pillar_Methods, mi:Pillar_People ;
+    mi:enforcedByShape mi:HITLTriggerShape, mi:HighSeverityEscalationShape ;
+    mi:enforcedByQuery "AA2" .
+
+mi:Prin_WorkerWellbeing a mi:Principle ;
+    rdfs:label "Worker wellbeing before pure yield" ;
+    skos:definition "Performance management protects people; low performers in distress get support and a human review, not automated dismissal." ;
+    mi:relatesToPillar mi:Pillar_People, mi:Pillar_Culture ;
+    mi:enforcedByQuery "HC7" .
+
+mi:Prin_CompetentWorkforce a mi:Principle ;
+    rdfs:label "Only certified comedians on the floor" ;
+    skos:definition "A comedian may only be assigned to a station with a current certification." ;
+    mi:relatesToPillar mi:Pillar_People, mi:Pillar_Operations ;
+    mi:enforcedByShape mi:ComedianCertShape ;
+    mi:enforcedByQuery "CV1" .
+
+mi:Prin_JoyOverFear a mi:Principle ;
+    rdfs:label "Joy over fear" ;
+    skos:definition "Energy is generated through genuine laughter, not fear — the defining cultural shift of the company." ;
+    mi:relatesToPillar mi:Pillar_Culture, mi:Pillar_Strategy .
+
+# ── Regulatory requirements (CDA) with enforcement bindings ──────────────────
+
+mi:Reg_2319Reporting a mi:RegulatoryRequirement ;
+    rdfs:label "CDA Protocol 2319 — report contamination within 30 minutes" ;
+    mi:mandatedByDriver mi:Driver_Regulation ;
+    mi:upholdsPrinciple mi:Prin_TimelyTransparency, mi:Prin_ChildSafetyFirst ;
+    mi:relatesToPillar mi:Pillar_Operations ;
+    mi:enforcedByShape mi:CDAReportingShape ;
+    mi:enforcedByQuery "CV3" .
+
+mi:Reg_DoorMaintenance a mi:RegulatoryRequirement ;
+    rdfs:label "Doors must be maintained within 180 days" ;
+    mi:mandatedByDriver mi:Driver_Regulation ;
+    mi:upholdsPrinciple mi:Prin_ChildSafetyFirst ;
+    mi:relatesToPillar mi:Pillar_Operations ;
+    mi:enforcedByShape mi:DoorDispatchShape ;
+    mi:enforcedByQuery "CV2" .
+
+mi:Reg_HighSeverityEscalation a mi:RegulatoryRequirement ;
+    rdfs:label "Severity ≥ 4 incidents must be escalated" ;
+    mi:mandatedByDriver mi:Driver_Regulation ;
+    mi:upholdsPrinciple mi:Prin_HumanOversight ;
+    mi:relatesToPillar mi:Pillar_Operations, mi:Pillar_Methods ;
+    mi:enforcedByShape mi:HighSeverityEscalationShape .
+
+mi:Reg_ChildDataProtection a mi:RegulatoryRequirement ;
+    rdfs:label "Children's personal data must be access-controlled and never distributed" ;
+    mi:mandatedByDriver mi:Driver_Regulation ;
+    mi:upholdsPrinciple mi:Prin_DataMinimisation ;
+    mi:relatesToPillar mi:Pillar_Technology ;
+    mi:enforcedByQuery "AA5" .
+
+# ── The constitution itself ───────────────────────────────────────────────────
+
+mi:MonstersIncConstitution a mi:Constitution ;
+    rdfs:label "The Monsters, Inc. Constitution" ;
+    dct:description "Post-transition charter committing the company to child safety, regulatory transparency, data minimisation, human oversight, worker wellbeing and joy-based operation." ;
+    mi:hasPrinciple
+        mi:Prin_ChildSafetyFirst,
+        mi:Prin_TimelyTransparency,
+        mi:Prin_DataMinimisation,
+        mi:Prin_HumanOversight,
+        mi:Prin_WorkerWellbeing,
+        mi:Prin_CompetentWorkforce,
+        mi:Prin_JoyOverFear .

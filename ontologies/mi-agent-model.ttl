@@ -1,0 +1,300 @@
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+
+# ── Ontology Header ───────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/ontology/agent-model>
+    a owl:Ontology ;
+    owl:imports <https://vocab.monstersinc.com/ontology> ;
+    rdfs:label "Monsters, Inc. Agent Authority Ontology" ;
+    rdfs:comment "Models agent authority, permissions, data classification, and human-in-the-loop triggers for AI agent orchestration over Monsters, Inc. operations." ;
+    owl:versionInfo "0.1.0" ;
+    dct:creator "Monsters, Inc. Enterprise Architecture Team" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Policy & Permission Classes
+# An agent must resolve a mi:Policy for every action it wants to take.
+# mi:Permission gates access to an entity class for a given action.
+# ─────────────────────────────────────────────────────────────────────────────
+
+mi:Policy a owl:Class ;
+    rdfs:label "Policy" ;
+    rdfs:comment "Links a set of permissions to a scope (process, step, or entity type). Agents check the applicable policy before executing any action." .
+
+mi:Permission a owl:Class ;
+    rdfs:label "Permission" ;
+    rdfs:comment "A single allow/deny rule scoped to an entity class and requiring a minimum role level." .
+
+mi:action a owl:DatatypeProperty ;
+    rdfs:domain mi:Permission ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "action" ;
+    rdfs:comment "The permitted or denied action (e.g. 'read', 'write', 'dispatch', 'escalate')." .
+
+mi:effect a owl:DatatypeProperty ;
+    rdfs:domain mi:Permission ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "effect" ;
+    rdfs:comment "Either 'allow' or 'deny'." .
+
+mi:onEntity a owl:ObjectProperty ;
+    rdfs:domain mi:Permission ;
+    rdfs:range  owl:Class ;
+    rdfs:label  "on entity" .
+
+mi:requiresRole a owl:ObjectProperty ;
+    rdfs:domain mi:Permission ;
+    rdfs:range  mi:Role ;
+    rdfs:label  "requires role" .
+
+mi:hasPermission a owl:ObjectProperty ;
+    rdfs:domain mi:Policy ;
+    rdfs:range  mi:Permission ;
+    rdfs:label  "has permission" .
+
+mi:appliesToProcess a owl:ObjectProperty ;
+    rdfs:domain mi:Policy ;
+    rdfs:range  mi:BusinessProcess ;
+    rdfs:label  "applies to process" .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Authority Level
+# Maps to mi:clearanceLevel on DoorTechnician; gates dispatch authority.
+# Integer 1–5, higher = more authority.
+# ─────────────────────────────────────────────────────────────────────────────
+
+mi:authorityLevel a owl:DatatypeProperty ;
+    rdfs:range  xsd:integer ;
+    rdfs:label  "authority level" ;
+    rdfs:comment "Integer 1–5 authority level. Level 3+ required for door dispatch; Level 4+ for CDA escalation." .
+
+# Bridge: a DoorTechnician's clearanceLevel (mi-core) IS an authority level, so
+# authority resolves for technicians who hold no named title role.
+mi:clearanceLevel rdfs:subPropertyOf mi:authorityLevel .
+
+# Authority level of each named role individual — lets an agent resolve the
+# authority of any employee via mi:holdsTitleRole, so authorisation checks work
+# for concrete employees (not just abstract roles).
+mi:CEO                mi:authorityLevel "5"^^xsd:integer .
+mi:CCO                mi:authorityLevel "5"^^xsd:integer .
+mi:CDADirector        mi:authorityLevel "4"^^xsd:integer .
+mi:ChiefPeopleOfficer mi:authorityLevel "4"^^xsd:integer .
+mi:VPLogistics        mi:authorityLevel "3"^^xsd:integer .
+mi:VPEnergy           mi:authorityLevel "3"^^xsd:integer .
+mi:RDDirector         mi:authorityLevel "3"^^xsd:integer .
+mi:FloorManagerRole   mi:authorityLevel "3"^^xsd:integer .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Automation Flag on ProcessStep
+# ─────────────────────────────────────────────────────────────────────────────
+
+mi:automatable a owl:DatatypeProperty ;
+    rdfs:domain mi:ProcessStep ;
+    rdfs:range  xsd:boolean ;
+    rdfs:label  "automatable" ;
+    rdfs:comment "true if this step can be executed by an autonomous agent without human approval; false requires a human actor." .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Classification
+# ─────────────────────────────────────────────────────────────────────────────
+
+mi:DataClassification a owl:Class ;
+    rdfs:label "Data Classification" ;
+    owl:oneOf (
+        mi:Public
+        mi:Internal
+        mi:Restricted
+        mi:SensitivePersonalData
+    ) .
+
+mi:Public              a mi:DataClassification, owl:NamedIndividual ; rdfs:label "Public" .
+mi:Internal            a mi:DataClassification, owl:NamedIndividual ; rdfs:label "Internal" .
+mi:Restricted          a mi:DataClassification, owl:NamedIndividual ; rdfs:label "Restricted" .
+mi:SensitivePersonalData a mi:DataClassification, owl:NamedIndividual ; rdfs:label "Sensitive Personal Data" .
+
+mi:dataClassification a owl:ObjectProperty ;
+    rdfs:range  mi:DataClassification ;
+    rdfs:label  "data classification" .
+
+# Data classification assertions for key entity types and properties
+mi:ChildProfile mi:dataClassification mi:SensitivePersonalData .
+mi:CDAIncident  mi:dataClassification mi:Restricted .
+mi:employeeId   mi:dataClassification mi:Internal .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Human-in-the-Loop (HITL) Trigger
+# Agents must pause and escalate when a HITLTrigger condition is matched.
+# ─────────────────────────────────────────────────────────────────────────────
+
+mi:HITLTrigger a owl:Class ;
+    rdfs:label "HITL Trigger" ;
+    rdfs:comment "A condition that, when matched, requires an autonomous agent to pause and route to a human actor before continuing." .
+
+mi:triggerCondition a owl:DatatypeProperty ;
+    rdfs:domain mi:HITLTrigger ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "trigger condition" ;
+    rdfs:comment "SPARQL or natural-language description of the condition that fires this trigger." .
+
+mi:escalatesTo a owl:ObjectProperty ;
+    rdfs:domain mi:HITLTrigger ;
+    rdfs:range  mi:Role ;
+    rdfs:label  "escalates to" .
+
+mi:escalationDeadline a owl:DatatypeProperty ;
+    rdfs:domain mi:HITLTrigger ;
+    rdfs:range  xsd:duration ;
+    rdfs:label  "escalation deadline" ;
+    rdfs:comment "Maximum duration before escalation must be acknowledged." .
+
+mi:triggeredByStep a owl:ObjectProperty ;
+    rdfs:domain mi:HITLTrigger ;
+    rdfs:range  mi:ProcessStep ;
+    rdfs:label  "triggered by step" .
+
+# ── HITL Trigger Instances ────────────────────────────────────────────────────
+
+mi:HITL_2319Contamination a mi:HITLTrigger ;
+    rdfs:label "2319 Contamination Alert — Escalate to CDA Liaison" ;
+    mi:triggerCondition "A ContaminationAlert is detected at any LaughFloorStation (CDAAlertEvent fires)." ;
+    mi:escalatesTo mi:CDADirector ;
+    mi:escalationDeadline "PT30M"^^xsd:duration ;
+    mi:triggeredByStep mi:SE8a_2319Protocol, mi:P5S1_ContaminationDetected .
+
+mi:HITL_LowLaughScore a mi:HITLTrigger ;
+    rdfs:label "Comedian Below Laugh Threshold — 3+ Consecutive Sessions" ;
+    mi:triggerCondition "A Comedian's laughScore is below 5.0 in 3 or more consecutive PerformanceRecords." ;
+    mi:escalatesTo mi:FloorManagerRole ;
+    mi:escalationDeadline "PT1H"^^xsd:duration ;
+    mi:triggeredByStep mi:SE8b_ThresholdPause, mi:P6S3_LadderDecision .
+
+# Re-pointed to the CDA Liaison Director (regulatory authority), NOT the Chief
+# Comedy Officer — a severity≥4 child-safety incident is a regulatory matter.
+mi:HITL_HighSeverityIncident a mi:HITLTrigger ;
+    rdfs:label "CDA Incident Severity ≥ 4 — CDA Director Notification Required" ;
+    mi:triggerCondition "A CDAIncident with mi:severity >= 4 is created or updated." ;
+    mi:escalatesTo mi:CDADirector ;
+    mi:escalationDeadline "PT15M"^^xsd:duration ;
+    mi:triggeredByStep mi:P5SE4a_LateEscalation .
+
+# ── Automatable/Human step assertions ─────────────────────────────────────────
+
+# P1 Daily Laugh Run step automation flags
+mi:S1_IssueDoorRequests mi:automatable "true"^^xsd:boolean .
+mi:S2_RetrieveDoor       mi:automatable "false"^^xsd:boolean .
+mi:S3_InstallDoor        mi:automatable "false"^^xsd:boolean .
+mi:S4_PerformRoutine     mi:automatable "false"^^xsd:boolean .
+mi:S5_SealCanister       mi:automatable "false"^^xsd:boolean .
+mi:S6_ExtractEnergy      mi:automatable "true"^^xsd:boolean .
+mi:S7_ReturnDoor         mi:automatable "false"^^xsd:boolean .
+mi:S8_ComplianceCheck    mi:automatable "true"^^xsd:boolean .
+mi:SE8a_2319Protocol     mi:automatable "false"^^xsd:boolean .
+mi:SE8b_ThresholdPause   mi:automatable "false"^^xsd:boolean .
+mi:S9_CloseShift         mi:automatable "true"^^xsd:boolean .
+
+# P2 Door Dispatch & Return — physical handling and the comedy session are human-only
+mi:P2S1_DispatchRequest        mi:automatable "true"^^xsd:boolean .
+mi:P2S2_VaultRetrieval         mi:automatable "false"^^xsd:boolean .
+mi:P2S3_QualityCheck           mi:automatable "false"^^xsd:boolean .
+mi:P2SE3a_QuarantineDoor       mi:automatable "false"^^xsd:boolean .
+mi:P2S4_PortalActivation       mi:automatable "true"^^xsd:boolean .
+mi:P2S5_SessionRun             mi:automatable "false"^^xsd:boolean .
+mi:P2S6_PortalDeactivation     mi:automatable "true"^^xsd:boolean .
+mi:P2S7_ReturnToVault          mi:automatable "false"^^xsd:boolean .
+mi:P2S8_MaintenanceScheduling  mi:automatable "true"^^xsd:boolean .
+
+# P3 Energy Processing — intake handling is physical; the rest is automatable
+mi:P3S1_CanisterIntake         mi:automatable "false"^^xsd:boolean .
+mi:P3S2_BarcodeScanning        mi:automatable "true"^^xsd:boolean .
+mi:P3S3_EnergyExtraction       mi:automatable "true"^^xsd:boolean .
+mi:P3S4_EnergyUnitCreation     mi:automatable "true"^^xsd:boolean .
+mi:P3S5_GridDispatch           mi:automatable "true"^^xsd:boolean .
+mi:P3S6_LedgerReconciliation   mi:automatable "true"^^xsd:boolean .
+mi:P3S7_GridAcknowledgement    mi:automatable "true"^^xsd:boolean .
+mi:P3SE7a_GridSLAEscalation    mi:automatable "false"^^xsd:boolean .
+
+# P4 Onboarding — training, exam and welcome are human; admin steps automatable
+mi:P4S1_HireEvent              mi:automatable "true"^^xsd:boolean .
+mi:P4S2_WelcomeBriefing        mi:automatable "false"^^xsd:boolean .
+mi:P4S3_SafetyTraining         mi:automatable "false"^^xsd:boolean .
+mi:P4S4_TechniqueTraining      mi:automatable "false"^^xsd:boolean .
+mi:P4S5_CertificationExam      mi:automatable "false"^^xsd:boolean .
+mi:P4SE5a_RemedialTraining     mi:automatable "false"^^xsd:boolean .
+mi:P4S6_CertLevelAssignment    mi:automatable "true"^^xsd:boolean .
+mi:P4S7_StationAssignment      mi:automatable "true"^^xsd:boolean .
+
+# P5 2319 Decontamination — detection/notification/logging automatable; physical
+# decontamination, isolation, human sign-off and escalation are human-only
+mi:P5S1_ContaminationDetected      mi:automatable "true"^^xsd:boolean .
+mi:P5S2_StationSealed              mi:automatable "true"^^xsd:boolean .
+mi:P5S3_PersonnelIsolated          mi:automatable "false"^^xsd:boolean .
+mi:P5S4_CDANotified                mi:automatable "true"^^xsd:boolean .
+mi:P5SE4a_LateEscalation           mi:automatable "false"^^xsd:boolean .
+mi:P5S5_DecontaminationDispatched  mi:automatable "false"^^xsd:boolean .
+mi:P5S6_SceneCleared               mi:automatable "false"^^xsd:boolean .
+mi:P5S7_CDAReportFiled             mi:automatable "true"^^xsd:boolean .
+mi:P5S8_IncidentClosed             mi:automatable "false"^^xsd:boolean .
+
+# P6 Performance Review — aggregation/benchmark automatable; ladder & notify human
+mi:P6S1_AggregateRecords       mi:automatable "true"^^xsd:boolean .
+mi:P6S2_BenchmarkLeaderboard   mi:automatable "true"^^xsd:boolean .
+mi:P6S3_LadderDecision         mi:automatable "false"^^xsd:boolean .
+mi:P6SE3a_DismissalEscalation  mi:automatable "false"^^xsd:boolean .
+mi:P6S4_ComedianNotification   mi:automatable "false"^^xsd:boolean .
+
+# P7 Prototype Deployment — approval & pilot run are human; setup/measurement automatable
+mi:P7S1_PrototypeApproved      mi:automatable "false"^^xsd:boolean .
+mi:P7S2_PilotSetup             mi:automatable "true"^^xsd:boolean .
+mi:P7S3_PilotRun               mi:automatable "false"^^xsd:boolean .
+mi:P7SE3a_PilotAbort           mi:automatable "false"^^xsd:boolean .
+mi:P7S4_YieldMeasurement       mi:automatable "true"^^xsd:boolean .
+
+# ── Policy Instances ──────────────────────────────────────────────────────────
+
+mi:DoorDispatchPolicy a mi:Policy ;
+    rdfs:label "Door Dispatch Policy" ;
+    mi:appliesToProcess mi:P2_DoorDispatch ;
+    mi:hasPermission [
+        a mi:Permission ;
+        mi:action "dispatch" ;
+        mi:effect "allow" ;
+        mi:onEntity mi:ChildDoor ;
+        mi:requiresRole mi:VPLogistics ;
+        mi:authorityLevel "3"^^xsd:integer
+    ] .
+
+mi:CDAEscalationPolicy a mi:Policy ;
+    rdfs:label "CDA Escalation Policy" ;
+    mi:appliesToProcess mi:P5_CDADecontamination ;
+    mi:hasPermission [
+        a mi:Permission ;
+        mi:action "escalate" ;
+        mi:effect "allow" ;
+        mi:onEntity mi:CDAIncident ;
+        mi:requiresRole mi:CDADirector ;
+        mi:authorityLevel "4"^^xsd:integer
+    ] .
+
+mi:ChildProfileReadPolicy a mi:Policy ;
+    rdfs:label "Child Profile Read Policy — Restricted Access" ;
+    mi:hasPermission [
+        a mi:Permission ;
+        mi:action "read" ;
+        mi:effect "allow" ;
+        mi:onEntity mi:ChildProfile ;
+        mi:requiresRole mi:FloorManagerRole ;
+        mi:authorityLevel "3"^^xsd:integer
+    ] ;
+    mi:hasPermission [
+        a mi:Permission ;
+        mi:action "export" ;
+        mi:effect "deny" ;
+        mi:onEntity mi:ChildProfile ;
+        mi:requiresRole mi:CEO ;
+        mi:authorityLevel "5"^^xsd:integer
+    ] .

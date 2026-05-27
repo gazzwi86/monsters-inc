@@ -1,0 +1,159 @@
+# =============================================================================
+# Monsters, Inc. — Compliance Violation Detection Queries
+# These queries mirror the SHACL constraints in shapes/mi-core.shacl.ttl and
+# shapes/mi-compliance.shacl.ttl, enabling direct SPARQL-based auditing.
+# Base ontology: https://vocab.monstersinc.com/ontology#
+# =============================================================================
+
+
+# CV1: Comedians assigned to stations without valid certification
+# Mirrors: mi:ComedianCertShape (SPARQL constraint)
+# Business context: D2/D4 compliance — a comedian on the laugh floor must hold
+#   a non-expired TrainingRecord. Returns any comedian with an assignedStation
+#   who lacks a current cert.
+# Returns: comedian URI, name, assigned station
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?comedian ?name ?station
+WHERE {
+    ?comedian a mi:Comedian ;
+              mi:name ?name ;
+              mi:assignedStation ?station .
+    FILTER NOT EXISTS {
+        ?tr a mi:TrainingRecord ;
+            mi:trainee ?comedian ;
+            mi:expiresAt ?exp .
+        FILTER (xsd:dateTime(CONCAT(str(?exp), "T00:00:00Z")) > NOW())
+    }
+}
+ORDER BY ?name
+
+
+# CV2: Child doors with maintenance overdue (>180 days) while active
+# Mirrors: mi:DoorDispatchShape (lastMaintained property constraint)
+# Business context: D3 — active doors past their 180-day maintenance window
+#   must not be dispatched to the laugh floor. Returns doors that are active
+#   but have a stale maintenance date.
+# Returns: door URI, portal code, last maintained date
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?door ?portalCode ?lastMaintained
+WHERE {
+    ?door a mi:ChildDoor ;
+          mi:portalCode ?portalCode ;
+          mi:doorStatus mi:active ;
+          mi:lastMaintained ?lastMaintained .
+    FILTER (xsd:dateTime(CONCAT(str(?lastMaintained), "T00:00:00Z")) < (NOW() - "P180D"^^xsd:duration))
+}
+ORDER BY ASC(?lastMaintained)
+
+
+# CV3: CDA incidents not reported within 30 minutes of detection
+# Mirrors: mi:CDAReportingShape (SPARQL constraint) and mi:CDAIncidentCompleteShape
+# Business context: D5 — CDA regulations require incident reporting within
+#   30 minutes of detection (Protocol 2319). Late reporting is a regulatory
+#   violation. Returns incidents where the reporting delay exceeds 30 minutes.
+# Returns: incident URI, incident code, reported at, detected at
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?incident ?incidentCode ?reportedAt ?detectedAt
+WHERE {
+    ?incident a mi:CDAIncident ;
+              mi:incidentCode ?incidentCode ;
+              mi:reportedAt ?reportedAt ;
+              mi:detectedAt ?detectedAt .
+    FILTER (?reportedAt > (?detectedAt + "PT30M"^^xsd:duration))
+}
+ORDER BY DESC(?reportedAt)
+
+
+# CV4: ChildDoors in quarantined status with no linked CDA incident
+# Mirrors: mi:DoorContaminationShape
+# Business context: D3/D5 — a quarantined door should always have a CDA incident
+#   reference. A door stuck in quarantine without an incident suggests incomplete
+#   incident creation or data integrity failure.
+# Returns: door URI, portal code
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?door ?portalCode
+WHERE {
+    ?door a mi:ChildDoor ;
+          mi:portalCode ?portalCode ;
+          mi:doorStatus mi:quarantined .
+    FILTER NOT EXISTS {
+        ?incident a mi:CDAIncident ;
+                  mi:involvedDoor ?door .
+    }
+}
+ORDER BY ?portalCode
+
+
+# CV5: LaughCanisters with fillLevel > 0 but sealStatus = false
+# Mirrors: mi:CanisterHandlingShape
+# Business context: D1/D5 — a filled but unsealed canister cannot be safely
+#   transported to the grid. This detects post-fill seal failures.
+# Returns: canister URI, fill level
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?canister ?fillLevel
+WHERE {
+    ?canister a mi:LaughCanister ;
+              mi:fillLevel ?fillLevel ;
+              mi:sealStatus ?sealed .
+    FILTER (?fillLevel > 0.0)
+    FILTER (?sealed = false)
+}
+ORDER BY DESC(?fillLevel)
+
+
+# CV6: Child doors dispatched to profiles with ageRange starting "13"
+# Mirrors: mi:ChildAgeShape
+# Business context: D3/D5 — children aged 13+ are outside the laugh-response
+#   demographic. Dispatching to aged-out profiles wastes capacity and may violate
+#   CDA guidelines on target demographics.
+# Returns: door URI, portal code, profile, age range
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?door ?portalCode ?profile ?ageRange
+WHERE {
+    ?door a mi:ChildDoor ;
+          mi:portalCode ?portalCode ;
+          mi:childProfile ?profile .
+    ?profile mi:ageRange ?ageRange .
+    BIND(xsd:integer(REPLACE(STR(?ageRange), "[^0-9].*$", "")) AS ?lowerAge)
+    FILTER (?lowerAge >= 13)
+}
+ORDER BY ?portalCode
+
+
+# CV7: Open CDA incidents with no resolvedAt and detected more than 30 days ago
+# Mirrors: mi:CDAIncidentLifecycleShape
+# Business context: D5 — incidents older than 30 days with no resolution represent
+#   unresolved regulatory obligations that may trigger CDA escalation.
+# Returns: incident URI, incident code, detected at, days open
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?incident ?incidentCode ?detectedAt
+WHERE {
+    ?incident a mi:CDAIncident ;
+              mi:incidentCode ?incidentCode ;
+              mi:detectedAt ?detectedAt .
+    FILTER NOT EXISTS { ?incident mi:resolvedAt ?r }
+    FILTER NOT EXISTS { ?incident mi:incidentStatus mi:Closed }
+    FILTER (?detectedAt < (NOW() - "P30D"^^xsd:duration))
+}
+ORDER BY ASC(?detectedAt)

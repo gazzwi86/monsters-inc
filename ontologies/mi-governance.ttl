@@ -1,0 +1,198 @@
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+@prefix dcat:  <http://www.w3.org/ns/dcat#> .
+@prefix odrl:  <http://www.w3.org/ns/odrl/2/> .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Monsters, Inc. — Data Governance, Identity & Access Ontology
+# Answers, in machine-queryable form: WHO (person or system identity) can access
+# WHICH systems (service catalog) and WHICH data (datasets/columns by
+# classification), under WHAT rules (W3C ODRL policies). This is the layer an
+# autonomous agent consults before reading or moving data.
+# ─────────────────────────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/ontology/governance>
+    a owl:Ontology ;
+    owl:imports <https://vocab.monstersinc.com/ontology> ;
+    rdfs:label "Monsters, Inc. Data Governance & Identity Ontology" ;
+    rdfs:comment "Identities (person and system/service accounts), the service catalog as RDF, data classification to column level, and ODRL access/usage policies." ;
+    owl:versionInfo "0.1.0" ;
+    dct:creator "Monsters, Inc. Enterprise Architecture Team" .
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 1. IDENTITY MODEL — person vs system/service identities
+# ═════════════════════════════════════════════════════════════════════════════
+
+mi:Identity a owl:Class ; rdfs:label "Identity" ;
+    rdfs:comment "Any authenticatable principal — a person or a machine/service." .
+mi:PersonIdentity a owl:Class ; rdfs:subClassOf mi:Identity ; rdfs:label "Person Identity" ;
+    rdfs:comment "A login identity that belongs to a monster employee." .
+mi:ServiceAccount a owl:Class ; rdfs:subClassOf mi:Identity ; rdfs:label "Service Account" ;
+    rdfs:comment "A non-human identity used by a system or autonomous agent to act on its own behalf." .
+
+mi:Identity owl:disjointWith mi:Monster .   # an identity is not the person; it represents one
+
+mi:identityFor a owl:ObjectProperty ;
+    rdfs:domain mi:PersonIdentity ; rdfs:range mi:Monster ; rdfs:label "identity for" .
+mi:assumesRole a owl:ObjectProperty ;
+    rdfs:domain mi:Identity ; rdfs:range mi:Role ; rdfs:label "assumes role" ;
+    rdfs:comment "The role an identity acts under — how it inherits authority for access decisions." .
+
+# Person identities for named leaders (linked to their monster + role)
+mi:PI_Sulley a mi:PersonIdentity ; rdfs:label "sulley@monstersinc" ;
+    mi:identityFor <https://vocab.monstersinc.com/comedian/emp-001> ; mi:assumesRole mi:CEO .
+mi:PI_Mike a mi:PersonIdentity ; rdfs:label "mike@monstersinc" ;
+    mi:identityFor <https://vocab.monstersinc.com/comedian/emp-002> ; mi:assumesRole mi:CCO .
+mi:PI_Roz a mi:PersonIdentity ; rdfs:label "roz@cda.gov" ;
+    mi:identityFor <https://vocab.monstersinc.com/comedian/emp-003> ; mi:assumesRole mi:CDADirector .
+mi:PI_Phyllis a mi:PersonIdentity ; rdfs:label "phyllis@monstersinc" ;
+    mi:identityFor <https://vocab.monstersinc.com/comedian/emp-022> ; mi:assumesRole mi:FloorManagerRole .
+
+# Service accounts — the autonomous agent runs as a least-privilege account
+mi:SA_AgentOrchestrator a mi:ServiceAccount ; rdfs:label "svc-agent-orchestrator" ;
+    mi:assumesRole mi:FloorManagerRole ;
+    rdfs:comment "The AI agent's least-privilege identity. Inherits FloorManager-level authority and is bound by the same ODRL policies and HITL triggers as a human in that role." .
+mi:SA_EnergyLedger a mi:ServiceAccount ; rdfs:label "svc-energy-ledger" ; mi:assumesRole mi:VPEnergy .
+mi:SA_CDAGateway a mi:ServiceAccount ; rdfs:label "svc-cda-gateway" ; mi:assumesRole mi:CDADirector .
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 2. SERVICE CATALOG AS RDF — application & technology services
+# (Previously prose-only in docs/07; now queryable individuals.)
+# ═════════════════════════════════════════════════════════════════════════════
+
+mi:Service a owl:Class ; rdfs:label "Service" .
+mi:ApplicationService a owl:Class ; rdfs:subClassOf mi:Service ; rdfs:label "Application Service" .
+mi:TechnologyService a owl:Class ; rdfs:subClassOf mi:Service ; rdfs:label "Technology Service" .
+
+mi:dependsOn a owl:ObjectProperty ;
+    rdfs:domain mi:Service ; rdfs:range mi:Service ; rdfs:label "depends on" .
+mi:servesDomain a owl:ObjectProperty ;
+    rdfs:domain mi:Service ; rdfs:range mi:Domain ; rdfs:label "serves domain" .
+mi:accessesDataset a owl:ObjectProperty ;
+    rdfs:domain mi:Service ; rdfs:range dcat:Dataset ; rdfs:label "accesses dataset" .
+mi:hasServiceAccount a owl:ObjectProperty ;
+    rdfs:domain mi:Service ; rdfs:range mi:ServiceAccount ; rdfs:label "has service account" .
+mi:accessibleToRole a owl:ObjectProperty ;
+    rdfs:domain mi:Service ; rdfs:range mi:Role ; rdfs:label "accessible to role" .
+mi:governedByPolicy a owl:ObjectProperty ;
+    rdfs:range odrl:Policy ; rdfs:label "governed by policy" .
+
+# Application services
+mi:LFMS a mi:ApplicationService ; rdfs:label "Laugh Floor Management System" ;
+    mi:servesDomain mi:LaughOperations ; mi:accessibleToRole mi:FloorManagerRole, mi:CCO ;
+    mi:accessesDataset mi:PerformanceRecordsDataset, mi:ChildProfiles ; mi:hasServiceAccount mi:SA_AgentOrchestrator ;
+    mi:dependsOn mi:RDFKnowledgeGraphStore, mi:EventStreamingBus .
+mi:DPCS a mi:ApplicationService ; rdfs:label "Door Portal Control System" ;
+    mi:servesDomain mi:DoorManagement ; mi:accessibleToRole mi:VPLogistics ;
+    mi:accessesDataset mi:DoorInventory ; mi:dependsOn mi:PortalNetworkController .
+mi:ELS a mi:ApplicationService ; rdfs:label "Energy Ledger Service" ;
+    mi:servesDomain mi:EnergyProduction ; mi:accessibleToRole mi:VPEnergy ;
+    mi:accessesDataset mi:EnergyLedger ; mi:hasServiceAccount mi:SA_EnergyLedger ;
+    mi:dependsOn mi:EnergyGridAPI, mi:RDFKnowledgeGraphStore .
+mi:HRCP a mi:ApplicationService ; rdfs:label "HR & Certification Platform" ;
+    mi:servesDomain mi:HRTraining ; mi:accessibleToRole mi:ChiefPeopleOfficer ;
+    mi:accessesDataset mi:MonsterRegistry, mi:TrainingRegistry .
+mi:CDACG a mi:ApplicationService ; rdfs:label "CDA Compliance Gateway" ;
+    mi:servesDomain mi:CDACompliance ; mi:accessibleToRole mi:CDADirector ;
+    mi:accessesDataset mi:CDAIncidentLog, mi:CDAComplianceReports ;
+    mi:hasServiceAccount mi:SA_CDAGateway ; mi:dependsOn mi:CDAIncidentAPI .
+mi:RDLMS a mi:ApplicationService ; rdfs:label "R&D Lab Management System" ;
+    mi:servesDomain mi:RDLaughter ; mi:accessibleToRole mi:RDDirector ;
+    mi:accessesDataset mi:RDPrototypes .
+
+# Technology services
+mi:PortalNetworkController a mi:TechnologyService ; rdfs:label "Portal Network Controller" .
+mi:EnergyGridAPI a mi:TechnologyService ; rdfs:label "Energy Grid Integration API" ;
+    mi:accessesDataset mi:EnergyGridForecast .
+mi:RDFKnowledgeGraphStore a mi:TechnologyService ; rdfs:label "RDF Knowledge Graph Store" .
+mi:SPARQLQueryService a mi:TechnologyService ; rdfs:label "SPARQL Query Service" ;
+    mi:dependsOn mi:RDFKnowledgeGraphStore .
+mi:CDAIncidentAPI a mi:TechnologyService ; rdfs:label "CDA Incident API" .
+mi:EventStreamingBus a mi:TechnologyService ; rdfs:label "Event Streaming Bus" .
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 3. DATA CLASSIFICATION — datasets and key columns
+# (mi:dataClassification + the four levels are defined in mi-agent-model.ttl.)
+# ═════════════════════════════════════════════════════════════════════════════
+
+# Dataset-level (ChildProfiles already classified SensitivePersonalData in catalog)
+mi:MonsterRegistry      mi:dataClassification mi:Internal .
+mi:DoorInventory        mi:dataClassification mi:Internal .
+mi:EnergyLedger         mi:dataClassification mi:Internal .
+mi:PerformanceRecordsDataset mi:dataClassification mi:Internal .
+mi:CDAIncidentLog       mi:dataClassification mi:Restricted .
+mi:TrainingRegistry     mi:dataClassification mi:Internal .
+mi:RDPrototypes         mi:dataClassification mi:Restricted .
+mi:CDAComplianceReports mi:dataClassification mi:Restricted .
+mi:EnergyGridForecast   mi:dataClassification mi:Public .
+
+# Column-level (on the schema properties) — the child profile attributes are
+# sensitive personal data; performance/employee data is internal.
+mi:ageRange     mi:dataClassification mi:SensitivePersonalData .
+mi:bedroomType  mi:dataClassification mi:SensitivePersonalData .
+mi:timezone     mi:dataClassification mi:SensitivePersonalData .
+mi:laughScore        mi:dataClassification mi:Internal .
+mi:currentLaughScore mi:dataClassification mi:Internal .
+mi:name              mi:dataClassification mi:Internal .
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 4. ODRL ACCESS / USAGE POLICIES (W3C ODRL 2.2)
+# Machine-enforceable rules over the assets above. Permissions and prohibitions
+# are standard odrl:Rule nodes with target / action / assignee / constraint.
+# ═════════════════════════════════════════════════════════════════════════════
+
+mi:ExternalParty a owl:Class ; rdfs:subClassOf odrl:Party ; rdfs:label "External Party" .
+mi:MonstropolisGridAuthority a mi:ExternalParty ; rdfs:label "Monstropolis Power Grid Authority" .
+
+# Child profile data — read only by Floor Managers for scheduling; never distributed.
+mi:ChildProfileDataPolicy a odrl:Set ;
+    rdfs:label "Child Profile Data Usage Policy" ;
+    mi:governs mi:ChildProfiles ;
+    odrl:permission [
+        odrl:target mi:ChildProfile ;
+        odrl:action odrl:read ;
+        odrl:assignee mi:FloorManagerRole ;
+        odrl:constraint [
+            odrl:leftOperand odrl:purpose ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand "active-session-scheduling"
+        ]
+    ] ;
+    odrl:prohibition [
+        odrl:target mi:ChildProfile ;
+        odrl:action odrl:distribute ;
+        rdfs:comment "Sensitive personal data of children must never be distributed outside the company."
+    ] .
+
+# Employee data — read by the Chief People Officer; internal classification.
+mi:EmployeeDataPolicy a odrl:Set ;
+    rdfs:label "Employee Data Usage Policy" ;
+    mi:governs mi:MonsterRegistry ;
+    odrl:permission [
+        odrl:target mi:Monster ;
+        odrl:action odrl:read ;
+        odrl:assignee mi:ChiefPeopleOfficer
+    ] .
+
+# Energy ledger — shared with the external grid authority for reconciliation.
+mi:EnergyLedgerPolicy a odrl:Set ;
+    rdfs:label "Energy Ledger Sharing Policy" ;
+    mi:governs mi:EnergyLedger ;
+    odrl:permission [
+        odrl:target mi:EnergyUnit ;
+        odrl:action odrl:read, odrl:distribute ;
+        odrl:assignee mi:MonstropolisGridAuthority
+    ] .
+
+mi:governs a owl:ObjectProperty ;
+    rdfs:domain odrl:Policy ; rdfs:label "governs" ;
+    rdfs:comment "Links an ODRL policy to the dataset/asset it governs." .
+
+# Bind governed datasets back to their policies
+mi:ChildProfiles        mi:governedByPolicy mi:ChildProfileDataPolicy .
+mi:MonsterRegistry      mi:governedByPolicy mi:EmployeeDataPolicy .
+mi:EnergyLedger         mi:governedByPolicy mi:EnergyLedgerPolicy .

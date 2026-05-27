@@ -1,0 +1,112 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ── Prefix Declaration Block (for sh:prefixes references) ────────────────────
+
+mi: sh:declare [
+    sh:prefix "mi" ;
+    sh:namespace "https://vocab.monstersinc.com/ontology#"^^xsd:anyURI
+] .
+
+# ============================================================================
+# Agent-Model Integrity Shapes
+# These shapes validate that the agent authority model is COMPLETE enough for an
+# autonomous agent to consume safely. A malformed Permission or HITL trigger is
+# more dangerous than none — an agent might silently proceed without a guard.
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# AS1: PermissionShape — every Permission must be fully specified
+# ----------------------------------------------------------------------------
+
+mi:PermissionShape a sh:NodeShape ;
+    sh:targetClass mi:Permission ;
+    sh:name "Permission Completeness Shape" ;
+
+    sh:property [
+        sh:path mi:action ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Permission must declare an action (read/write/dispatch/escalate/export)."
+    ] ;
+    sh:property [
+        sh:path mi:effect ;
+        sh:minCount 1 ;
+        sh:in ( "allow" "deny" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Permission effect must be exactly 'allow' or 'deny'."
+    ] ;
+    sh:property [
+        sh:path mi:onEntity ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Permission must name the entity class it governs (mi:onEntity)."
+    ] ;
+    sh:property [
+        sh:path mi:requiresRole ;
+        sh:minCount 1 ;
+        sh:class mi:Role ;
+        sh:severity sh:Violation ;
+        sh:message "Permission must require a role (mi:requiresRole) so authority can be resolved."
+    ] .
+
+# ----------------------------------------------------------------------------
+# AS2: HITLTriggerShape — every human-in-the-loop trigger must be actionable
+# ----------------------------------------------------------------------------
+
+mi:HITLTriggerShape a sh:NodeShape ;
+    sh:targetClass mi:HITLTrigger ;
+    sh:name "HITL Trigger Completeness Shape" ;
+
+    sh:property [
+        sh:path mi:escalatesTo ;
+        sh:minCount 1 ;
+        sh:class mi:Role ;
+        sh:severity sh:Violation ;
+        sh:message "HITL trigger must escalate to a named Role (mi:escalatesTo)."
+    ] ;
+    sh:property [
+        sh:path mi:escalationDeadline ;
+        sh:minCount 1 ;
+        sh:datatype xsd:duration ;
+        sh:severity sh:Violation ;
+        sh:message "HITL trigger must declare an escalation deadline (xsd:duration)."
+    ] ;
+    sh:property [
+        sh:path mi:triggeredByStep ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "HITL trigger must bind to at least one process step (mi:triggeredByStep), or an agent cannot know when to fire it."
+    ] .
+
+# ----------------------------------------------------------------------------
+# AS3: HighSeverityEscalationShape — severity >= 4 incidents MUST be escalated
+# A regulatory rule: a serious CDA incident may not sit un-escalated.
+# ----------------------------------------------------------------------------
+
+mi:HighSeverityEscalationShape a sh:NodeShape ;
+    sh:targetClass mi:CDAIncident ;
+    sh:name "High-Severity Incident Escalation Shape" ;
+
+    sh:sparql [
+        sh:message "CDA Incident {$this} has severity >= 4 but is not Escalated, Closed or SubmittedToRegulator — it must be escalated to the CDA Liaison Director." ;
+        sh:severity sh:Violation ;
+        sh:prefixes mi: ;
+        sh:select """
+            PREFIX mi: <https://vocab.monstersinc.com/ontology#>
+            SELECT $this
+            WHERE {
+                $this mi:severity ?sev .
+                FILTER (?sev >= 4)
+                FILTER NOT EXISTS {
+                    $this mi:incidentStatus ?st .
+                    FILTER (?st IN (mi:Escalated, mi:Closed, mi:SubmittedToRegulator))
+                }
+            }
+        """ ;
+    ] .

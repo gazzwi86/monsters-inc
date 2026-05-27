@@ -1,0 +1,164 @@
+# =============================================================================
+# Monsters, Inc. — Human-Centered Queries
+# The other query suites serve the business (energy yield) and the regulator
+# (safety). THIS suite serves the WORKERS: workload, fairness, job security,
+# safety exposure and wellbeing — plus guardrails that stop an optimiser from
+# harming people. The scaring→laughter culture should show up in the data.
+# Base ontology: https://vocab.monstersinc.com/ontology#
+# =============================================================================
+
+
+# HC1: Workload distribution — sessions and energy carried per comedian
+# Human question: Is the production load shared fairly, or are a few comedians
+#   carrying a disproportionate share of sessions?
+# Returns: comedian, cert level, session count, total MWh
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?name ?certLevel (COUNT(?rec) AS ?sessions) (SUM(?mwh) AS ?totalMWh)
+WHERE {
+    ?c a mi:Comedian ; mi:name ?name ; mi:certLevel ?certLevel .
+    ?rec a mi:PerformanceRecord ; mi:comedian ?c ; mi:energyGenerated ?mwh .
+}
+GROUP BY ?c ?name ?certLevel
+ORDER BY DESC(?sessions)
+
+
+# HC2: Performance-management fairness — conversion-rate spread within a cert level
+# Human question: Within the same certification level, is the gap between the
+#   best and worst conversion rate so wide that the ladder may judge individuals
+#   on an unfair baseline rather than on their level?
+# Returns: cert level, n, min/max/avg conversion rate, spread
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?certLevel (COUNT(?cr) AS ?n)
+       (ROUND(MIN(?cr) * 100) / 100 AS ?minRate)
+       (ROUND(MAX(?cr) * 100) / 100 AS ?maxRate)
+       (ROUND(AVG(?cr) * 100) / 100 AS ?avgRate)
+       (ROUND((MAX(?cr) - MIN(?cr)) * 100) / 100 AS ?spread)
+WHERE {
+    ?c a mi:Comedian ; mi:certLevel ?certLevel .
+    ?r a mi:PerformanceRecord ; mi:comedian ?c ;
+       mi:laughScore ?ls ; mi:energyGenerated ?eg .
+    FILTER (?ls > 0)
+    BIND(?eg / ?ls AS ?cr)
+}
+GROUP BY ?certLevel
+ORDER BY ?certLevel
+
+
+# HC3: Training at-risk FOR THE WORKER — expiring cert with no renewal offered
+# Human question: Whose certification has lapsed or is lapsing WITHOUT the company
+#   proactively offering a renewal — i.e. whose job is quietly at risk?
+# Returns: comedian, expiry date, renewalOffered
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?name (STR(?expiresAt) AS ?expiry) ?renewalOffered
+WHERE {
+    ?c a mi:Comedian ; mi:name ?name .
+    ?tr a mi:TrainingRecord ; mi:trainee ?c ; mi:expiresAt ?expiresAt .
+    OPTIONAL { ?tr mi:renewalOffered ?renewalOffered }
+    FILTER (!BOUND(?renewalOffered) || ?renewalOffered = false)
+}
+ORDER BY ?expiry
+
+
+# HC4: Worker safety exposure — monsters affected by or responding to incidents
+# Human question: Which workers are repeatedly exposed to CDA incidents (as the
+#   affected party or the responder)? Incidents must be visible at the person
+#   level, not just the door level.
+# Returns: monster, times affected, times responder
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# rdf:type/rdfs:subClassOf* matches Monster AND its subclasses (Comedian,
+# DoorTechnician) without requiring a reasoner — so affected comedians appear.
+SELECT ?name (COUNT(DISTINCT ?incA) AS ?timesAffected) (COUNT(DISTINCT ?incR) AS ?timesResponder)
+WHERE {
+    ?m a/rdfs:subClassOf* mi:Monster ;
+       mi:name ?name .
+    OPTIONAL { ?incA a mi:CDAIncident ; mi:affectedMonster ?m }
+    OPTIONAL { ?incR a mi:CDAIncident ; mi:incidentResponder ?m }
+    FILTER (BOUND(?incA) || BOUND(?incR))
+}
+GROUP BY ?m ?name
+ORDER BY DESC(?timesAffected) DESC(?timesResponder)
+
+
+# HC5: Wellbeing pulse — workers who need support (score below 5.0)
+# Human question: Which monsters are signalling low wellbeing / psychological
+#   safety and should be checked on?
+# Returns: monster, wellbeing dimension, score
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?name ?dimension ?score
+WHERE {
+    ?p a mi:WellbeingPulse ;
+       mi:pulseSubject ?m ;
+       mi:pulseScore ?score ;
+       mi:wellbeingDimension ?dimension .
+    ?m mi:name ?name .
+    FILTER (?score < 5.0)
+}
+ORDER BY ?score
+
+
+# HC6: Recent shift load — sessions per comedian in the last 90 days
+# Human question: Who is being scheduled most heavily right now (overwork signal)?
+# Returns: comedian, recent session count
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?name (COUNT(?rec) AS ?recentSessions)
+WHERE {
+    ?c a mi:Comedian ; mi:name ?name .
+    ?rec a mi:PerformanceRecord ; mi:comedian ?c ; mi:date ?d .
+    FILTER (xsd:dateTime(CONCAT(STR(?d), "T00:00:00Z")) >= (NOW() - "P90D"^^xsd:duration))
+}
+GROUP BY ?c ?name
+ORDER BY DESC(?recentSessions)
+
+
+# HC7: GUARDRAIL — anti stack-ranking. Low performers with LOW wellbeing must NOT
+#   be auto-actioned (e.g. dismissed) by a yield-optimising agent; they need a
+#   human review. This is the counter-signal to Q1/Q4/Q13 used as a weapon.
+# Human question: Which low-scoring comedians are ALSO struggling on wellbeing,
+#   so any ladder action must route to a human?
+# Returns: comedian, current laugh score, wellbeing score, guardrail verdict
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+
+SELECT ?name ?currentLaughScore ?wellbeing
+       ("HUMAN REVIEW REQUIRED — do not auto-action" AS ?guardrail)
+WHERE {
+    ?c a mi:Comedian ; mi:name ?name ; mi:currentLaughScore ?currentLaughScore .
+    ?p mi:pulseSubject ?c ; mi:pulseScore ?wellbeing .
+    FILTER (?currentLaughScore < 6.0 && ?wellbeing < 5.0)
+}
+ORDER BY ?wellbeing
+
+
+# HC8: GUARDRAIL — sensitive child-data minimisation. How many child profiles
+#   carry sensitive personal data, and which single role may read them? Any bulk
+#   read of these must be gated by a human (data-minimisation principle).
+# Returns: count of sensitive records, the only role permitted to read
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+
+SELECT (COUNT(DISTINCT ?profile) AS ?sensitiveProfiles)
+       (STRAFTER(STR(?role), "#") AS ?onlyReadableByRole)
+WHERE {
+    ?profile a mi:ChildProfile ; mi:dataClassification mi:SensitivePersonalData .
+    OPTIONAL {
+        ?perm mi:onEntity mi:ChildProfile ;
+              mi:action "read" ;
+              mi:effect "allow" ;
+              mi:requiresRole ?role .
+    }
+}
+GROUP BY ?role

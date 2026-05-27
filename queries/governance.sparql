@@ -1,0 +1,115 @@
+# =============================================================================
+# Monsters, Inc. — Data Governance & Access Queries
+# Answer, for an agent or auditor: who can reach which systems and data, under
+# what ODRL policy, and where is governance coverage missing?
+# Base ontology: https://vocab.monstersinc.com/ontology#
+# =============================================================================
+
+
+# GV1: Identity → role → system access. Which identities (person AND service
+#   accounts, incl. the AI agent) can use which application/technology services?
+# Returns: identity, assumed role, service
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?identity (STRAFTER(STR(?role), "#") AS ?role) ?service
+WHERE {
+    ?id a/rdfs:subClassOf* mi:Identity ;
+        rdfs:label ?identity ;
+        mi:assumesRole ?role .
+    ?svc mi:accessibleToRole ?role ;
+         rdfs:label ?service .
+}
+ORDER BY ?identity ?service
+
+
+# GV2: Services touching sensitive/restricted data — and the governing policy
+# Question: Which services read sensitive or restricted datasets, and is that
+#   access governed by an ODRL policy?
+# Returns: service, dataset, classification, governing policy
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service (STRAFTER(STR(?ds), "#") AS ?dataset)
+       (STRAFTER(STR(?cls), "#") AS ?classification) ?governingPolicy
+WHERE {
+    ?svc a/rdfs:subClassOf* mi:Service ;
+         rdfs:label ?service ;
+         mi:accessesDataset ?ds .
+    ?ds mi:dataClassification ?cls .
+    FILTER (?cls IN (mi:SensitivePersonalData, mi:Restricted))
+    OPTIONAL { ?ds mi:governedByPolicy ?pol . ?pol rdfs:label ?governingPolicy }
+}
+ORDER BY ?classification ?service
+
+
+# GV3: Data classification inventory — every classified asset (dataset & column)
+# Returns: asset, classification
+
+PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
+
+SELECT (STRAFTER(STR(?asset), "#") AS ?asset) (STRAFTER(STR(?cls), "#") AS ?classification)
+WHERE {
+    ?asset mi:dataClassification ?cls .
+    FILTER (isIRI(?asset))
+    # schema-level inventory only — exclude the individually-tagged profile records
+    FILTER NOT EXISTS { ?asset a mi:ChildProfile }
+}
+ORDER BY ?classification ?asset
+
+
+# GV4: ODRL policy audit — every permission and prohibition rule
+# Returns: policy, rule type, target asset, action, assignee party/role
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+
+SELECT ?policy ?ruleType (STRAFTER(STR(?target), "#") AS ?target)
+       (STRAFTER(STR(?action), "#") AS ?action) (STRAFTER(STR(?assignee), "#") AS ?assignee)
+WHERE {
+    ?pol a odrl:Set ; rdfs:label ?policy .
+    {
+        ?pol odrl:permission ?rule . BIND("permission" AS ?ruleType)
+    } UNION {
+        ?pol odrl:prohibition ?rule . BIND("PROHIBITION" AS ?ruleType)
+    }
+    ?rule odrl:target ?target ; odrl:action ?action .
+    OPTIONAL { ?rule odrl:assignee ?assignee }
+}
+ORDER BY ?policy ?ruleType
+
+
+# GV5: Service dependency map — which services depend on which
+# Returns: service, depends-on service
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?dependsOn
+WHERE {
+    ?svc a/rdfs:subClassOf* mi:Service ;
+         rdfs:label ?service ;
+         mi:dependsOn ?dep .
+    ?dep rdfs:label ?dependsOn .
+}
+ORDER BY ?service
+
+
+# GV6: GOVERNANCE GAP — sensitive/restricted datasets with NO ODRL policy
+# Question: Which datasets carry sensitive or restricted data but lack a
+#   governing policy? Each row is a control gap to close. (Honest self-audit.)
+# Returns: dataset, classification
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT (STRAFTER(STR(?ds), "#") AS ?dataset) (STRAFTER(STR(?cls), "#") AS ?classification)
+WHERE {
+    ?ds a dcat:Dataset ; mi:dataClassification ?cls .
+    FILTER (?cls IN (mi:SensitivePersonalData, mi:Restricted))
+    FILTER NOT EXISTS { ?ds mi:governedByPolicy ?p }
+}
+ORDER BY ?dataset

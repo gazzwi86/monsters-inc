@@ -1,0 +1,677 @@
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+
+# ── Concept Scheme ────────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/glossary>
+    a skos:ConceptScheme ;
+    skos:prefLabel "Monsters, Inc. Controlled Vocabulary"@en ;
+    dct:description "SKOS terminology for the Monsters, Inc. enterprise architecture." ;
+    dct:created "2024-01-01"^^xsd:date ;
+    skos:hasTopConcept mi:EnergySource ;
+    skos:hasTopConcept mi:DoorPortal ;
+    skos:hasTopConcept mi:ComedyStation ;
+    skos:hasTopConcept mi:HumanResources ;
+    skos:hasTopConcept mi:ComplianceControl ;
+    skos:hasTopConcept mi:ResearchDevelopment ;
+    skos:hasTopConcept mi:CultureValues .
+
+# ── Energy Source (parent of LaughEnergy and ScreamEnergy) ───────────────────
+
+mi:EnergySource
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:topConceptOf <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Energy Source"@en ;
+    skos:definition "The class of energy sources used by Monsters, Inc. to power Monstropolis; includes both legacy scream energy and the current laugh energy paradigm."@en ;
+    skos:narrower mi:LaughEnergy ;
+    skos:narrower mi:ScreamEnergy .
+
+# ── Top Concepts ──────────────────────────────────────────────────────────────
+
+mi:LaughEnergy
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:broader mi:EnergySource ;
+    skos:prefLabel "Laugh Energy"@en ;
+    skos:altLabel "Laughter Energy"@en ;
+    skos:altLabel "LE"@en ;
+    skos:definition "The primary energy product of Monsters, Inc., generated from harvested child laughter; each filled canister yields approximately 14.5 MWh."@en ;
+    skos:narrower mi:EnergyCanister ;
+    skos:narrower mi:EnergyYield ;
+    skos:narrower mi:MegawattHour ;
+    skos:narrower mi:LaughConversionRate ;
+    skos:narrower mi:EnergyLedger ;
+    skos:narrower mi:GridDispatch ;
+    skos:related mi:LaughScore ;
+    skos:related mi:EnergyYield ;
+    skos:exactMatch mi:laughEnergy .
+
+mi:DoorPortal
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:topConceptOf <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Door Portal"@en ;
+    skos:altLabel "Child Door"@en ;
+    skos:altLabel "Portal"@en ;
+    skos:definition "A magical portal door that provides a dimensional link between the monster world and a specific child's bedroom in the human world, activated during comedy sessions."@en ;
+    skos:narrower mi:PortalCode ;
+    skos:narrower mi:DoorVault ;
+    skos:narrower mi:DoorStatus ;
+    skos:narrower mi:PortalNetwork ;
+    skos:narrower mi:ChildProfile ;
+    skos:narrower mi:DoorMaintenance ;
+    skos:narrower mi:DoorDecommission ;
+    skos:related mi:DoorDispatch ;
+    skos:related mi:PortalActivation ;
+    skos:related mi:DoorTechnician .
+
+mi:ComedyStation
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:topConceptOf <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Comedy Station"@en ;
+    skos:altLabel "Laugh Floor Station"@en ;
+    skos:altLabel "Workstation"@en ;
+    skos:definition "One of the 100 designated workstations on the Laugh Floor where a Comedian performs comedy routines via an active Door Portal to capture child laughter."@en ;
+    skos:narrower mi:LaughFloor ;
+    skos:narrower mi:ShiftRun ;
+    skos:narrower mi:DoorDispatch ;
+    skos:narrower mi:PortalActivation ;
+    skos:narrower mi:CanisterSeal ;
+    skos:narrower mi:ShiftDispatcher ;
+    skos:narrower mi:PerformanceRecord ;
+    skos:narrower mi:LaughScore ;
+    skos:related mi:Comedian ;
+    skos:related mi:DoorPortal .
+
+mi:HumanResources
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:topConceptOf <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Human Resources"@en ;
+    skos:altLabel "HR"@en ;
+    skos:altLabel "People & Training"@en ;
+    skos:definition "The organisational domain covering comedian certification, door technician roles, training programmes, and career progression at Monsters, Inc."@en ;
+    skos:narrower mi:Comedian ;
+    skos:narrower mi:DoorTechnician ;
+    skos:narrower mi:ComedyCertification ;
+    skos:narrower mi:CertificationLevel ;
+    skos:narrower mi:TrainingProgram ;
+    skos:narrower mi:PerformanceLadder ;
+    skos:narrower mi:FloorManager ;
+    skos:related mi:ComedyStation ;
+    skos:related mi:ComplianceControl .
+
+mi:ComplianceControl
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:topConceptOf <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Compliance Control"@en ;
+    skos:altLabel "CDA Compliance"@en ;
+    skos:altLabel "Regulatory Control"@en ;
+    skos:definition "The set of controls, incidents, and reporting obligations imposed by the Child Detection Agency to ensure the safety and integrity of human-world interactions."@en ;
+    skos:narrower mi:CDAIncident ;
+    skos:narrower mi:Protocol2319 ;
+    skos:narrower mi:ContaminationAlert ;
+    skos:narrower mi:DecontaminationUnit ;
+    skos:narrower mi:ComplianceAudit ;
+    skos:narrower mi:RegulatoryReport ;
+    skos:related mi:DoorPortal ;
+    skos:related mi:HumanResources .
+
+mi:ResearchDevelopment
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:topConceptOf <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Research & Development"@en ;
+    skos:altLabel "R&D"@en ;
+    skos:altLabel "Laughter Initiative"@en ;
+    skos:definition "The innovation domain that designs, tests, and approves new comedy techniques and yield optimisation strategies to maximise laugh energy output."@en ;
+    skos:narrower mi:ComedyTechnique ;
+    skos:narrower mi:LaughPrototype ;
+    skos:narrower mi:YieldOptimisation ;
+    skos:narrower mi:RDCycle ;
+    skos:related mi:LaughEnergy ;
+    skos:related mi:ComedyStation .
+
+# ── Energy Concepts (broader: mi:LaughEnergy) ─────────────────────────────────
+
+mi:ScreamEnergy
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Scream Energy"@en ;
+    skos:altLabel "Scare Energy"@en ;
+    skos:altLabel "SE"@en ;
+    skos:definition "Legacy energy source generated from child screams during the pre-2319 scare era, yielding approximately 1.2 MWh per canister; significantly less efficient than laugh energy."@en ;
+    skos:broader mi:EnergySource ;
+    skos:historyNote "Deprecated as primary energy source following the 2319 incident and corporate transition to laugh-based operations. All scare-floor operations ceased following the Protocol 2319 regulatory review. ~1.2 MWh/canister vs ~14.5 MWh/canister for laugh energy."@en ;
+    skos:related mi:LaughEnergy ;
+    skos:related mi:Protocol2319 ;
+    skos:related mi:EnergyCanister .
+
+mi:EnergyCanister
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Energy Canister"@en ;
+    skos:altLabel "Laugh Canister"@en ;
+    skos:altLabel "Canister"@en ;
+    skos:definition "A pressurised cylindrical container used to capture, store, and transport harvested laugh or scream energy from the Laugh Floor to the grid dispatch facility."@en ;
+    skos:broader mi:LaughEnergy ;
+    skos:related mi:EnergyYield ;
+    skos:related mi:CanisterSeal ;
+    skos:related mi:GridDispatch .
+
+mi:EnergyYield
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Energy Yield"@en ;
+    skos:altLabel "Yield"@en ;
+    skos:altLabel "Output"@en ;
+    skos:definition "The total megawatt-hours of electrical energy extracted from a single canister session, used as the primary performance metric for comedian output."@en ;
+    skos:broader mi:LaughEnergy ;
+    skos:related mi:LaughScore ;
+    skos:related mi:LaughConversionRate ;
+    skos:related mi:YieldOptimisation .
+
+mi:MegawattHour
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Megawatt-Hour"@en ;
+    skos:altLabel "MWh"@en ;
+    skos:definition "The standard unit of electrical energy used by Monsters, Inc. to measure laugh energy output; one megawatt-hour equals 1,000 kilowatt-hours."@en ;
+    skos:broader mi:LaughEnergy ;
+    skos:related mi:EnergyYield ;
+    skos:related mi:EnergyCanister .
+
+mi:LaughConversionRate
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Laugh Conversion Rate"@en ;
+    skos:altLabel "LCR"@en ;
+    skos:altLabel "Conversion Rate"@en ;
+    skos:definition "The efficiency ratio expressing how many MWh are generated per unit of laugh score achieved by a comedian during a session."@en ;
+    skos:broader mi:LaughEnergy ;
+    skos:related mi:LaughScore ;
+    skos:related mi:EnergyYield ;
+    skos:related mi:YieldOptimisation .
+
+mi:EnergyLedger
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Energy Ledger"@en ;
+    skos:altLabel "Ledger"@en ;
+    skos:altLabel "Energy Register"@en ;
+    skos:definition "The authoritative system of record that tracks all energy units generated, stored, dispatched, and consumed across the Monsters, Inc. energy production pipeline."@en ;
+    skos:broader mi:LaughEnergy ;
+    skos:related mi:GridDispatch ;
+    skos:related mi:EnergyCanister .
+
+mi:GridDispatch
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Grid Dispatch"@en ;
+    skos:altLabel "Power Dispatch"@en ;
+    skos:altLabel "Dispatch"@en ;
+    skos:definition "The act of transmitting harvested laugh energy from sealed canisters to the Monstropolis Power Grid Authority for distribution to the wider monster-world electricity network."@en ;
+    skos:broader mi:LaughEnergy ;
+    skos:related mi:EnergyCanister ;
+    skos:related mi:EnergyLedger ;
+    skos:related mi:EnergyYield .
+
+# ── Operations Concepts (broader: mi:ComedyStation) ──────────────────────────
+
+mi:LaughFloor
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Laugh Floor"@en ;
+    skos:altLabel "Comedy Floor"@en ;
+    skos:definition "The main production facility at Monsters, Inc. comprising 100 comedy stations where certified comedians perform routines to harvest child laughter energy during AM and PM shifts."@en ;
+    skos:broader mi:ComedyStation ;
+    skos:related mi:ShiftRun ;
+    skos:related mi:ShiftDispatcher ;
+    skos:related mi:Comedian .
+
+mi:ShiftRun
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Shift Run"@en ;
+    skos:altLabel "Production Shift"@en ;
+    skos:altLabel "Shift"@en ;
+    skos:definition "A single scheduled production run — either AM or PM — during which comedians are stationed on the Laugh Floor with active door portals to capture laughter energy."@en ;
+    skos:broader mi:ComedyStation ;
+    skos:related mi:DoorDispatch ;
+    skos:related mi:LaughFloor ;
+    skos:related mi:ShiftDispatcher .
+
+mi:DoorDispatch
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Door Dispatch"@en ;
+    skos:altLabel "Door Assignment"@en ;
+    skos:definition "The logistics process of retrieving a child door from the vault, assigning it to a specific comedy station, and installing it for an active session."@en ;
+    skos:broader mi:ComedyStation ;
+    skos:related mi:DoorPortal ;
+    skos:related mi:ShiftRun ;
+    skos:related mi:DoorTechnician .
+
+mi:PortalActivation
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Portal Activation"@en ;
+    skos:altLabel "Door Activation"@en ;
+    skos:definition "The operational act of energising a child door to open the dimensional portal link, enabling a comedian to enter the child's bedroom and begin a comedy session."@en ;
+    skos:broader mi:ComedyStation ;
+    skos:related mi:DoorPortal ;
+    skos:related mi:CanisterSeal ;
+    skos:related mi:DoorDispatch .
+
+mi:CanisterSeal
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Canister Seal"@en ;
+    skos:altLabel "Seal"@en ;
+    skos:definition "The mandatory end-of-session procedure that secures a filled laugh energy canister with a pressurised seal, making it safe for transport to the grid dispatch facility."@en ;
+    skos:broader mi:ComedyStation ;
+    skos:related mi:EnergyCanister ;
+    skos:related mi:GridDispatch ;
+    skos:related mi:PortalActivation .
+
+mi:ShiftDispatcher
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Shift Dispatcher"@en ;
+    skos:altLabel "Floor Dispatcher"@en ;
+    skos:definition "The operational role responsible for scheduling comedians and door assignments across comedy stations for each shift run on the Laugh Floor."@en ;
+    skos:broader mi:ComedyStation ;
+    skos:related mi:ShiftRun ;
+    skos:related mi:DoorDispatch ;
+    skos:related mi:FloorManager .
+
+mi:PerformanceRecord
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Performance Record"@en ;
+    skos:altLabel "Daily Performance Record"@en ;
+    skos:altLabel "PR"@en ;
+    skos:definition "A structured daily log capturing a comedian's laugh score and energy output per session, used for performance management, bonus calculation, and career ladder decisions."@en ;
+    skos:broader mi:ComedyStation ;
+    skos:related mi:LaughScore ;
+    skos:related mi:Comedian ;
+    skos:related mi:PerformanceLadder .
+
+mi:LaughScore
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Laugh Score"@en ;
+    skos:altLabel "Comedy Score"@en ;
+    skos:altLabel "LS"@en ;
+    skos:definition "A numeric quality rating assigned to a comedy session based on the duration, volume, and frequency of child laughter captured; the primary input to the laugh conversion rate calculation."@en ;
+    skos:broader mi:ComedyStation ;
+    skos:related mi:EnergyYield ;
+    skos:related mi:LaughConversionRate ;
+    skos:related mi:PerformanceRecord .
+
+# ── Door & Portal Concepts (broader: mi:DoorPortal) ───────────────────────────
+
+mi:PortalCode
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Portal Code"@en ;
+    skos:altLabel "Door Code"@en ;
+    skos:altLabel "PC"@en ;
+    skos:definition "A unique alphanumeric identifier assigned to each child-room door portal, used to index the door in the portal network and track its operational history."@en ;
+    skos:broader mi:DoorPortal ;
+    skos:related mi:PortalNetwork ;
+    skos:related mi:ChildProfile .
+
+mi:DoorVault
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Door Vault"@en ;
+    skos:altLabel "Vault"@en ;
+    skos:altLabel "Door Storage"@en ;
+    skos:definition "The secure physical storage facility that houses inactive child doors awaiting dispatch, maintenance, or decommission, managed by the Door Management domain."@en ;
+    skos:broader mi:DoorPortal ;
+    skos:related mi:DoorDispatch ;
+    skos:related mi:DoorMaintenance ;
+    skos:related mi:PortalNetwork .
+
+mi:DoorStatus
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Door Status"@en ;
+    skos:altLabel "Operational Status"@en ;
+    skos:definition "The current operational state of a child door, restricted to one of four values: active, quarantined, maintenance, or decommissioned."@en ;
+    skos:broader mi:DoorPortal ;
+    skos:related mi:DoorMaintenance ;
+    skos:related mi:DoorDecommission ;
+    skos:related mi:CDAIncident .
+
+mi:PortalNetwork
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Portal Network"@en ;
+    skos:altLabel "Door Network"@en ;
+    skos:altLabel "Door Inventory"@en ;
+    skos:definition "The complete inventory of more than 10 million child-room door portals maintained by Monsters, Inc., spanning all geographic regions and timezone zones."@en ;
+    skos:broader mi:DoorPortal ;
+    skos:related mi:PortalCode ;
+    skos:related mi:DoorVault ;
+    skos:related mi:DoorMaintenance .
+
+mi:ChildProfile
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Child Profile"@en ;
+    skos:altLabel "Target Profile"@en ;
+    skos:definition "Anonymised demographic data associated with a child bedroom linked to a Door Portal, including age range, bedroom type, and timezone; used to optimise session scheduling."@en ;
+    skos:broader mi:DoorPortal ;
+    skos:related mi:PortalCode ;
+    skos:related mi:LaughScore ;
+    skos:related mi:DoorPortal .
+
+mi:DoorMaintenance
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Door Maintenance"@en ;
+    skos:altLabel "Preventive Maintenance"@en ;
+    skos:altLabel "PM"@en ;
+    skos:definition "Scheduled servicing of a child door portal required every 180 days to ensure dimensional stability, seal integrity, and CDA compliance."@en ;
+    skos:broader mi:DoorPortal ;
+    skos:related mi:DoorStatus ;
+    skos:related mi:DoorTechnician ;
+    skos:related mi:ComplianceAudit .
+
+mi:DoorDecommission
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Door Decommission"@en ;
+    skos:altLabel "Decommission"@en ;
+    skos:definition "The permanent removal of a child door portal from the active inventory, triggered when the associated child has aged out of the target demographic or the door has been damaged beyond repair."@en ;
+    skos:broader mi:DoorPortal ;
+    skos:related mi:DoorStatus ;
+    skos:related mi:PortalNetwork ;
+    skos:related mi:DoorVault .
+
+# ── People & HR Concepts (broader: mi:HumanResources) ────────────────────────
+
+mi:Comedian
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Comedian"@en ;
+    skos:altLabel "Laugh Specialist"@en ;
+    skos:altLabel "Comedy Agent"@en ;
+    skos:definition "A certified monster employee authorised to perform comedy routines through an active Door Portal to harvest child laughter energy on the Laugh Floor."@en ;
+    skos:broader mi:HumanResources ;
+    skos:related mi:ComedyCertification ;
+    skos:related mi:PerformanceRecord ;
+    skos:related mi:LaughFloor .
+
+mi:DoorTechnician
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Door Technician"@en ;
+    skos:altLabel "Tech"@en ;
+    skos:altLabel "Portal Technician"@en ;
+    skos:definition "A monster specialist responsible for retrieving, installing, maintaining, and returning child-room doors; operates under clearance levels aligned with CDA safety requirements."@en ;
+    skos:broader mi:HumanResources ;
+    skos:related mi:DoorDispatch ;
+    skos:related mi:DoorMaintenance ;
+    skos:related mi:DoorPortal .
+
+mi:ComedyCertification
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Comedy Certification"@en ;
+    skos:altLabel "Certification"@en ;
+    skos:altLabel "Cert"@en ;
+    skos:definition "A formal credential that authorises a monster to perform as a Comedian on the Laugh Floor; issued in five levels of increasing proficiency by the Monsters, Inc. HR and Training domain."@en ;
+    skos:broader mi:HumanResources ;
+    skos:related mi:CertificationLevel ;
+    skos:related mi:TrainingProgram ;
+    skos:related mi:Comedian .
+
+mi:CertificationLevel
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Certification Level"@en ;
+    skos:altLabel "Cert Level"@en ;
+    skos:altLabel "Level"@en ;
+    skos:definition "A numeric tier from 1 to 5 indicating a Comedian's certified proficiency, where Level 1 is entry and Level 5 is master class; higher levels are correlated with greater laugh conversion rates."@en ;
+    skos:broader mi:HumanResources ;
+    skos:related mi:ComedyCertification ;
+    skos:related mi:PerformanceLadder ;
+    skos:related mi:LaughConversionRate .
+
+mi:TrainingProgram
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Training Programme"@en ;
+    skos:altLabel "Training Program"@en ;
+    skos:altLabel "Curriculum"@en ;
+    skos:definition "A named curriculum of instruction and assessment designed to develop comedy or portal-handling skills, leading to award or renewal of a certification."@en ;
+    skos:broader mi:HumanResources ;
+    skos:related mi:ComedyCertification ;
+    skos:related mi:CertificationLevel ;
+    skos:related mi:Comedian .
+
+mi:PerformanceLadder
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Performance Ladder"@en ;
+    skos:altLabel "Career Ladder"@en ;
+    skos:altLabel "Ladder"@en ;
+    skos:definition "The structured career progression framework at Monsters, Inc. that maps certification levels and performance record outcomes to promotion, bonus, and station assignment decisions."@en ;
+    skos:broader mi:HumanResources ;
+    skos:related mi:CertificationLevel ;
+    skos:related mi:PerformanceRecord ;
+    skos:related mi:FloorManager .
+
+mi:FloorManager
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Floor Manager"@en ;
+    skos:altLabel "Shift Manager"@en ;
+    skos:definition "The operational supervisor accountable for Laugh Floor performance targets, comedian welfare, and regulatory compliance during a shift run."@en ;
+    skos:broader mi:HumanResources ;
+    skos:related mi:ShiftDispatcher ;
+    skos:related mi:PerformanceLadder ;
+    skos:related mi:LaughFloor .
+
+# ── Compliance Concepts (broader: mi:ComplianceControl) ──────────────────────
+
+# Dual-use pattern: mi:CDAIncident, mi:Comedian, mi:ChildProfile are simultaneously
+# owl:Class (in mi-core.ttl) and skos:Concept (here). Both type assertions share the
+# same URI — this is intentional. Agents should treat the OWL class as the authoritative
+# schema definition and the SKOS concept as the controlled vocabulary entry.
+mi:CDAIncident
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "CDA Incident"@en ;
+    skos:altLabel "Incident"@en ;
+    skos:altLabel "Reportable Event"@en ;
+    skos:definition "A Child Detection Agency-reportable event, such as a human-world contamination or unauthorised child-world contact, requiring a documented response within 30 minutes of detection."@en ;
+    skos:broader mi:ComplianceControl ;
+    skos:related mi:Protocol2319 ;
+    skos:related mi:ContaminationAlert ;
+    skos:related mi:DoorStatus .
+
+mi:Protocol2319
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Protocol 2319"@en ;
+    skos:altLabel "2319"@en ;
+    skos:altLabel "White Sock Protocol"@en ;
+    skos:definition "The mandatory contamination response procedure activated when a human-world article is detected in the monster world, requiring immediate decontamination and CDA notification."@en ;
+    skos:broader mi:ComplianceControl ;
+    skos:historyNote "Protocol 2319 was established following the landmark contamination event that ultimately led to the corporate transition from scare energy to laugh energy operations."@en ;
+    skos:related mi:CDAIncident ;
+    skos:related mi:ContaminationAlert ;
+    skos:related mi:DecontaminationUnit .
+
+mi:ContaminationAlert
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Contamination Alert"@en ;
+    skos:altLabel "2319 Alert"@en ;
+    skos:altLabel "Alert"@en ;
+    skos:definition "The trigger event that initiates Protocol 2319, declared when any human-world object or substance is detected on a monster employee or facility premises."@en ;
+    skos:broader mi:ComplianceControl ;
+    skos:related mi:Protocol2319 ;
+    skos:related mi:DecontaminationUnit ;
+    skos:related mi:CDAIncident .
+
+mi:DecontaminationUnit
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Decontamination Unit"@en ;
+    skos:altLabel "CDA Team"@en ;
+    skos:altLabel "Decon Unit"@en ;
+    skos:definition "The Child Detection Agency cleanup team dispatched to Monsters, Inc. premises to remove human-world contaminants and certify the site safe following a Protocol 2319 event."@en ;
+    skos:broader mi:ComplianceControl ;
+    skos:related mi:Protocol2319 ;
+    skos:related mi:ContaminationAlert ;
+    skos:related mi:ComplianceAudit .
+
+mi:ComplianceAudit
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Compliance Audit"@en ;
+    skos:altLabel "CDA Audit"@en ;
+    skos:altLabel "Audit"@en ;
+    skos:definition "A periodic review conducted by the Child Detection Agency to verify that Monsters, Inc. operations conform to all regulatory requirements, including maintenance schedules, certification standards, and incident reporting obligations."@en ;
+    skos:broader mi:ComplianceControl ;
+    skos:related mi:RegulatoryReport ;
+    skos:related mi:DecontaminationUnit ;
+    skos:related mi:DoorMaintenance .
+
+mi:RegulatoryReport
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Regulatory Report"@en ;
+    skos:altLabel "CDA Report"@en ;
+    skos:altLabel "Monthly Submission"@en ;
+    skos:definition "A monthly submission to the Child Detection Agency summarising all incidents, audit findings, comedian certification statuses, and door maintenance compliance for the reporting period."@en ;
+    skos:broader mi:ComplianceControl ;
+    skos:related mi:ComplianceAudit ;
+    skos:related mi:CDAIncident ;
+    skos:related mi:EnergyLedger .
+
+# ── R&D Concepts (broader: mi:ResearchDevelopment) ───────────────────────────
+
+mi:ComedyTechnique
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Comedy Technique"@en ;
+    skos:altLabel "Technique"@en ;
+    skos:definition "A named approach or method used by a Comedian to elicit laughter from a child, ranging from physical slapstick to verbal wit; techniques are catalogued and scored by the R&D domain."@en ;
+    skos:broader mi:ResearchDevelopment ;
+    skos:related mi:LaughPrototype ;
+    skos:related mi:LaughScore ;
+    skos:related mi:YieldOptimisation .
+
+mi:LaughPrototype
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Laugh Prototype"@en ;
+    skos:altLabel "Prototype"@en ;
+    skos:altLabel "R&D Prototype"@en ;
+    skos:definition "An experimental comedy technique or technology under controlled testing by the Laughter Initiative team, tracked through testing, approval, or rejection statuses before deployment to the Laugh Floor."@en ;
+    skos:broader mi:ResearchDevelopment ;
+    skos:related mi:ComedyTechnique ;
+    skos:related mi:RDCycle ;
+    skos:related mi:YieldOptimisation .
+
+mi:YieldOptimisation
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Yield Optimisation"@en ;
+    skos:altLabel "Yield Optimization"@en ;
+    skos:altLabel "YO"@en ;
+    skos:definition "The continuous improvement process of analysing laugh conversion rates and comedy techniques to increase megawatt-hour output per canister session across the Laugh Floor."@en ;
+    skos:broader mi:ResearchDevelopment ;
+    skos:related mi:LaughConversionRate ;
+    skos:related mi:EnergyYield ;
+    skos:related mi:ComedyTechnique .
+
+mi:RDCycle
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "R&D Cycle"@en ;
+    skos:altLabel "Research Cycle"@en ;
+    skos:altLabel "Innovation Cycle"@en ;
+    skos:definition "The quarterly cadence of the Laughter Initiative R&D programme, encompassing prototype submission, controlled testing, peer review, and promotion or rejection decisions."@en ;
+    skos:broader mi:ResearchDevelopment ;
+    skos:related mi:LaughPrototype ;
+    skos:related mi:ComedyTechnique ;
+    skos:related mi:YieldOptimisation .
+
+# ── Culture Values (Culture pillar — broader: mi:CultureValues) ──────────────
+# Makes the scaring→laughter cultural transformation queryable data, not just
+# narrative. mi:WellbeingPulse instances are read against these dimensions.
+
+mi:CultureValues
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:topConceptOf <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Culture Values"@en ;
+    skos:altLabel "Cultural Principles"@en ;
+    skos:definition "The stated cultural values of post-transition Monsters, Inc., shifting from fear-based scaring to joy-based, psychologically-safe laughter operations. Each value is a measurable wellbeing dimension."@en ;
+    skos:narrower mi:PsychologicalSafety ;
+    skos:narrower mi:JoyBasedPerformance ;
+    skos:narrower mi:CollaborativeCraft ;
+    skos:narrower mi:WorkerWellbeing ;
+    skos:narrower mi:ComedyNPS .
+
+mi:PsychologicalSafety
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Psychological Safety"@en ;
+    skos:altLabel "Safety to Speak Up"@en ;
+    skos:definition "The shared belief that a monster can raise concerns, report incidents, or fail at a routine without fear of punishment — a precondition for honest CDA incident reporting."@en ;
+    skos:broader mi:CultureValues ;
+    skos:related mi:WorkerWellbeing ;
+    skos:related mi:CDAIncident .
+
+mi:JoyBasedPerformance
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Joy-Based Performance"@en ;
+    skos:altLabel "Laughter-First Culture"@en ;
+    skos:definition "The principle that energy is produced through genuine joy rather than fear, aligning worker wellbeing with energy output following the transition away from scream energy."@en ;
+    skos:broader mi:CultureValues ;
+    skos:related mi:LaughEnergy ;
+    skos:related mi:ScreamEnergy .
+
+mi:CollaborativeCraft
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Collaborative Craft"@en ;
+    skos:altLabel "Team Comedy"@en ;
+    skos:definition "The value that comedy is honed collaboratively (e.g. Sulley and Mike as a pairing), and that performance management should reward development, not pure individual ranking."@en ;
+    skos:broader mi:CultureValues ;
+    skos:related mi:PerformanceLadder .
+
+mi:WorkerWellbeing
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Worker Wellbeing"@en ;
+    skos:altLabel "Monster Welfare"@en ;
+    skos:definition "Sustainable workload, manageable shift patterns, and protection from harm — measured by mi:WellbeingPulse readings and used as a guardrail against pure-yield optimisation."@en ;
+    skos:broader mi:CultureValues ;
+    skos:related mi:PsychologicalSafety ;
+    skos:related mi:PerformanceRecord .
+
+mi:ComedyNPS
+    a skos:Concept ;
+    skos:inScheme <https://vocab.monstersinc.com/glossary> ;
+    skos:prefLabel "Comedy NPS"@en ;
+    skos:altLabel "Joy Net Promoter Score"@en ;
+    skos:definition "A culture metric tracking how positively monsters and children alike rate the laughter experience, used as a leading indicator of the joy-based culture's health."@en ;
+    skos:broader mi:CultureValues ;
+    skos:related mi:JoyBasedPerformance .

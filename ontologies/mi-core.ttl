@@ -1,0 +1,567 @@
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix dcat:  <http://www.w3.org/ns/dcat#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+
+# ── Ontology Header ──────────────────────────────────────────────────────────
+
+<https://vocab.monstersinc.com/ontology>
+    a owl:Ontology ;
+    rdfs:label "Monsters, Inc. Core Ontology" ;
+    rdfs:comment "OWL 2 ontology covering the 12 core entity classes, 35 properties, and key restrictions for Monsters, Inc. enterprise architecture." ;
+    owl:versionInfo "0.1.0" ;
+    dct:creator "Monsters, Inc. Enterprise Architecture Team" ;
+    dct:description "Models the Monsters, Inc. clean-energy business — formerly scare-based, now laugh-based — for enterprise architecture demonstration." .
+
+# ── Enumeration / Named Individuals ─────────────────────────────────────────
+
+mi:DoorStatus a owl:Class ;
+    rdfs:label "Door Status" ;
+    owl:oneOf ( mi:active mi:quarantined mi:maintenance mi:decommissioned ) .
+
+mi:active         a mi:DoorStatus, owl:NamedIndividual ; rdfs:label "active" .
+mi:quarantined    a mi:DoorStatus, owl:NamedIndividual ; rdfs:label "quarantined" .
+mi:maintenance    a mi:DoorStatus, owl:NamedIndividual ; rdfs:label "maintenance" .
+mi:decommissioned a mi:DoorStatus, owl:NamedIndividual ; rdfs:label "decommissioned" .
+
+mi:EnergyType a owl:Class ;
+    rdfs:label "Energy Type" ;
+    owl:oneOf ( mi:laughEnergy mi:screamEnergy ) .
+
+mi:laughEnergy  a mi:EnergyType, owl:NamedIndividual ; rdfs:label "Laugh Energy" .
+mi:screamEnergy a mi:EnergyType, owl:NamedIndividual ; rdfs:label "Scream Energy (legacy)" .
+
+mi:PrototypeStatus a owl:Class ;
+    rdfs:label "Prototype Status" ;
+    owl:oneOf ( mi:testing mi:approved mi:rejected mi:pending ) .
+
+mi:testing  a mi:PrototypeStatus, owl:NamedIndividual ; rdfs:label "testing" .
+mi:approved a mi:PrototypeStatus, owl:NamedIndividual ; rdfs:label "approved" .
+mi:rejected a mi:PrototypeStatus, owl:NamedIndividual ; rdfs:label "rejected" .
+mi:pending  a mi:PrototypeStatus, owl:NamedIndividual ; rdfs:label "pending" .
+
+# ── Domain Class ─────────────────────────────────────────────────────────────
+
+mi:Domain a owl:Class ;
+    rdfs:label "Business Domain" ;
+    rdfs:comment "One of the six organisational domains of Monsters, Inc." .
+
+mi:EnergyProduction a mi:Domain ; rdfs:label "D1 — Energy Production" .
+mi:LaughOperations  a mi:Domain ; rdfs:label "D2 — Laugh Operations" .
+mi:DoorManagement   a mi:Domain ; rdfs:label "D3 — Door Management & Logistics" .
+mi:HRTraining       a mi:Domain ; rdfs:label "D4 — HR & Training" .
+mi:CDACompliance    a mi:Domain ; rdfs:label "D5 — CDA Compliance & Safety" .
+mi:RDLaughter       a mi:Domain ; rdfs:label "D6 — R&D Laughter Initiative" .
+
+# ── Role class ───────────────────────────────────────────────────────────────
+
+mi:Role a owl:Class ;
+    rdfs:label "Organisational Role" ;
+    rdfs:comment "A named role held by a Monster employee." .
+
+# ── Shift class ──────────────────────────────────────────────────────────────
+
+mi:Shift a owl:Class ;
+    rdfs:label "Work Shift" ;
+    owl:oneOf ( mi:AMShift mi:PMShift ) .
+
+mi:AMShift a mi:Shift, owl:NamedIndividual ; rdfs:label "AM Shift" .
+mi:PMShift a mi:Shift, owl:NamedIndividual ; rdfs:label "PM Shift" .
+
+# ── TrainingProgram ──────────────────────────────────────────────────────────
+
+mi:TrainingProgram a owl:Class ;
+    rdfs:label "Training Programme" ;
+    rdfs:comment "A named certification or training curriculum." .
+
+# ────────────────────────────────────────────────────────────────────────────
+# Core OWL Classes
+# ────────────────────────────────────────────────────────────────────────────
+
+# 1. Monster (root person class) ─────────────────────────────────────────────
+
+mi:Monster a owl:Class ;
+    rdfs:label "Monster" ;
+    rdfs:comment "A monster employee of Monsters, Inc. All person-type classes are subclasses of Monster." .
+
+# 2. Comedian ─────────────────────────────────────────────────────────────────
+
+mi:Comedian a owl:Class ;
+    rdfs:subClassOf mi:Monster ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty mi:certLevel ;
+        owl:someValuesFrom xsd:integer
+    ] ;
+    rdfs:label "Comedian" ;
+    rdfs:comment "A monster certified to perform comedy routines on the Laugh Floor to capture child laughter energy." .
+
+mi:Comedian owl:disjointWith mi:DoorTechnician .
+
+# 3. DoorTechnician ──────────────────────────────────────────────────────────
+
+mi:DoorTechnician a owl:Class ;
+    rdfs:subClassOf mi:Monster ;
+    rdfs:label "Door Technician" ;
+    rdfs:comment "A monster responsible for retrieving, installing, maintaining, and returning child-room doors." .
+
+# 4. ChildDoor ────────────────────────────────────────────────────────────────
+
+mi:ChildDoor a owl:Class ;
+    rdfs:label "Child Door" ;
+    rdfs:comment "A portal door linked to a specific child's bedroom in the human world." .
+
+# 5. ChildProfile ─────────────────────────────────────────────────────────────
+
+mi:ChildProfile a owl:Class ;
+    rdfs:label "Child Profile" ;
+    rdfs:comment "Anonymised demographic profile associated with a child bedroom linked to a ChildDoor." .
+
+# 6. LaughCanister ────────────────────────────────────────────────────────────
+
+mi:LaughCanister a owl:Class ;
+    rdfs:label "Laugh Canister" ;
+    rdfs:comment "A pressurised container that captures and stores laugh energy. Must be sealed before transport (~14.5 MWh/canister)." .
+
+# 7. EnergyUnit ───────────────────────────────────────────────────────────────
+
+mi:EnergyUnit a owl:Class ;
+    rdfs:label "Energy Unit" ;
+    rdfs:comment "A discrete quantity of electrical energy (MWh) extracted from a LaughCanister and dispatched to the Monstropolis Power Grid." .
+
+# 8. LaughFloorStation ────────────────────────────────────────────────────────
+
+mi:LaughFloorStation a owl:Class ;
+    rdfs:label "Laugh Floor Station" ;
+    rdfs:comment "One of the 100 comedy stations on the Laugh Floor, each hosting one Comedian and one active ChildDoor per shift." .
+
+# 9. CDAIncident ──────────────────────────────────────────────────────────────
+
+mi:CDAIncident a owl:Class ;
+    rdfs:label "CDA Incident" ;
+    rdfs:comment "A Child Detection Agency-reportable event (e.g. Protocol 2319 contamination) requiring documented response within 30 minutes of detection." .
+
+# 10. TrainingRecord ──────────────────────────────────────────────────────────
+
+mi:TrainingRecord a owl:Class ;
+    rdfs:label "Training Record" ;
+    rdfs:comment "A record of a Monster's completion of a TrainingProgram, with expiry tracking." .
+
+# 11. PerformanceRecord ───────────────────────────────────────────────────────
+
+mi:PerformanceRecord a owl:Class ;
+    rdfs:label "Performance Record" ;
+    rdfs:comment "A daily record of a Comedian's laugh score and energy output, used for performance management and ladder decisions." .
+
+# 12. RDPrototype ─────────────────────────────────────────────────────────────
+
+mi:RDPrototype a owl:Class ;
+    rdfs:label "R&D Prototype" ;
+    rdfs:comment "An R&D technique or technology under testing by the Laughter Initiative team." .
+
+# ────────────────────────────────────────────────────────────────────────────
+# Datatype Properties
+# ────────────────────────────────────────────────────────────────────────────
+
+# Monster properties
+mi:employeeId a owl:DatatypeProperty ;
+    rdfs:domain mi:Monster ;
+    rdfs:range xsd:string ;
+    rdfs:label "employee ID" .
+
+mi:name a owl:DatatypeProperty ;
+    rdfs:domain mi:Monster ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+# Comedian properties
+mi:certLevel a owl:DatatypeProperty ;
+    rdfs:domain mi:Comedian ;
+    rdfs:range xsd:integer ;
+    rdfs:label "certification level" ;
+    rdfs:comment "Integer 1–5 indicating comedy certification tier." .
+
+mi:currentLaughScore a owl:DatatypeProperty ;
+    rdfs:domain mi:Comedian ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "current laugh score" .
+
+# DoorTechnician properties
+mi:clearanceLevel a owl:DatatypeProperty ;
+    rdfs:domain mi:DoorTechnician ;
+    rdfs:range xsd:integer ;
+    rdfs:label "security clearance level" .
+
+mi:doorsManaged a owl:DatatypeProperty ;
+    rdfs:domain mi:DoorTechnician ;
+    rdfs:range xsd:integer ;
+    rdfs:label "doors managed (count)" .
+
+# ChildDoor properties
+mi:portalCode a owl:DatatypeProperty ;
+    a owl:FunctionalProperty ;
+    rdfs:domain mi:ChildDoor ;
+    rdfs:range xsd:string ;
+    rdfs:label "portal code" ;
+    rdfs:comment "Unique identifier for a child-room portal." .
+
+mi:lastMaintained a owl:DatatypeProperty ;
+    rdfs:domain mi:ChildDoor ;
+    rdfs:range xsd:date ;
+    rdfs:label "last maintained date" .
+
+# ChildProfile properties
+mi:ageRange a owl:DatatypeProperty ;
+    rdfs:domain mi:ChildProfile ;
+    rdfs:range xsd:string ;
+    rdfs:label "age range" .
+
+mi:bedroomType a owl:DatatypeProperty ;
+    rdfs:domain mi:ChildProfile ;
+    rdfs:range xsd:string ;
+    rdfs:label "bedroom type" .
+
+mi:timezone a owl:DatatypeProperty ;
+    rdfs:domain mi:ChildProfile ;
+    rdfs:range xsd:string ;
+    rdfs:label "timezone" .
+
+# LaughCanister properties
+mi:capacity a owl:DatatypeProperty ;
+    rdfs:domain mi:LaughCanister ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "capacity (MWh)" .
+
+mi:fillLevel a owl:DatatypeProperty ;
+    rdfs:domain mi:LaughCanister ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "fill level (0.0–1.0)" .
+
+mi:sealStatus a owl:DatatypeProperty ;
+    rdfs:domain mi:LaughCanister ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "seal status" .
+
+# EnergyUnit properties
+mi:megawattHours a owl:DatatypeProperty ;
+    rdfs:domain mi:EnergyUnit ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "megawatt-hours" .
+
+mi:generatedAt a owl:DatatypeProperty ;
+    rdfs:domain mi:EnergyUnit ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "generated at" .
+
+mi:gridZone a owl:DatatypeProperty ;
+    rdfs:domain mi:EnergyUnit ;
+    rdfs:range xsd:string ;
+    rdfs:label "grid zone" .
+
+# LaughFloorStation properties
+mi:stationId a owl:DatatypeProperty ;
+    rdfs:domain mi:LaughFloorStation ;
+    rdfs:range xsd:string ;
+    rdfs:label "station ID" .
+
+# CDAIncident properties
+mi:incidentCode a owl:DatatypeProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range xsd:string ;
+    rdfs:label "incident code" .
+
+mi:severity a owl:DatatypeProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range xsd:integer ;
+    rdfs:label "severity (1–5)" .
+
+mi:reportedAt a owl:DatatypeProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "reported at" .
+
+mi:detectedAt a owl:DatatypeProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "detected at" .
+
+mi:resolvedAt a owl:DatatypeProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "resolved at" .
+
+# TrainingRecord properties
+mi:completedAt a owl:DatatypeProperty ;
+    rdfs:domain mi:TrainingRecord ;
+    rdfs:range xsd:date ;
+    rdfs:label "completed at" .
+
+mi:expiresAt a owl:DatatypeProperty ;
+    rdfs:domain mi:TrainingRecord ;
+    rdfs:range xsd:date ;
+    rdfs:label "expires at" .
+
+# PerformanceRecord properties
+mi:date a owl:DatatypeProperty ;
+    rdfs:domain mi:PerformanceRecord ;
+    rdfs:range xsd:date ;
+    rdfs:label "record date" .
+
+mi:laughScore a owl:DatatypeProperty ;
+    rdfs:domain mi:PerformanceRecord ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "laugh score" .
+
+mi:energyGenerated a owl:DatatypeProperty ;
+    rdfs:domain mi:PerformanceRecord ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "energy generated (MWh)" .
+
+# RDPrototype properties
+mi:technique a owl:DatatypeProperty ;
+    rdfs:domain mi:RDPrototype ;
+    rdfs:range xsd:string ;
+    rdfs:label "technique name" .
+
+mi:yieldTarget a owl:DatatypeProperty ;
+    rdfs:domain mi:RDPrototype ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "yield target (MWh)" .
+
+mi:testResults a owl:DatatypeProperty ;
+    rdfs:domain mi:RDPrototype ;
+    rdfs:range xsd:string ;
+    rdfs:label "test results" .
+
+# ────────────────────────────────────────────────────────────────────────────
+# Object Properties
+# ────────────────────────────────────────────────────────────────────────────
+
+mi:role a owl:ObjectProperty ;
+    rdfs:domain mi:Monster ;
+    rdfs:range mi:Role ;
+    rdfs:label "role" .
+
+mi:department a owl:ObjectProperty ;
+    rdfs:domain mi:Monster ;
+    rdfs:range mi:Domain ;
+    rdfs:label "department" .
+
+mi:assignedStation a owl:ObjectProperty ;
+    rdfs:domain mi:Comedian ;
+    rdfs:range mi:LaughFloorStation ;
+    rdfs:label "assigned station" .
+
+mi:childProfile a owl:ObjectProperty ;
+    a owl:FunctionalProperty ;
+    rdfs:domain mi:ChildDoor ;
+    rdfs:range mi:ChildProfile ;
+    rdfs:label "child profile" .
+
+mi:doorStatus a owl:ObjectProperty ;
+    a owl:FunctionalProperty ;
+    rdfs:domain mi:ChildDoor ;
+    rdfs:range mi:DoorStatus ;
+    rdfs:label "door status" .
+
+mi:energyType a owl:ObjectProperty ;
+    rdfs:domain mi:LaughCanister ;
+    rdfs:range mi:EnergyType ;
+    rdfs:label "energy type" .
+
+mi:assignedComedian a owl:ObjectProperty ;
+    rdfs:domain mi:LaughFloorStation ;
+    rdfs:range mi:Comedian ;
+    rdfs:label "assigned comedian" .
+
+mi:activeDoor a owl:ObjectProperty ;
+    rdfs:domain mi:LaughFloorStation ;
+    rdfs:range mi:ChildDoor ;
+    rdfs:label "active door" .
+
+mi:shift a owl:ObjectProperty ;
+    rdfs:domain mi:LaughFloorStation ;
+    rdfs:range mi:Shift ;
+    rdfs:label "shift" .
+
+mi:involvedDoor a owl:ObjectProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range mi:ChildDoor ;
+    rdfs:label "involved door" .
+
+mi:trainee a owl:ObjectProperty ;
+    rdfs:domain mi:TrainingRecord ;
+    rdfs:range mi:Monster ;
+    rdfs:label "trainee" .
+
+mi:program a owl:ObjectProperty ;
+    rdfs:domain mi:TrainingRecord ;
+    rdfs:range mi:TrainingProgram ;
+    rdfs:label "training programme" .
+
+mi:comedian a owl:ObjectProperty ;
+    rdfs:domain mi:PerformanceRecord ;
+    rdfs:range mi:Comedian ;
+    rdfs:label "comedian" .
+
+mi:status a owl:ObjectProperty ;
+    rdfs:domain mi:RDPrototype ;
+    rdfs:range mi:PrototypeStatus ;
+    rdfs:label "prototype status" .
+
+# ────────────────────────────────────────────────────────────────────────────
+# Disjointness Axioms (OWL 2 — prevents multi-class instance conflicts)
+# ────────────────────────────────────────────────────────────────────────────
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        mi:Comedian
+        mi:DoorTechnician
+        mi:ChildDoor
+        mi:ChildProfile
+        mi:LaughCanister
+        mi:EnergyUnit
+        mi:LaughFloorStation
+        mi:CDAIncident
+        mi:TrainingRecord
+        mi:PerformanceRecord
+        mi:RDPrototype
+    ) .
+
+# ────────────────────────────────────────────────────────────────────────────
+# Org Hierarchy & Domain Ownership Properties (3.2)
+# ────────────────────────────────────────────────────────────────────────────
+
+mi:reportsTo a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:domain mi:Monster ;
+    rdfs:range  mi:Monster ;
+    rdfs:label  "reports to" .
+
+mi:manages a owl:ObjectProperty ;
+    owl:inverseOf mi:reportsTo ;
+    rdfs:domain mi:Monster ;
+    rdfs:range  mi:Monster ;
+    rdfs:label  "manages" .
+
+mi:holdsTitleRole a owl:ObjectProperty ;
+    rdfs:domain mi:Monster ;
+    rdfs:range  mi:Role ;
+    rdfs:label  "holds title role" .
+
+mi:domainOwner a owl:ObjectProperty ;
+    rdfs:domain mi:Domain ;
+    rdfs:range  mi:Monster ;
+    rdfs:label  "domain owner" .
+
+# Named role individuals
+mi:CEO                a mi:Role, owl:NamedIndividual ; rdfs:label "Chief Executive Officer" .
+mi:CCO                a mi:Role, owl:NamedIndividual ; rdfs:label "Chief Comedy Officer" ;
+    rdfs:comment "Operational/creative authority (Mike Wazowski). NOT the regulatory escalation target — high-severity CDA incidents escalate to the CDA Liaison Director (see mi:HITL_HighSeverityIncident)." .
+mi:CDADirector        a mi:Role, owl:NamedIndividual ; rdfs:label "CDA Liaison Director" .
+mi:FloorManagerRole   a mi:Role, owl:NamedIndividual ; rdfs:label "Floor Manager" .
+mi:VPLogistics        a mi:Role, owl:NamedIndividual ; rdfs:label "VP Logistics & Door Operations" .
+mi:VPEnergy           a mi:Role, owl:NamedIndividual ; rdfs:label "VP Energy Production" .
+mi:ChiefPeopleOfficer a mi:Role, owl:NamedIndividual ; rdfs:label "Chief People Officer" .
+mi:RDDirector         a mi:Role, owl:NamedIndividual ; rdfs:label "R&D Director" .
+
+# ────────────────────────────────────────────────────────────────────────────
+# CDA Incident Lifecycle (3.3)
+# ────────────────────────────────────────────────────────────────────────────
+
+mi:IncidentStatus a owl:Class ;
+    rdfs:label "Incident Status" ;
+    owl:oneOf ( mi:Open mi:Contained mi:Escalated mi:Closed mi:SubmittedToRegulator ) .
+
+mi:Open                a mi:IncidentStatus, owl:NamedIndividual ; rdfs:label "Open" .
+mi:Contained           a mi:IncidentStatus, owl:NamedIndividual ; rdfs:label "Contained" .
+mi:Escalated           a mi:IncidentStatus, owl:NamedIndividual ; rdfs:label "Escalated" .
+mi:Closed              a mi:IncidentStatus, owl:NamedIndividual ; rdfs:label "Closed" .
+mi:SubmittedToRegulator a mi:IncidentStatus, owl:NamedIndividual ; rdfs:label "Submitted to Regulator" .
+
+mi:incidentStatus a owl:ObjectProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range  mi:IncidentStatus ;
+    rdfs:label  "incident status" .
+
+mi:CDAComplianceReport a owl:Class ;
+    rdfs:label "CDA Compliance Report" ;
+    rdfs:comment "A formal compliance report submitted to the Child Detection Agency covering one or more CDAIncidents." .
+
+mi:submittedAt a owl:DatatypeProperty ;
+    rdfs:domain mi:CDAComplianceReport ;
+    rdfs:range  xsd:dateTime ;
+    rdfs:label  "submitted at" .
+
+mi:cdaAcknowledgedAt a owl:DatatypeProperty ;
+    rdfs:domain mi:CDAComplianceReport ;
+    rdfs:range  xsd:dateTime ;
+    rdfs:label  "CDA acknowledged at" .
+
+mi:filedBy a owl:ObjectProperty ;
+    rdfs:domain mi:CDAComplianceReport ;
+    rdfs:range  mi:Monster ;
+    rdfs:label  "filed by" .
+
+mi:coversIncident a owl:ObjectProperty ;
+    rdfs:domain mi:CDAComplianceReport ;
+    rdfs:range  mi:CDAIncident ;
+    rdfs:label  "covers incident" .
+
+mi:reportedIn a owl:ObjectProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range  mi:CDAComplianceReport ;
+    rdfs:label  "reported in" .
+
+mi:incidentResponder a owl:ObjectProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range  mi:Monster ;
+    rdfs:label  "incident responder" ;
+    rdfs:comment "The monster (e.g. CDA Liaison) accountable for responding to and resolving this incident." .
+
+mi:affectedMonster a owl:ObjectProperty ;
+    rdfs:domain mi:CDAIncident ;
+    rdfs:range  mi:Monster ;
+    rdfs:label  "affected monster" ;
+    rdfs:comment "A monster exposed to or affected by this incident. Links incidents to the workers involved, not only the door — supporting worker-safety-exposure analysis." .
+
+# ────────────────────────────────────────────────────────────────────────────
+# People & Culture pillar — worker-welfare data (so culture is queryable, not
+# just narrative). Supports the human-centered query suite.
+# ────────────────────────────────────────────────────────────────────────────
+
+mi:renewalOffered a owl:DatatypeProperty ;
+    rdfs:domain mi:TrainingRecord ;
+    rdfs:range  xsd:boolean ;
+    rdfs:label  "renewal offered" ;
+    rdfs:comment "True if the company has proactively offered the trainee a renewal before expiry. Lets us see whose expiring certification puts THEIR job at risk without support." .
+
+mi:WellbeingPulse a owl:Class ;
+    rdfs:label "Wellbeing Pulse" ;
+    rdfs:comment "A periodic wellbeing / psychological-safety reading for a monster, making worker welfare measurable and queryable rather than narrative." .
+
+mi:pulseSubject a owl:ObjectProperty ;
+    rdfs:domain mi:WellbeingPulse ;
+    rdfs:range  mi:Monster ;
+    rdfs:label  "pulse subject" .
+
+mi:pulseScore a owl:DatatypeProperty ;
+    rdfs:domain mi:WellbeingPulse ;
+    rdfs:range  xsd:decimal ;
+    rdfs:label  "pulse score (0–10)" ;
+    rdfs:comment "Wellbeing score 0–10; below 5.0 indicates a worker who may need support." .
+
+mi:pulsePeriod a owl:DatatypeProperty ;
+    rdfs:domain mi:WellbeingPulse ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "pulse period" .
+
+mi:wellbeingDimension a owl:DatatypeProperty ;
+    rdfs:domain mi:WellbeingPulse ;
+    rdfs:range  xsd:string ;
+    rdfs:label  "wellbeing dimension" ;
+    rdfs:comment "The cultural value measured (e.g. psychological safety, workload sustainability, joy-based performance)." .

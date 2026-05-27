@@ -1,0 +1,296 @@
+@prefix rr:    <http://www.w3.org/ns/r2rml#> .
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# R2RML Mapping — Monsters Inc. Relational → RDF
+# Source: mi-db (operational RDBMS)
+# Target ontology: https://vocab.monstersinc.com/ontology#
+#
+# Canonical IRI convention: instance IRIs are lowercased with separators removed
+# (e.g. COMEDIAN 'EMP-001' → comedian/emp-001, CHILD_DOOR 'NYC-4821' →
+# door/nyc4821). Each subject map below uses an rr:R2RMLView that computes a
+# normalised *_key column so materialised triples MATCH the hand-authored seed
+# graph (data/seed_graph.ttl). Without this, R2RML output would not join the
+# canonical graph. (Demonstration mapping — no live RDBMS is executed.)
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# TriplesMap 1: COMEDIAN
+# ---------------------------------------------------------------------------
+
+mi:ComedianMap a rr:TriplesMap ;
+    rr:logicalTable [
+        a rr:R2RMLView ;
+        rr:sqlQuery "SELECT *, LOWER(comedian_id) AS comedian_key FROM COMEDIAN" ;
+    ] ;
+
+    rr:subjectMap [
+        rr:template "https://vocab.monstersinc.com/comedian/{comedian_key}" ;
+        rr:class mi:Comedian ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:name ;
+        rr:objectMap [ rr:column "name" ; rr:datatype xsd:string ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:certLevel ;
+        rr:objectMap [ rr:column "cert_level" ; rr:datatype xsd:integer ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:currentLaughScore ;
+        rr:objectMap [ rr:column "laugh_score" ; rr:datatype xsd:decimal ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:assignedStation ;
+        rr:objectMap [
+            rr:parentTriplesMap mi:LaughFloorStationMap ;
+            rr:joinCondition [
+                rr:child  "station_id" ;
+                rr:parent "station_id" ;
+            ] ;
+        ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:hireDate ;
+        rr:objectMap [ rr:column "hire_date" ; rr:datatype xsd:date ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:isActive ;
+        rr:objectMap [ rr:column "is_active" ; rr:datatype xsd:boolean ] ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# TriplesMap 2: CHILD_DOOR
+# ---------------------------------------------------------------------------
+
+mi:ChildDoorMap a rr:TriplesMap ;
+    rr:logicalTable [
+        a rr:R2RMLView ;
+        rr:sqlQuery "SELECT *, LOWER(REPLACE(portal_code,'-','')) AS door_key FROM CHILD_DOOR" ;
+    ] ;
+
+    rr:subjectMap [
+        rr:template "https://vocab.monstersinc.com/door/{door_key}" ;
+        rr:class mi:ChildDoor ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:portalCode ;
+        rr:objectMap [ rr:column "portal_code" ; rr:datatype xsd:string ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:doorStatus ;
+        rr:objectMap [ rr:column "door_status" ; rr:datatype xsd:string ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:lastMaintained ;
+        rr:objectMap [ rr:column "last_maintained" ; rr:datatype xsd:date ] ;
+    ] ;
+
+    # Intermediate ChildProfile node — named IRI (not a blank node) so it joins
+    # the seed graph's named profiles and supports Q7 multi-door detection.
+    rr:predicateObjectMap [
+        rr:predicate mi:childProfile ;
+        rr:objectMap [
+            rr:template "https://vocab.monstersinc.com/profile/{door_key}" ;
+        ] ;
+    ] ;
+
+    # FK join: CHILD_DOOR.assigned_comedian_id → COMEDIAN.comedian_id
+    rr:predicateObjectMap [
+        rr:predicate mi:assignedComedian ;
+        rr:objectMap [
+            rr:parentTriplesMap mi:ComedianMap ;
+            rr:joinCondition [
+                rr:child  "assigned_comedian_id" ;
+                rr:parent "comedian_id" ;
+            ] ;
+        ] ;
+    ] .
+
+# ChildProfile properties emitted from CHILD_DOOR rows via blank node term map
+mi:ChildProfileMap a rr:TriplesMap ;
+    rr:logicalTable [
+        a rr:R2RMLView ;
+        rr:sqlQuery "SELECT *, LOWER(REPLACE(portal_code,'-','')) AS door_key FROM CHILD_DOOR" ;
+    ] ;
+
+    rr:subjectMap [
+        rr:template "https://vocab.monstersinc.com/profile/{door_key}" ;
+        rr:class mi:ChildProfile ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:ageRange ;
+        rr:objectMap [ rr:column "child_age_range" ; rr:datatype xsd:string ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:bedroomType ;
+        rr:objectMap [ rr:column "bedroom_type" ; rr:datatype xsd:string ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:timezone ;
+        rr:objectMap [ rr:column "timezone" ; rr:datatype xsd:string ] ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# TriplesMap 3: PERFORMANCE_RECORD
+# ---------------------------------------------------------------------------
+
+mi:PerformanceRecordMap a rr:TriplesMap ;
+    rr:logicalTable [
+        a rr:R2RMLView ;
+        rr:sqlQuery "SELECT *, LOWER(REPLACE(record_id,'-','')) AS record_key FROM PERFORMANCE_RECORD" ;
+    ] ;
+
+    rr:subjectMap [
+        rr:template "https://vocab.monstersinc.com/record/{record_key}" ;
+        rr:class mi:PerformanceRecord ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:date ;
+        rr:objectMap [ rr:column "record_date" ; rr:datatype xsd:date ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:laughScore ;
+        rr:objectMap [ rr:column "laugh_score" ; rr:datatype xsd:decimal ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:energyGenerated ;
+        rr:objectMap [ rr:column "energy_generated_mwh" ; rr:datatype xsd:decimal ] ;
+    ] ;
+
+    # FK join: PERFORMANCE_RECORD.comedian_id → COMEDIAN.comedian_id
+    rr:predicateObjectMap [
+        rr:predicate mi:comedian ;
+        rr:objectMap [
+            rr:parentTriplesMap mi:ComedianMap ;
+            rr:joinCondition [
+                rr:child  "comedian_id" ;
+                rr:parent "comedian_id" ;
+            ] ;
+        ] ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# TriplesMap 4: TRAINING_RECORD
+# ---------------------------------------------------------------------------
+
+mi:TrainingRecordMap a rr:TriplesMap ;
+    rr:logicalTable [ a rr:BaseTableOrView ; rr:tableName "TRAINING_RECORD" ] ;
+
+    rr:subjectMap [
+        rr:template "https://vocab.monstersinc.com/training/{training_id}" ;
+        rr:class mi:TrainingRecord ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:completedAt ;
+        rr:objectMap [ rr:column "completed_at" ; rr:datatype xsd:date ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:expiresAt ;
+        rr:objectMap [ rr:column "expires_at" ; rr:datatype xsd:date ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:trainee ;
+        rr:objectMap [
+            rr:parentTriplesMap mi:ComedianMap ;
+            rr:joinCondition [
+                rr:child  "comedian_id" ;
+                rr:parent "comedian_id" ;
+            ] ;
+        ] ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# TriplesMap 5: CDA_INCIDENT
+# ---------------------------------------------------------------------------
+
+mi:CDAIncidentMap a rr:TriplesMap ;
+    rr:logicalTable [ a rr:BaseTableOrView ; rr:tableName "CDA_INCIDENT" ] ;
+
+    rr:subjectMap [
+        rr:template "https://vocab.monstersinc.com/incident/{incident_id}" ;
+        rr:class mi:CDAIncident ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:incidentCode ;
+        rr:objectMap [ rr:column "incident_code" ; rr:datatype xsd:string ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:severity ;
+        rr:objectMap [ rr:column "severity" ; rr:datatype xsd:integer ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:detectedAt ;
+        rr:objectMap [ rr:column "detected_at" ; rr:datatype xsd:dateTime ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:reportedAt ;
+        rr:objectMap [ rr:column "reported_at" ; rr:datatype xsd:dateTime ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:resolvedAt ;
+        rr:objectMap [ rr:column "resolved_at" ; rr:datatype xsd:dateTime ] ;
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate mi:involvedDoor ;
+        rr:objectMap [
+            rr:parentTriplesMap mi:ChildDoorMap ;
+            rr:joinCondition [
+                rr:child  "portal_code" ;
+                rr:parent "portal_code" ;
+            ] ;
+        ] ;
+    ] .
+
+# ---------------------------------------------------------------------------
+# R2RML View: Computed days since maintenance (CHILD_DOOR)
+# Uses standard SQL date arithmetic (CURRENT_DATE) instead of MySQL DATEDIFF
+# ---------------------------------------------------------------------------
+
+mi:DoorMaintenanceView a rr:TriplesMap ;
+    rr:logicalTable [
+        a rr:R2RMLView ;
+        rr:sqlQuery """
+            SELECT portal_code,
+                   LOWER(REPLACE(portal_code,'-','')) AS door_key,
+                   CAST(JULIANDAY(CURRENT_DATE) - JULIANDAY(last_maintained) AS INTEGER)
+                       AS days_since_maintenance
+            FROM CHILD_DOOR
+            WHERE last_maintained IS NOT NULL
+        """ ;
+    ] ;
+    rr:subjectMap [
+        rr:template "https://vocab.monstersinc.com/door/{door_key}" ;
+        rr:class mi:ChildDoor ;
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate mi:daysSinceMaintenance ;
+        rr:objectMap [ rr:column "days_since_maintenance" ; rr:datatype xsd:integer ] ;
+    ] .
