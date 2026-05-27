@@ -62,49 +62,22 @@ not C4. This item is just "draw a few more diagrams, C4-style."
 
 ---
 
-## 2. Fix a name clash on "EnergyLedger" ⭐⭐
+## ~~2. Fix a name clash on "EnergyLedger"~~ ✅ DONE
 
-**What it is, plainly:** We accidentally used the exact same name (`mi:EnergyLedger`)
-for **two different things**: (a) a dictionary term meaning "the energy record-keeping
-concept", and (b) an actual dataset in the catalogue. Because they share one name,
-tools get confused — the energy *dataset* shows up as if it were a *type of energy*
-in the glossary, and the glossary *term* shows up as if it were an access-controlled
-dataset. They should be two separate names.
-
-**Why it's here:** It's a genuine modelling mistake (not just style), but fixing it
-means renaming something that's referenced in several files, so it was left for a
-focused pass.
-
-**To do it (easier option):**
-- Rename the **glossary term** to something distinct, e.g. `mi:EnergyLedgerConcept`,
-  in `ontologies/mi-glossary.ttl` (the entry is around line 204). Also update the
-  place that points to it: the `mi:LaughEnergy` entry lists `mi:EnergyLedger` under
-  `skos:narrower` (around line 49) — change that to the new name too.
-- Leave the **dataset** `mi:EnergyLedger` alone (it's used by the catalogue and
-  governance files, so renaming the dataset would touch more places).
-
-**Done when:** `make all` is still green, and
-`grep -rn "EnergyLedger" ontologies docs scripts` shows no leftover/old references.
+The glossary **term** was renamed to `mi:EnergyLedgerConcept` (in
+`ontologies/mi-glossary.ttl`), and the `skos:narrower`/`skos:related` references that
+pointed at it (under `mi:LaughEnergy`, `mi:GridDispatch`, `mi:RegulatoryReport`) were
+updated to match. The **dataset** `mi:EnergyLedger` (catalogue + governance) was left
+untouched. `grep -rn "mi:EnergyLedger\b" ontologies` now shows only dataset usages.
+`docs/08-glossary.md` glossary table updated to read `mi:EnergyLedgerConcept`.
 
 ---
 
-## 3. Tidy up two "double-labelled" terms ⭐
+## ~~3. Tidy up two "double-labelled" terms~~ ✅ DONE
 
-**What it is, plainly:** Two names — `mi:DoorStatus` and `mi:TrainingProgram` — are
-each labelled as BOTH a "type of thing" (a class) AND a "dictionary term" (a SKOS
-concept) at the same time. That's allowed if you say so on purpose, and we *do*
-document it for three other terms — but these two were never added to that
-"on purpose" note. So it looks accidental.
-
-**Why it's here:** Minor cleanliness; doesn't break anything.
-
-**To do it (easiest option):**
-- In `ontologies/mi-glossary.ttl`, find the comment that explains the
-  "dual-use pattern" (around line 488) and add `DoorStatus` and `TrainingProgram`
-  to the list it sanctions. Optionally add a `skos:exactMatch` line linking each
-  concept to its class.
-
-**Done when:** `make all` is green and `make drift` reports no problems.
+`mi:DoorStatus` and `mi:TrainingProgram` were added to the "dual-use pattern" note in
+`ontologies/mi-glossary.ttl`, and each concept now carries a `skos:exactMatch` to its
+own class (same URI, dual-use). `make all` and `make drift` stay green.
 
 ---
 
@@ -178,34 +151,18 @@ run it. This item is "make it run automatically so a future mistake gets caught.
 
 ---
 
-## 7. Put the project on GitHub (so PR reviews work) ⭐
+## ~~7. Put the project on GitHub~~ ✅ DONE
 
-**What it is, plainly:** The project is only on your computer — there's no GitHub
-copy. That's why the `/review` command had nothing to review. If you want online
-reviews/PRs, push it up.
-
-**To do it:**
-```
-gh repo create monsters-inc-ea --private --source=. --remote=origin --push
-```
-Then open a pull request for the work on the `main` branch.
-
-**Done when:** the repo exists on GitHub and a PR is open.
+Pushed to **https://github.com/gazzwi86/monsters-inc** via the `git@github.com:gazzwi86/monsters-inc.git`
+SSH remote (`origin`). The refinement pass landed as a single commit on `main`.
 
 ---
 
-## 8. Use the official wording for one access-rule action ⭐ (tiny)
+## ~~8. Use the official wording for one access-rule action~~ ✅ DONE
 
-**What it is, plainly:** In the access rules (item 4's world), we wrote the action
-as `odrl:read`. The official ODRL standard uses `odrl:use` for that; `odrl:read`
-is common in examples but isn't an official term. Nothing checks this, so it
-doesn't break anything — it's just "use the exact official word."
-
-**To do it:** in `ontologies/mi-governance.ttl`, replace `odrl:read` with
-`odrl:use` (or define your own `mi:read` action). If you change the word, also
-check the GV4 query still reads nicely.
-
-**Done when:** `make query-gov` still works and `make all` is green.
+All `odrl:read` actions in `ontologies/mi-governance.ttl` were replaced with the
+official `odrl:use`. GV4 doesn't filter on the action so it still returns all rules;
+`make query-gov` and `make all` stay green.
 
 ---
 

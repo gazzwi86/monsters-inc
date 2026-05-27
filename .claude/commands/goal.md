@@ -10,7 +10,7 @@ Do the following in order:
 2. Run this command to see what exists:
    ```
    find /Users/gareth/Sites/obpm \( -name "*.md" -o -name "*.ttl" -o -name "*.sparql" -o -name "*.py" \) \
-     ! -path "*/CLAUDE.md" ! -path "*/spec.md" ! -path "*/PROMPT.md" ! -path "*/.claude/*" \
+     ! -path "*/CLAUDE.md" ! -path "*/.claude/*" \
      | sort
    ```
 3. Cross-reference against the **Execution Order** table in CLAUDE.md
@@ -19,6 +19,6 @@ Do the following in order:
    - The **single next artifact** to create, with its dependencies noted
    - Any cross-reference consistency issues to be aware of
 
-**Project goal in one sentence:** Generate 29 artifacts (13 docs, 6 ontology .ttl files, 2 SHACL shapes, 1 R2RML mapping, 2 SPARQL query files, 5 Python scripts) that together form a comprehensive open-standards enterprise architecture model of Monsters, Inc. — demonstrating OWL 2, SKOS, SHACL, SPARQL, PROV-O, DCAT 3, R2RML, and ArchiMate via PlantUML.
+**Project goal in one sentence:** Maintain a comprehensive open-standards enterprise architecture model of Monsters, Inc. — 16 docs, 9 ontology .ttl files, 3 SHACL shapes, 1 R2RML mapping, 6 SPARQL query suites, and 9 Python scripts — demonstrating OWL 2, SKOS, SHACL, SPARQL, PROV-O, DCAT 3, R2RML, ODRL, and ArchiMate via PlantUML. The initial build is complete; this command now reports current state and the next refinement.
 
-Use `PROMPT.md` as the authoritative spec for each artifact's content requirements.
+The original brief is preserved for reference at `.claude/prompts/spec.md` (canonical domain knowledge) and `.claude/prompts/PROMPT.md` (per-artifact content requirements). The live source of truth is now the artifacts themselves plus `CLAUDE.md`.

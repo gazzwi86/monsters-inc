@@ -28,20 +28,28 @@ ORDER BY DESC(?totalMWh)
 LIMIT 10
 
 
-# Q2: Doors with maintenance overdue (last maintained more than 180 days ago)
-# Business question: Which active child doors are past their maintenance window?
-# Returns: door URI, portal code, last maintained date, days overdue
+# Q2: Overdue doors and the operations they impact
+# Business question: Which active child doors are past their 180-day maintenance
+#   window, and which station / comedian does each currently serve?
+# Returns: portal code, last maintained date, impacted station, assigned comedian
+# Operational view — distinct from CV2, which is the bare compliance violation list.
 
-PREFIX mi:  <https://vocab.monstersinc.com/ontology#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?door (STR(?portalCode) AS ?portalCode) (STR(?lastMaintained) AS ?lastMaintainedDate)
+SELECT (STR(?portalCode) AS ?portalCode) (STR(?lastMaintained) AS ?lastMaintainedDate)
+       ?stationId ?comedianName
 WHERE {
     ?door a mi:ChildDoor ;
           mi:portalCode ?portalCode ;
           mi:doorStatus mi:active ;
           mi:lastMaintained ?lastMaintained .
     FILTER (xsd:dateTime(CONCAT(STR(?lastMaintained), "T00:00:00Z")) < (NOW() - "P180D"^^xsd:duration))
+    OPTIONAL {
+        ?station mi:activeDoor ?door ; mi:stationId ?stationId .
+        OPTIONAL { ?station mi:assignedComedian ?c . ?c mi:name ?comedianName }
+    }
 }
 ORDER BY ASC(?lastMaintained)
 
@@ -359,3 +367,147 @@ WHERE {
           mi:realizesCapability ?cap .
 }
 ORDER BY ?goal ?capability
+
+
+# Q17: R&D pipeline — laughter-technique prototypes by status and target yield
+# Business question: What is in the R&D pipeline, at what stage, and which
+#   prototype promises the highest energy yield?
+# Returns: prototype technique, lifecycle status, target yield (MWh), notes
+# Wires the D6 R&D domain (mi:RDPrototype) into the queryable graph.
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT (STR(?technique) AS ?prototype) (REPLACE(STR(?status), "^.*[#/]", "") AS ?status)
+       ?yieldTarget (STR(?notes) AS ?testResults)
+WHERE {
+    ?p a mi:RDPrototype ;
+       mi:technique  ?technique ;
+       mi:status     ?status ;
+       mi:yieldTarget ?yieldTarget ;
+       mi:testResults ?notes .
+}
+ORDER BY DESC(?yieldTarget)
+
+
+# Q18: Energy-era transition — canisters by class and energy type
+# Business question: How does the fleet split between the legacy scream-energy
+#   era and the current laughter era? (The scare→laughter pivot, made queryable.)
+# Returns: canister class, energy type, count
+# Matches the Canister superclass via subClassOf* (run_queries does no inference).
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT (REPLACE(STR(?cls), "^.*[#/]", "") AS ?canisterClass)
+       (REPLACE(STR(?et), "^.*[#/]", "") AS ?energyType)
+       (COUNT(?c) AS ?count)
+WHERE {
+    ?c a ?cls .
+    ?cls rdfs:subClassOf* mi:Canister .
+    OPTIONAL { ?c mi:energyType ?et }
+}
+GROUP BY ?cls ?et
+ORDER BY ?canisterClass
+
+
+# Q19: Station throughput — busiest Laugh Floor stations by output
+# Business question: Which stations carry the most performances, and how much
+#   energy does each generate in total?
+# Returns: station ID, performance count, total energy generated (MWh), avg per session
+# Exploits mi:atStation on every PerformanceRecord — surfaces load concentration
+# across the floor, distinct from Q10's live snapshot (this aggregates history).
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?stationId (COUNT(?record) AS ?performanceCount)
+       (ROUND(SUM(?mwh) * 100) / 100 AS ?totalMWh)
+       (ROUND(AVG(?mwh) * 100) / 100 AS ?avgMWhPerSession)
+WHERE {
+    ?record a mi:PerformanceRecord ;
+            mi:atStation ?station ;
+            mi:energyGenerated ?mwh .
+    ?station mi:stationId ?stationId .
+}
+GROUP BY ?station ?stationId
+ORDER BY DESC(?totalMWh)
+
+
+# Q20: Training-programme coverage — enrolment per programme
+# Business question: How many monsters have a training record against each
+#   formal TrainingProgram, and how many of those certifications are still valid?
+# Returns: programme label, total enrolments, still-valid certifications
+# Exploits mi:program on every TrainingRecord — turns the programme catalogue
+# into a coverage report, complementing Q5 (urgent renewals, individual grain).
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?programme (COUNT(?record) AS ?enrolments)
+       (SUM(IF(?valid, 1, 0)) AS ?currentlyValid)
+WHERE {
+    ?record a mi:TrainingRecord ;
+            mi:program ?prog .
+    ?prog rdfs:label ?programme .
+    OPTIONAL { ?record mi:expiresAt ?expiresAt }
+    BIND(BOUND(?expiresAt) &&
+         xsd:dateTime(CONCAT(STR(?expiresAt), "T00:00:00Z")) > NOW() AS ?valid)
+}
+GROUP BY ?prog ?programme
+ORDER BY DESC(?enrolments)
+
+
+# Q21: Door-technician span of control — managed doors vs active fleet
+# Business question: How many doors does each door technician manage, and what
+#   share of the active-door fleet does the technician corps cover?
+# Returns: technician name, clearance level, doors managed, share of active fleet (%)
+# Exploits mi:doorsManaged on DoorTechnician. NB seed assigns every technician the
+# same nominal load (40), so the ranking is flat by design — the analytical value
+# is the coverage ratio: total managed capacity against the live active-door count.
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?name ?clearanceLevel ?doorsManaged
+       (ROUND(?doorsManaged * 10000 / ?activeDoors) / 100 AS ?pctOfActiveFleet)
+WHERE {
+    ?tech a mi:DoorTechnician ;
+          mi:name ?name ;
+          mi:clearanceLevel ?clearanceLevel ;
+          mi:doorsManaged ?doorsManaged .
+    {
+        SELECT (COUNT(?d) AS ?activeDoors)
+        WHERE {
+            ?d a mi:ChildDoor ;
+               mi:doorStatus mi:active .
+        }
+    }
+}
+ORDER BY DESC(?doorsManaged) ?name
+
+
+# Q22: Workforce wellbeing by dimension — aggregate pulse readings
+# Business question: Across the wellbeing dimensions we track, what is the
+#   average, lowest and highest pulse score, and how many readings fall below
+#   the 5.0 support threshold per dimension?
+# Returns: wellbeing dimension, reading count, avg / min / max score, count below 5.0
+# Aggregates mi:WellbeingPulse by mi:wellbeingDimension — a portfolio view distinct
+# from HC5 (per-worker rows < 5.0) and HC7 (the anti-stack-rank guardrail join).
+
+PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?dimension (COUNT(?pulse) AS ?readings)
+       (ROUND(AVG(?score) * 100) / 100 AS ?avgScore)
+       (MIN(?score) AS ?minScore) (MAX(?score) AS ?maxScore)
+       (SUM(IF(?score < 5.0, 1, 0)) AS ?belowThreshold)
+WHERE {
+    ?pulse a mi:WellbeingPulse ;
+           mi:wellbeingDimension ?dimension ;
+           mi:pulseScore ?score .
+}
+GROUP BY ?dimension
+ORDER BY ASC(?avgScore)

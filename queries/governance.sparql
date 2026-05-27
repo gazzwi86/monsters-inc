@@ -68,7 +68,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
 
 SELECT ?policy ?ruleType (STRAFTER(STR(?target), "#") AS ?target)
-       (STRAFTER(STR(?action), "#") AS ?action) (STRAFTER(STR(?assignee), "#") AS ?assignee)
+       (REPLACE(STR(?action), "^.*[#/]", "") AS ?action) (STRAFTER(STR(?assignee), "#") AS ?assignee)
 WHERE {
     ?pol a odrl:Set ; rdfs:label ?policy .
     {

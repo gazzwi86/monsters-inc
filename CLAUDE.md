@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Enterprise architecture reference project modeling **Monsters, Inc.** (Pixar) using the full open semantic web and EA standards stack. It is both a learning resource and a demonstration artifact for **MS IQ** — an intelligent enterprise modeling platform designed to import and reason over these open formats.
 
-`spec.md` is the canonical source of truth for domain knowledge, entity definitions, business rules, and artifact requirements. Read it before making changes. `PROMPT.md` is the self-contained execution prompt for generating all remaining artifacts from a fresh session.
+The semantic artifacts themselves (the `ontologies/`, `shapes/`, `mappings/`, and `queries/` files), together with this `CLAUDE.md` and `README.md`, are the live source of truth. The original brief is preserved for reference at `.claude/prompts/spec.md` (canonical domain knowledge, entity definitions, business rules) and `.claude/prompts/PROMPT.md` (per-artifact content requirements). That brief predates the 2026 agent-grade additions (docs 13–15, the agent/governance/constitution/motivation ontologies), so treat it as historical context — not current inventory.
 
 ---
 
@@ -19,15 +19,15 @@ Once `pyproject.toml` exists (generated as part of the project build):
 ```bash
 uv sync                  # install dependencies (rdflib, pyshacl, rich, typer)
 make all                 # seed → generate ontology → validate SHACL → run queries
-make ontology            # uv run mi-ontology  → writes ontologies/*.ttl
+make ontology            # uv run mi-ontology  → merges the 9 ontologies → build/mi-merged.ttl (+ live counts)
 make seed                # uv run mi-seed      → writes data/seed_graph.ttl
 make validate            # uv run mi-validate  → SHACL report (expects 3 intentional violations, named)
-make query               # uv run mi-query     → business questions Q1–Q16
+make query               # uv run mi-query     → business questions Q1–Q22
 make query-cv            # compliance · make query-agent · make query-human · make query-gov · make query-con
 make test                # detector unit tests — isolated fixtures for CV5/CV6/CV3 (runs inside `make all`)
 make materialize         # execute the R2RML mapping (SQLite + morph-kgc) and verify it joins the seed graph
 make drift               # verify docs excerpts still match their source-of-truth files
-make catalog             # uv run mi-catalog   → appends to ontologies/mi-catalog.ttl
+make catalog             # uv run mi-catalog   → builds DCAT catalog from data assets → build/mi-catalog.generated.ttl
 ```
 
 To run a single script directly:
@@ -48,24 +48,33 @@ import rdflib; g = rdflib.Graph(); g.parse("ontologies/mi-core.ttl", format="tur
 The project has three layers that build on each other:
 
 ### 1. Documentation (`docs/`)
-13 markdown files (00–12), each covering one modeling view. Every document must include: a `View / Standard / Audience` header block, a navigation bar, at least one PlantUML diagram, at least one Turtle/SPARQL/SHACL code artifact, a "Why this matters" section, and cross-references to related docs. Diagrams use **PlantUML** exclusively (not Mermaid).
+16 markdown files (00–15), each covering one modeling view. Every document must include: a `View / Standard / Audience` header block, a navigation bar, at least one PlantUML diagram, at least one Turtle/SPARQL/SHACL code artifact, a "Why this matters" section, and cross-references to related docs. Diagrams use **PlantUML** exclusively (not Mermaid).
 
 ### 2. Semantic Artifacts
 | Path | Standard | What it models |
 |------|----------|----------------|
-| `ontologies/mi-core.ttl` | OWL 2 | All 12 classes + 35 properties — the central schema |
-| `ontologies/mi-glossary.ttl` | SKOS | 40+ controlled vocabulary terms |
-| `ontologies/mi-catalog.ttl` | DCAT 3 | Catalog of all 10 data assets |
+| `ontologies/mi-core.ttl` | OWL 2 | 12 core entity classes (plus the abstract `mi:Canister` superclass and legacy `mi:ScreamCanister`), supporting enumerations, and properties — the central schema |
+| `ontologies/mi-glossary.ttl` | SKOS | 52 controlled-vocabulary concepts under 7 top concepts |
+| `ontologies/mi-catalog.ttl` | DCAT 3 | Catalog of all 11 data assets |
 | `ontologies/mi-provenance.ttl` | PROV-O | Laugh→canister→energy→grid lineage chain |
 | `ontologies/mi-process.ttl` | OWL + BPMN-O | 7 business processes with semantic annotations |
-| `shapes/mi-core.shacl.ttl` | SHACL | 6 property/cardinality constraint shapes |
+| `ontologies/mi-agent-model.ttl` | OWL 2 | Authority, permissions, HITL triggers, `mi:automatable` per step |
+| `ontologies/mi-motivation.ttl` | OWL 2 | Goals/drivers/capabilities — strategy→capability→process chain |
+| `ontologies/mi-governance.ttl` | OWL 2 + W3C ODRL | Identity, RDF service catalog, ODRL access policies, data classification |
+| `ontologies/mi-constitution.ttl` | OWL 2 | Principles → regulatory requirements → enforcement bindings |
+| `shapes/mi-core.shacl.ttl` | SHACL | Core property/cardinality constraint shapes |
 | `shapes/mi-compliance.shacl.ttl` | SHACL | CDA-specific regulatory constraint shapes |
-| `mappings/mi-db.r2rml.ttl` | R2RML | Maps 3 SQL tables (COMEDIAN, CHILD_DOOR, PERFORMANCE_RECORD) to RDF |
-| `queries/business-questions.sparql` | SPARQL 1.1 | 16 analytical business queries (Q1–Q16) |
-| `queries/compliance-violations.sparql` | SPARQL 1.1 | 3 queries mirroring SHACL constraints |
+| `shapes/mi-agent.shacl.ttl` | SHACL | Permission / HITL / high-severity escalation constraint shapes |
+| `mappings/mi-db.r2rml.ttl` | R2RML | Maps the operational SQL tables (COMEDIAN, CHILD_DOOR, PERFORMANCE_RECORD, …) to RDF |
+| `queries/business-questions.sparql` | SPARQL 1.1 | 22 analytical business queries (Q1–Q22) |
+| `queries/compliance-violations.sparql` | SPARQL 1.1 | 7 queries mirroring SHACL constraints (CV1–CV7) |
+| `queries/agent-authority.sparql` | SPARQL 1.1 | 5 agent-authority queries (AA1–AA5) |
+| `queries/human-centered.sparql` | SPARQL 1.1 | 8 human-centered / wellbeing queries (HC1–HC8) |
+| `queries/governance.sparql` | SPARQL 1.1 | 6 data-governance queries (GV1–GV6) |
+| `queries/constitution.sparql` | SPARQL 1.1 | 4 constitution / defensibility queries (CN1–CN4) |
 
 ### 3. Python / UV Project (`scripts/`)
-Five scripts wired as CLI entry points via `pyproject.toml`. Execution order matters: `seed_data` first (populates `data/seed_graph.ttl`), then `generate_ontology` (writes `.ttl` files), then `validate_shacl` (loads seed + shapes), then `run_queries` (loads all ontologies + seed into one `ConjunctiveGraph`).
+Nine Python files in `scripts/` (`__init__.py` plus eight modules). Five are wired as CLI entry points via `pyproject.toml` (`mi-seed`, `mi-ontology`, `mi-validate`, `mi-query`, `mi-catalog`); `check_doc_drift`, `run_tests`, and `materialize_r2rml` are invoked via their `make` targets. Execution order matters: `seed_data` first (populates `data/seed_graph.ttl`), then `generate_ontology`, then `validate_shacl` (loads seed + the ontologies the shapes target, including `mi-provenance.ttl`), then `run_queries` (loads all ontologies + seed into one graph). `run_tests` exercises the dormant detectors (CV5/CV6/CV3) against isolated in-memory fixtures without touching the seed; `check_doc_drift` verifies doc excerpts against their source files.
 
 ---
 
@@ -74,7 +83,7 @@ Five scripts wired as CLI entry points via `pyproject.toml`. Execution order mat
 **Ontology URI base:** `https://vocab.monstersinc.com/ontology#`, prefix `mi:`  
 **SKOS glossary URI:** `https://vocab.monstersinc.com/glossary`
 
-**Class naming:** PascalCase OWL class names map directly to database table names (COMEDIAN → `mi:Comedian`). The 12 core classes are in `spec.md §6`.
+**Class naming:** PascalCase OWL class names map directly to database table names (COMEDIAN → `mi:Comedian`). The 12 core classes are listed in `.claude/prompts/spec.md §6`.
 
 **Cross-domain concern:** CDA compliance (D5) is a cross-cutting concern — it touches D1, D2, and D3. Any process or shape affecting those domains must include a CDA compliance check or reference.
 
@@ -90,12 +99,12 @@ Five scripts wired as CLI entry points via `pyproject.toml`. Execution order mat
 
 ## Execution Order for Full Generation
 
-When generating all remaining artifacts (see `PROMPT.md` for full specs):
+The initial build is complete; this dependency map is retained as reference (see `.claude/prompts/PROMPT.md` for the original per-artifact specs):
 
 ```
 docs/01 → ontologies/mi-core.ttl
 docs/08 → ontologies/mi-glossary.ttl
-docs/02 → (no new artifact, references capability inventory from spec.md)
+docs/02 → (no new artifact, references capability inventory from .claude/prompts/spec.md)
 docs/03 → ontologies/mi-process.ttl (snippet)
 docs/04 → (OBPM annotations on process from 03)
 docs/10 → (entity graph, no new .ttl)
@@ -106,7 +115,13 @@ docs/06 → ontologies/mi-provenance.ttl
 docs/05 → ontologies/mi-catalog.ttl
 docs/07 → (service catalog, no new .ttl)
 docs/12 → (document ontology, inline Turtle only)
-scripts/ → all five Python scripts
+docs/13 → ontologies/mi-agent-model.ttl + shapes/mi-agent.shacl.ttl
+          queries/agent-authority.sparql + queries/human-centered.sparql
+docs/14 → ontologies/mi-governance.ttl (W3C ODRL) + queries/governance.sparql
+docs/15 → ontologies/mi-constitution.ttl + queries/constitution.sparql
+          (motivation chain: ontologies/mi-motivation.ttl)
+scripts/ → eight modules: 5 CLI entry points (mi-seed/-ontology/-validate/-query/-catalog)
+           + check_doc_drift + run_tests + materialize_r2rml
 data/    → monsters.json, doors.json, scare_records.json
 README.md → navigation hub (fill last, all links known)
 ```

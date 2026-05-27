@@ -45,11 +45,23 @@ try:  # optional pretty output
 
     def out(msg: str) -> None:
         _console.print(msg)
+
 except Exception:  # pragma: no cover - rich not installed
+
     def out(msg: str) -> None:
         # Strip simple rich markup so plain output stays readable.
-        for tag in ("[red]", "[/red]", "[green]", "[/green]",
-                    "[yellow]", "[/yellow]", "[bold]", "[/bold]", "[dim]", "[/dim]"):
+        for tag in (
+            "[red]",
+            "[/red]",
+            "[green]",
+            "[/green]",
+            "[yellow]",
+            "[/yellow]",
+            "[bold]",
+            "[/bold]",
+            "[dim]",
+            "[/dim]",
+        ):
             msg = msg.replace(tag, "")
         _print_plain(msg)
 
@@ -63,7 +75,7 @@ def parse_excerpts(md_path: Path):
         stripped = lines[i].strip()
         if stripped.startswith(MARKER):
             # Extract the source path between the marker prefix and '-->'.
-            inner = stripped[len(MARKER):]
+            inner = stripped[len(MARKER) :]
             inner = inner.replace("-->", "").strip()
             source_rel = inner
             # Find the opening fence on a following line.
@@ -86,7 +98,10 @@ def parse_excerpts(md_path: Path):
         i += 1
 
 
-def check_excerpt(source_rel: str, block, ):
+def check_excerpt(
+    source_rel: str,
+    block,
+):
     """Return list of (line_no_within_block, line_text) that are NOT in source."""
     source_path = REPO_ROOT / source_rel
     if not source_path.exists():
@@ -126,9 +141,7 @@ def main() -> int:
                 continue
             if result:
                 drifted_excerpts += 1
-                drift_records.append(
-                    f"[red]DRIFT[/red] {rel_doc} (excerpt-from: {source_rel})"
-                )
+                drift_records.append(f"[red]DRIFT[/red] {rel_doc} (excerpt-from: {source_rel})")
                 for idx, raw in result:
                     line_no = content_start + idx
                     drift_records.append(
@@ -147,8 +160,10 @@ def main() -> int:
     if drifted_excerpts == 0:
         out(f"[green]{total_excerpts} excerpts checked, 0 drifted — all in sync.[/green]")
         return 0
-    out(f"[red]{total_excerpts} excerpts checked, {drifted_excerpts} drifted "
-        f"({clean} clean).[/red]")
+    out(
+        f"[red]{total_excerpts} excerpts checked, {drifted_excerpts} drifted "
+        f"({clean} clean).[/red]"
+    )
     return 1
 
 

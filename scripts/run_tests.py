@@ -6,10 +6,11 @@ CV3 30-minute duration fix — WITHOUT touching data/seed_graph.ttl or the
 "exactly 3 intentional violations" invariant. Each query's text is loaded from the
 real .sparql file (no duplicated query logic), then run against a throwaway graph.
 """
+
 import sys
 from pathlib import Path
 
-from rdflib import Graph, Namespace, Literal, URIRef
+from rdflib import Graph, Literal, Namespace, URIRef
 from rdflib.namespace import RDF, XSD
 from rich.console import Console
 
@@ -63,42 +64,49 @@ def test(name):
     def deco(fn):
         TESTS.append((name, fn))
         return fn
+
     return deco
 
 
 @test("CV6 flags an aged-out (14-16) door")
 def _(cv6):
-    g = Graph(); door(g, "urn:d1", "AGE-14", "14-16")
+    g = Graph()
+    door(g, "urn:d1", "AGE-14", "14-16")
     assert rowcount(g, cv6) == 1
 
 
 @test("CV6 ignores an in-range (5-7) door")
 def _(cv6):
-    g = Graph(); door(g, "urn:d2", "AGE-7", "5-7")
+    g = Graph()
+    door(g, "urn:d2", "AGE-7", "5-7")
     assert rowcount(g, cv6) == 0
 
 
 @test("CV6 handles the '13+' format (strips the '+')")
 def _(cv6):
-    g = Graph(); door(g, "urn:d3", "AGE-13plus", "13+")
+    g = Graph()
+    door(g, "urn:d3", "AGE-13plus", "13+")
     assert rowcount(g, cv6) == 1
 
 
 @test("CV6 boundary: '12-14' is in-range (lower age 12 < 13)")
 def _(cv6):
-    g = Graph(); door(g, "urn:d4", "AGE-12", "12-14")
+    g = Graph()
+    door(g, "urn:d4", "AGE-12", "12-14")
     assert rowcount(g, cv6) == 0
 
 
 @test("CV5 flags a filled but unsealed canister")
 def _(cv5):
-    g = Graph(); canister(g, "urn:c1", 0.8, False)
+    g = Graph()
+    canister(g, "urn:c1", 0.8, False)
     assert rowcount(g, cv5) == 1
 
 
 @test("CV5 ignores a sealed canister")
 def _(cv5):
-    g = Graph(); canister(g, "urn:c2", 0.8, True)
+    g = Graph()
+    canister(g, "urn:c2", 0.8, True)
     assert rowcount(g, cv5) == 0
 
 

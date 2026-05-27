@@ -14,7 +14,7 @@ The Monsters, Inc. controlled vocabulary is formalised as a SKOS (Simple Knowled
 
 ## SKOS Concept Hierarchy
 
-The overview below shows all six top concepts as members of the concept scheme. The subsequent diagrams expand each top concept with its `skos:narrower` members.
+The overview below shows all seven top concepts as members of the concept scheme. The subsequent diagrams expand each top concept with its `skos:narrower` members.
 
 ### Overview — Six Top Concepts
 
@@ -32,27 +32,31 @@ left to right direction
 title Monsters, Inc. SKOS Concept Scheme — Top Concepts
 
 rectangle "**MI Glossary**\n(skos:ConceptScheme)" as SCHEME #EEEEEE
-rectangle "**LaughEnergy**" as LE #D4EDDA
+rectangle "**EnergySource**" as ES #D4EDDA
 rectangle "**DoorPortal**" as DP #D4E8FA
 rectangle "**ComedyStation**" as CS #EDE7F6
 rectangle "**HumanResources**" as HR #FFF3E0
 rectangle "**ComplianceControl**" as CCon #FFEBEE
 rectangle "**ResearchDevelopment**" as RD #E8F5E9
+rectangle "**CultureValues**" as CVal #FFF8E1
 
-SCHEME --> LE : skos:hasTopConcept
+SCHEME --> ES : skos:hasTopConcept
 SCHEME --> DP : skos:hasTopConcept
 SCHEME --> CS : skos:hasTopConcept
 SCHEME --> HR : skos:hasTopConcept
 SCHEME --> CCon : skos:hasTopConcept
 SCHEME --> RD : skos:hasTopConcept
+SCHEME --> CVal : skos:hasTopConcept
 
 @enduml
 ```
 
-### LaughEnergy — Narrower Concepts
+### EnergySource — Narrower Concepts
+
+`EnergySource` is the top concept; `LaughEnergy` and `ScreamEnergy` both sit directly under it (`skos:broader EnergySource`). `LaughEnergy` in turn has its own six narrowers.
 
 ```plantuml
-@startuml MI-LaughEnergy-Detail
+@startuml MI-EnergySource-Detail
 !theme plain
 skinparam backgroundColor #FFFFFF
 skinparam defaultFontName Arial
@@ -64,8 +68,9 @@ skinparam NoteBackgroundColor #FFFDE7
 skinparam NoteBorderColor #F0C040
 
 left to right direction
-title LaughEnergy — skos:narrower
+title EnergySource — skos:narrower
 
+rectangle "**EnergySource**" as ES #D4EDDA
 rectangle "**LaughEnergy**" as LE #D4EDDA
 rectangle "ScreamEnergy\n[deprecated]" as SE #FDECEA
 rectangle "EnergyCanister" as EC #D4EDDA
@@ -75,7 +80,8 @@ rectangle "LaughConversionRate" as LCR #D4EDDA
 rectangle "EnergyLedger" as EL #D4EDDA
 rectangle "GridDispatch" as GD #D4EDDA
 
-LE --> SE : skos:narrower
+ES --> LE : skos:narrower
+ES --> SE : skos:narrower
 LE --> EC : skos:narrower
 LE --> EY : skos:narrower
 LE --> MWH : skos:narrower
@@ -261,6 +267,37 @@ RD --> RDC : skos:narrower
 @enduml
 ```
 
+### CultureValues — Narrower Concepts
+
+```plantuml
+@startuml MI-CultureValues-Detail
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor #555555
+skinparam RectangleBorderColor #888888
+skinparam RectangleBackgroundColor #F7F7F7
+
+left to right direction
+title CultureValues — skos:narrower
+
+rectangle "**CultureValues**" as CVal #FFF8E1
+rectangle "PsychologicalSafety" as PS #FFF8E1
+rectangle "JoyBasedPerformance" as JBP #FFF8E1
+rectangle "CollaborativeCraft" as CCr #FFF8E1
+rectangle "WorkerWellbeing" as WW #FFF8E1
+rectangle "ComedyNPS" as CNPS #FFF8E1
+
+CVal --> PS : skos:narrower
+CVal --> JBP : skos:narrower
+CVal --> CCr : skos:narrower
+CVal --> WW : skos:narrower
+CVal --> CNPS : skos:narrower
+
+@enduml
+```
+
 ---
 
 ## Top Concept Overview
@@ -278,18 +315,19 @@ RD --> RDC : skos:narrower
 
 ## Full Concept Listing
 
-The table below covers all 46 concepts defined in `mi-glossary.ttl`, with their alt-labels and key relationships.
+The table below covers all 52 concepts defined in `mi-glossary.ttl`, with their alt-labels and key relationships.
 
 | Concept | altLabel(s) | skos:broader | Key skos:related |
 |---|---|---|---|
-| `mi:LaughEnergy` | LE, Laughter Energy | *(top concept)* | LaughScore, EnergyYield |
-| `mi:ScreamEnergy` | SE, Scare Energy | LaughEnergy | Protocol2319, EnergyCanister |
+| `mi:EnergySource` | Energy Source | *(top concept)* | LaughEnergy, ScreamEnergy |
+| `mi:LaughEnergy` | LE, Laughter Energy | EnergySource | LaughScore, EnergyYield |
+| `mi:ScreamEnergy` | SE, Scare Energy | EnergySource | Protocol2319, EnergyCanister |
 | `mi:EnergyCanister` | Laugh Canister, Canister | LaughEnergy | EnergyYield, CanisterSeal |
 | `mi:EnergyYield` | Yield, Output | LaughEnergy | LaughScore, LaughConversionRate |
 | `mi:MegawattHour` | MWh | LaughEnergy | EnergyYield, EnergyCanister |
 | `mi:LaughConversionRate` | LCR, Conversion Rate | LaughEnergy | LaughScore, YieldOptimisation |
-| `mi:EnergyLedger` | Ledger, Energy Register | LaughEnergy | GridDispatch, EnergyCanister |
-| `mi:GridDispatch` | Power Dispatch, Dispatch | LaughEnergy | EnergyCanister, EnergyLedger |
+| `mi:EnergyLedgerConcept` | Ledger, Energy Register | LaughEnergy | GridDispatch, EnergyCanister |
+| `mi:GridDispatch` | Power Dispatch, Dispatch | LaughEnergy | EnergyCanister, EnergyLedgerConcept |
 | `mi:DoorPortal` | Child Door, Portal | *(top concept)* | DoorDispatch, PortalActivation |
 | `mi:PortalCode` | Door Code, PC | DoorPortal | PortalNetwork, ChildProfile |
 | `mi:DoorVault` | Vault, Door Storage | DoorPortal | DoorDispatch, DoorMaintenance |
@@ -327,6 +365,12 @@ The table below covers all 46 concepts defined in `mi-glossary.ttl`, with their 
 | `mi:LaughPrototype` | Prototype, R&D Prototype | ResearchDevelopment | ComedyTechnique, RDCycle |
 | `mi:YieldOptimisation` | Yield Optimization, YO | ResearchDevelopment | LaughConversionRate, EnergyYield |
 | `mi:RDCycle` | Research Cycle, Innovation Cycle | ResearchDevelopment | LaughPrototype, ComedyTechnique |
+| `mi:CultureValues` | Cultural Principles | *(top concept)* | (narrowers only) |
+| `mi:PsychologicalSafety` | Safety to Speak Up | CultureValues | WorkerWellbeing, CDAIncident |
+| `mi:JoyBasedPerformance` | Laughter-First Culture | CultureValues | LaughEnergy, ScreamEnergy |
+| `mi:CollaborativeCraft` | Team Comedy | CultureValues | PerformanceLadder |
+| `mi:WorkerWellbeing` | Monster Welfare | CultureValues | PsychologicalSafety, PerformanceRecord |
+| `mi:ComedyNPS` | Joy Net Promoter Score | CultureValues | JoyBasedPerformance |
 
 ---
 
@@ -346,13 +390,13 @@ The table below covers all 46 concepts defined in `mi-glossary.ttl`, with their 
     skos:hasTopConcept mi:CultureValues .
 ```
 
-> The full file is located at [`ontologies/mi-glossary.ttl`](../ontologies/mi-glossary.ttl) and contains 481 RDF triples covering all 46 concepts with prefLabels, altLabels, definitions, broader/narrower hierarchies, related links, and history notes.
+> The full file is located at [`ontologies/mi-glossary.ttl`](../ontologies/mi-glossary.ttl) and contains all 52 concepts with prefLabels, altLabels, definitions, broader/narrower hierarchies, related links, and history notes.
 
 ---
 
 ## Why This Matters
 
-A SKOS controlled vocabulary is the governance foundation that makes enterprise data coherent at scale: every system, query, and report references the same canonical term rather than a local alias, eliminating the drift that typically accumulates when six organisational domains evolve independently. For Monsters, Inc., anchoring the 46 core concepts — from `mi:LaughEnergy` to `mi:Protocol2319` — in a machine-readable scheme means that the MS IQ platform can reason over terminology alongside structure, enabling cross-domain analytics that would otherwise require brittle string-matching heuristics.
+A SKOS controlled vocabulary is the governance foundation that makes enterprise data coherent at scale: every system, query, and report references the same canonical term rather than a local alias, eliminating the drift that typically accumulates when six organisational domains evolve independently. For Monsters, Inc., anchoring the 52 core concepts — from `mi:LaughEnergy` to `mi:Protocol2319` — in a machine-readable scheme means that the MS IQ platform can reason over terminology alongside structure, enabling cross-domain analytics that would otherwise require brittle string-matching heuristics.
 
 ---
 
@@ -363,4 +407,4 @@ A SKOS controlled vocabulary is the governance foundation that makes enterprise 
 
 ---
 
-*Document 08 of 12 — Monsters, Inc. Enterprise Architecture Reference*
+*Document 08 of 16 — Monsters, Inc. Enterprise Architecture Reference*

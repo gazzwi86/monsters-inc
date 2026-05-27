@@ -51,12 +51,12 @@ mi:Domain a owl:Class ;
     rdfs:label "Business Domain" ;
     rdfs:comment "One of the six organisational domains of Monsters, Inc." .
 
-mi:EnergyProduction a mi:Domain ; rdfs:label "D1 — Energy Production" .
-mi:LaughOperations  a mi:Domain ; rdfs:label "D2 — Laugh Operations" .
-mi:DoorManagement   a mi:Domain ; rdfs:label "D3 — Door Management & Logistics" .
-mi:HRTraining       a mi:Domain ; rdfs:label "D4 — HR & Training" .
-mi:CDACompliance    a mi:Domain ; rdfs:label "D5 — CDA Compliance & Safety" .
-mi:RDLaughter       a mi:Domain ; rdfs:label "D6 — R&D Laughter Initiative" .
+mi:EnergyProduction a mi:Domain, owl:NamedIndividual ; rdfs:label "D1 — Energy Production" .
+mi:LaughOperations  a mi:Domain, owl:NamedIndividual ; rdfs:label "D2 — Laugh Operations" .
+mi:DoorManagement   a mi:Domain, owl:NamedIndividual ; rdfs:label "D3 — Door Management & Logistics" .
+mi:HRTraining       a mi:Domain, owl:NamedIndividual ; rdfs:label "D4 — HR & Training" .
+mi:CDACompliance    a mi:Domain, owl:NamedIndividual ; rdfs:label "D5 — CDA Compliance & Safety" .
+mi:RDLaughter       a mi:Domain, owl:NamedIndividual ; rdfs:label "D6 — R&D Laughter Initiative" .
 
 # ── Role class ───────────────────────────────────────────────────────────────
 
@@ -124,9 +124,20 @@ mi:ChildProfile a owl:Class ;
 
 # 6. LaughCanister ────────────────────────────────────────────────────────────
 
+mi:Canister a owl:Class ;
+    rdfs:label "Canister" ;
+    rdfs:comment "Abstract energy container. Specialised into the active LaughCanister and the legacy (fear-era) ScreamCanister — modelling the scare→laughter transformation." .
+
 mi:LaughCanister a owl:Class ;
+    rdfs:subClassOf mi:Canister ;
     rdfs:label "Laugh Canister" ;
     rdfs:comment "A pressurised container that captures and stores laugh energy. Must be sealed before transport (~14.5 MWh/canister)." .
+
+mi:ScreamCanister a owl:Class ;
+    rdfs:subClassOf mi:Canister ;
+    owl:disjointWith mi:LaughCanister ;
+    rdfs:label "Scream Canister (legacy)" ;
+    rdfs:comment "Legacy fear-era energy container that stored scream energy before the laughter pivot. Retained to model the scare→laughter transformation; superseded operationally by LaughCanister." .
 
 # 7. EnergyUnit ───────────────────────────────────────────────────────────────
 
@@ -249,17 +260,17 @@ mi:timezone a owl:DatatypeProperty ;
 
 # LaughCanister properties
 mi:capacity a owl:DatatypeProperty ;
-    rdfs:domain mi:LaughCanister ;
+    rdfs:domain mi:Canister ;
     rdfs:range xsd:decimal ;
     rdfs:label "capacity (MWh)" .
 
 mi:fillLevel a owl:DatatypeProperty ;
-    rdfs:domain mi:LaughCanister ;
+    rdfs:domain mi:Canister ;
     rdfs:range xsd:decimal ;
     rdfs:label "fill level (0.0–1.0)" .
 
 mi:sealStatus a owl:DatatypeProperty ;
-    rdfs:domain mi:LaughCanister ;
+    rdfs:domain mi:Canister ;
     rdfs:range xsd:boolean ;
     rdfs:label "seal status" .
 
@@ -386,7 +397,7 @@ mi:doorStatus a owl:ObjectProperty ;
     rdfs:label "door status" .
 
 mi:energyType a owl:ObjectProperty ;
-    rdfs:domain mi:LaughCanister ;
+    rdfs:domain mi:Canister ;
     rdfs:range mi:EnergyType ;
     rdfs:label "energy type" .
 
@@ -424,6 +435,12 @@ mi:comedian a owl:ObjectProperty ;
     rdfs:domain mi:PerformanceRecord ;
     rdfs:range mi:Comedian ;
     rdfs:label "comedian" .
+
+mi:atStation a owl:ObjectProperty ;
+    rdfs:domain mi:PerformanceRecord ;
+    rdfs:range mi:LaughFloorStation ;
+    rdfs:label "at station" ;
+    rdfs:comment "The LaughFloorStation at which this performance was recorded. Ties each PerformanceRecord to the physical comedy station where the laugh energy was captured (BR6)." .
 
 mi:status a owl:ObjectProperty ;
     rdfs:domain mi:RDPrototype ;

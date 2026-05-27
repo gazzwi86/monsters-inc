@@ -1,4 +1,4 @@
-.PHONY: all ontology validate query query-cv query-agent query-human query-gov query-con query-all catalog seed demo install status query-one drift test materialize
+.PHONY: all ontology validate query query-cv query-agent query-human query-gov query-con query-all catalog seed demo install status query-one drift test materialize lint format
 
 BANNER = @echo "──────────────────────────────────────────" && echo "  Monsters, Inc. — $(1)" && echo "──────────────────────────────────────────"
 
@@ -71,6 +71,16 @@ test:
 materialize:
 	$(call BANNER,R2RML Materialisation Test)
 	uv run --with morph-kgc --with sqlalchemy python scripts/materialize_r2rml.py
+
+lint:
+	$(call BANNER,Lint & Format Check)
+	uv run ruff check scripts/
+	uv run black --check scripts/
+
+format:
+	$(call BANNER,Auto-format & Fix)
+	uv run black scripts/
+	uv run ruff check scripts/ --fix
 
 status:
 	$(call BANNER,Artifact Progress)

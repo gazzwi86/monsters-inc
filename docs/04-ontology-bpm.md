@@ -120,7 +120,7 @@ note right
   prov:wasAssociatedWith mi:Agent_CDAMonitor
 end note
 if (ContaminationAlert?) then (yes — 2319 detected)
-    #pink:Trigger Protocol 2319\n(subprocess P5)\n[creates: mi:CDAIncident\n  severity = 5\n  incidentCode = "2319"];
+    :Trigger Protocol 2319\n(subprocess P5)\n[creates: mi:CDAIncident\n  severity = 5\n  incidentCode = "2319"]; <<#pink>>
     note right
       prov:Activity
       creates mi:CDAIncident
@@ -130,7 +130,7 @@ if (ContaminationAlert?) then (yes — 2319 detected)
       prov:wasGeneratedBy mi:Agent_CDAMonitor
     end note
 elseif (Comedian below\nmin laugh threshold?) then (yes)
-    #pink:Station paused;
+    :Station paused; <<#pink>>
     :Supervisor intervention\nand assessment;
 else (clear)
 endif

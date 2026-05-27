@@ -153,6 +153,15 @@ end note
 
 > These twelve capabilities are now queryable individuals (`mi:Capability`) in `ontologies/mi-motivation.ttl`, linked to the processes that realise them via `mi:realizesCapability` — see query Q16.
 
+The top capability, *Laugh Energy Capture*, appears in the source as a `mi:Capability` individual carrying its maturity score, owning domain, and the strategic goal it serves:
+
+<!-- excerpt-from: ontologies/mi-motivation.ttl -->
+```turtle
+mi:Cap_LaughEnergyCapture a mi:Capability ; rdfs:label "Laugh Energy Capture" ;
+    mi:capabilityMaturity 5 ; mi:ownedByDomain mi:LaughOperations ;
+    mi:servesGoal mi:Goal_CleanEnergy .
+```
+
 ---
 
 ## 4. Maturity Gap Analysis

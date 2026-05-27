@@ -144,7 +144,7 @@ package "Data & Analytics Infrastructure" #F4ECF7 {
     [All ontologies +\ninstance data\n(OWL 2 / SKOS / PROV-O)]
   }
   node "SPARQL\nQuery Service" as SPARQL #D7BDE2 {
-    [Business intelligence\nqueries — 16 analytical +\n7 compliance queries]
+    [Business intelligence\nqueries — 22 analytical +\n7 compliance queries]
   }
 }
 
@@ -248,7 +248,7 @@ RDLMS --> SPARQL : yield analytics
 | Portal Network Controller | Network routing service | DPCS — routes all door-portal activation and deactivation signals | 10 million portal connections per day; < 50 ms activation latency |
 | Energy Grid Integration API | External integration API | ELS — dispatches confirmed MWh totals to Monstropolis Grid Authority | 288 dispatch cycles per day (every 5 minutes); 99.99% delivery guarantee |
 | RDF Knowledge Graph Store | Semantic data store (OWL 2 / SKOS / PROV-O / DCAT 3) | All six application services — single system-of-record for entities, relationships, and provenance | 50 000 RDF read operations/min; 5 000 write operations/min |
-| SPARQL Query Service | Analytics query engine | LFMS, HRCP, RDLMS, CDACG — executes 16 business queries and 7 compliance queries (plus agent, human-centered, governance & constitution suites) | 200 concurrent query sessions; < 2 s for standard analytical queries |
+| SPARQL Query Service | Analytics query engine | LFMS, HRCP, RDLMS, CDACG — executes 22 business queries and 7 compliance queries (plus agent, human-centered, governance & constitution suites) | 200 concurrent query sessions; < 2 s for standard analytical queries |
 | CDA Incident API | Regulatory exchange gateway | CDACG — bidirectional incident data exchange with the external Child Detection Agency | Up to 500 contamination incident reports per year; sub-1-minute alert delivery |
 | Event Streaming Bus | Asynchronous event bus | LFMS, CDACG, ELS, and infrastructure layer — distributes ShiftStartEvent, CanisterFilledEvent, ContaminationAlert, and 20+ event types | 1 million events per hour peak; at-least-once delivery, ordered per aggregate |
 
@@ -264,4 +264,4 @@ The service catalog is the IT architecture's counterpart to the capability map: 
 
 - [02 Capability Map](02-capability-map.md) — capabilities realised by these application services (LFMS realises Laugh Energy Capture; DPCS realises Door Portal Operations)
 - [05 Data Catalog](05-data-catalog.md) — datasets served by ELS (EnergyLedger dataset) and HRCP (ComedianRegistry dataset)
-- [09 Constraints & Queries](09-constraints-queries.md) — the SPARQL Query Service executes the business (Q1–Q16) and compliance (CV1–CV7) queries defined in that view, plus the agent, human-centered, governance and constitution suites
+- [09 Constraints & Queries](09-constraints-queries.md) — the SPARQL Query Service executes the business (Q1–Q22) and compliance (CV1–CV7) queries defined in that view, plus the agent, human-centered, governance and constitution suites

@@ -45,7 +45,7 @@ mi:LaughEnergy
     skos:narrower mi:EnergyYield ;
     skos:narrower mi:MegawattHour ;
     skos:narrower mi:LaughConversionRate ;
-    skos:narrower mi:EnergyLedger ;
+    skos:narrower mi:EnergyLedgerConcept ;
     skos:narrower mi:GridDispatch ;
     skos:related mi:LaughScore ;
     skos:related mi:EnergyYield ;
@@ -68,7 +68,8 @@ mi:DoorPortal
     skos:narrower mi:DoorDecommission ;
     skos:related mi:DoorDispatch ;
     skos:related mi:PortalActivation ;
-    skos:related mi:DoorTechnician .
+    skos:related mi:DoorTechnician ;
+    skos:exactMatch mi:ChildDoor .
 
 mi:ComedyStation
     a skos:Concept ;
@@ -87,7 +88,8 @@ mi:ComedyStation
     skos:narrower mi:PerformanceRecord ;
     skos:narrower mi:LaughScore ;
     skos:related mi:Comedian ;
-    skos:related mi:DoorPortal .
+    skos:related mi:DoorPortal ;
+    skos:exactMatch mi:LaughFloorStation .
 
 mi:HumanResources
     a skos:Concept ;
@@ -164,7 +166,8 @@ mi:EnergyCanister
     skos:broader mi:LaughEnergy ;
     skos:related mi:EnergyYield ;
     skos:related mi:CanisterSeal ;
-    skos:related mi:GridDispatch .
+    skos:related mi:GridDispatch ;
+    skos:exactMatch mi:LaughCanister .
 
 mi:EnergyYield
     a skos:Concept ;
@@ -200,7 +203,7 @@ mi:LaughConversionRate
     skos:related mi:EnergyYield ;
     skos:related mi:YieldOptimisation .
 
-mi:EnergyLedger
+mi:EnergyLedgerConcept
     a skos:Concept ;
     skos:inScheme <https://vocab.monstersinc.com/glossary> ;
     skos:prefLabel "Energy Ledger"@en ;
@@ -220,7 +223,7 @@ mi:GridDispatch
     skos:definition "The act of transmitting harvested laugh energy from sealed canisters to the Monstropolis Power Grid Authority for distribution to the wider monster-world electricity network."@en ;
     skos:broader mi:LaughEnergy ;
     skos:related mi:EnergyCanister ;
-    skos:related mi:EnergyLedger ;
+    skos:related mi:EnergyLedgerConcept ;
     skos:related mi:EnergyYield .
 
 # ── Operations Concepts (broader: mi:ComedyStation) ──────────────────────────
@@ -350,7 +353,8 @@ mi:DoorStatus
     skos:broader mi:DoorPortal ;
     skos:related mi:DoorMaintenance ;
     skos:related mi:DoorDecommission ;
-    skos:related mi:CDAIncident .
+    skos:related mi:CDAIncident ;
+    skos:exactMatch mi:DoorStatus .   # dual-use: same URI is also the owl:Class
 
 mi:PortalNetwork
     a skos:Concept ;
@@ -458,7 +462,8 @@ mi:TrainingProgram
     skos:broader mi:HumanResources ;
     skos:related mi:ComedyCertification ;
     skos:related mi:CertificationLevel ;
-    skos:related mi:Comedian .
+    skos:related mi:Comedian ;
+    skos:exactMatch mi:TrainingProgram .   # dual-use: same URI is also the owl:Class
 
 mi:PerformanceLadder
     a skos:Concept ;
@@ -485,10 +490,11 @@ mi:FloorManager
 
 # ── Compliance Concepts (broader: mi:ComplianceControl) ──────────────────────
 
-# Dual-use pattern: mi:CDAIncident, mi:Comedian, mi:ChildProfile are simultaneously
-# owl:Class (in mi-core.ttl) and skos:Concept (here). Both type assertions share the
-# same URI — this is intentional. Agents should treat the OWL class as the authoritative
-# schema definition and the SKOS concept as the controlled vocabulary entry.
+# Dual-use pattern: mi:CDAIncident, mi:Comedian, mi:ChildProfile, mi:DoorStatus, and
+# mi:TrainingProgram are simultaneously owl:Class (in mi-core.ttl) and skos:Concept
+# (here). Both type assertions share the same URI — this is intentional. Agents should
+# treat the OWL class as the authoritative schema definition and the SKOS concept as the
+# controlled vocabulary entry.
 mi:CDAIncident
     a skos:Concept ;
     skos:inScheme <https://vocab.monstersinc.com/glossary> ;
@@ -560,7 +566,7 @@ mi:RegulatoryReport
     skos:broader mi:ComplianceControl ;
     skos:related mi:ComplianceAudit ;
     skos:related mi:CDAIncident ;
-    skos:related mi:EnergyLedger .
+    skos:related mi:EnergyLedgerConcept .
 
 # ── R&D Concepts (broader: mi:ResearchDevelopment) ───────────────────────────
 

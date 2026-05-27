@@ -4,7 +4,7 @@
 
 Monsters, Inc. generates a range of formal documents — incident forms, shift reports, certification letters — that sit outside the relational database yet carry legal, operational, and compliance weight. This view defines an OWL document ontology that classifies those artefacts as typed subclasses of `mi:BusinessDocument`, integrates them into the DCAT catalog as `dcat:Distribution` instances, and threads each one into the PROV-O provenance chain so every document can be traced back to the process activity that created it.
 
-**Navigation:** [← 11 DB Schema](11-db-schema.md) | [All Views →](../README.md)
+**Navigation:** [← 11 DB Schema](11-db-schema.md) | [→ 13 Agent Authority](13-agent-model.md) | [All Views →](../README.md)
 
 ---
 
@@ -207,7 +207,7 @@ mi:mimeType a owl:DatatypeProperty ;
 mi:CDAIncidentForm a owl:Class ;
     rdfs:subClassOf mi:BusinessDocument ;
     rdfs:label "CDA Incident Form (2319)" ;
-    rdfs:comment "Filed by a CDA Monitor when a child is exposed to a scare event. Also typed as dcat:Distribution." .
+    rdfs:comment "Filed by a CDA Monitor when a child is exposed to a contamination (2319) event. Also typed as dcat:Distribution." .
 
 mi:incidentCode a owl:DatatypeProperty ;
     rdfs:domain mi:CDAIncidentForm ;
@@ -237,7 +237,7 @@ mi:totalMWh a owl:DatatypeProperty ;
 mi:CertificationDocument a owl:Class ;
     rdfs:subClassOf mi:BusinessDocument ;
     rdfs:label "Comedian Certification Letter" ;
-    rdfs:comment "Issued by HR upon successful completion of a scare certification level." .
+    rdfs:comment "Issued by HR upon successful completion of a comedy certification level." .
 
 mi:certLevel a owl:DatatypeProperty ;
     rdfs:domain mi:CertificationDocument ;

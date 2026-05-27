@@ -154,7 +154,7 @@ mi:ChildProfileDataPolicy a odrl:Set ;
     mi:governs mi:ChildProfiles ;
     odrl:permission [
         odrl:target mi:ChildProfile ;
-        odrl:action odrl:read ;
+        odrl:action odrl:use ;
         odrl:assignee mi:FloorManagerRole ;
         odrl:constraint [
             odrl:leftOperand odrl:purpose ;
@@ -174,7 +174,7 @@ mi:EmployeeDataPolicy a odrl:Set ;
     mi:governs mi:MonsterRegistry ;
     odrl:permission [
         odrl:target mi:Monster ;
-        odrl:action odrl:read ;
+        odrl:action odrl:use ;
         odrl:assignee mi:ChiefPeopleOfficer
     ] .
 
@@ -184,7 +184,7 @@ mi:EnergyLedgerPolicy a odrl:Set ;
     mi:governs mi:EnergyLedger ;
     odrl:permission [
         odrl:target mi:EnergyUnit ;
-        odrl:action odrl:read, odrl:distribute ;
+        odrl:action odrl:use, odrl:distribute ;
         odrl:assignee mi:MonstropolisGridAuthority
     ] .
 

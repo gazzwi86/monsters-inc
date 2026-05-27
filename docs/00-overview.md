@@ -4,7 +4,7 @@
 
 This document provides the entry point to the Monsters, Inc. enterprise architecture. It establishes the company in its operating context, maps the six enterprise pillars, and introduces the six domains that all subsequent views elaborate.
 
-**Navigation:** [Spec](../spec.md) | [Domain Model →](01-domain-model.md) | [Capability Map →](02-capability-map.md) | [All Views →](../README.md)
+**Navigation:** [Spec](../.claude/prompts/spec.md) | [Domain Model →](01-domain-model.md) | [Capability Map →](02-capability-map.md) | [All Views →](../README.md)
 
 ---
 
@@ -232,7 +232,7 @@ end note
 
 ## 4. Modeling Views Map
 
-This project produces thirteen interconnected modeling views. The table below shows which standard each view uses and which domain(s) it covers.
+This project produces sixteen interconnected modeling views. The table below shows which standard each view uses and which domain(s) it covers.
 
 ```plantuml
 @startuml MI-Views-Map
@@ -245,7 +245,7 @@ skinparam rectangleFontSize 10
 skinparam arrowColor #777777
 skinparam arrowFontSize 9
 
-title Monsters, Inc. — Artifact & View Map\n(How the 13 documents relate to each other)
+title Monsters, Inc. — Artifact & View Map\n(How the 16 documents relate to each other)
 
 left to right direction
 
@@ -262,6 +262,9 @@ rectangle "09 Constraints\n(SHACL + SPARQL)" as V09 #FFCCBC
 rectangle "10 Entity Graph\n(OWL + UML)" as V10 #E8F5E9
 rectangle "11 DB Schema\n(R2RML + SQL)" as V11 #E0F2F1
 rectangle "12 Unstructured Docs\n(Doc Ontology)" as V12 #F3E5F5
+rectangle "13 Agent Authority\n(OWL + SHACL)" as V13 #FFE0B2
+rectangle "14 Data Governance\n(ODRL + SHACL)" as V14 #FFE0B2
+rectangle "15 Constitution\n(OWL + SKOS)" as V15 #FFE0B2
 
 V00 --> V01 : domain\nentities
 V00 --> V02 : capabilities
@@ -277,6 +280,12 @@ V08 --> V01 : term\ndefinitions
 V07 --> V02 : service\ndecomposition
 V12 --> V05 : doc\nresources
 V09 --> V06 : violation\nlineage
+V13 --> V03 : permitted\nsteps
+V13 --> V09 : authority\nshapes
+V14 --> V07 : service\naccess
+V14 --> V13 : agent\nidentity
+V15 --> V13 : enforced\nprinciples
+V15 --> V09 : compliance\nbindings
 
 @enduml
 ```
@@ -355,3 +364,26 @@ stop
 | [10 — Entity Graph](10-entity-graph.md) | Full OWL entity-relationship + RDF graph view |
 | [11 — DB Schema](11-db-schema.md) | SQL schema + R2RML relational→RDF mapping |
 | [12 — Unstructured Docs](12-unstructured-docs.md) | CDA forms & incident reports as typed RDF resources |
+| [13 — Agent Authority & Orchestration](13-agent-model.md) | Which actions an autonomous agent may take, how authority resolves, and when it must escalate to a human |
+| [14 — Data Governance, Identity & Access](14-data-governance.md) | Who may reach which systems and data, under which W3C ODRL policies — the layer the agent consults before any read |
+| [15 — Constitution & Defensibility](15-constitution.md) | Company principles & regulatory requirements linked to the exact SHACL/SPARQL that enforces them |
+
+---
+
+## Schema Anchor
+
+Every view in this overview ultimately resolves against one shared OWL schema — the core ontology whose header is reproduced below. Its single URI base (`https://vocab.monstersinc.com/ontology#`) is what lets sixteen otherwise-independent documents reference the same `mi:` terms without drift.
+
+<!-- excerpt-from: ontologies/mi-core.ttl -->
+```turtle
+@prefix mi:    <https://vocab.monstersinc.com/ontology#> .
+<https://vocab.monstersinc.com/ontology>
+    a owl:Ontology ;
+    rdfs:label "Monsters, Inc. Core Ontology" ;
+```
+
+---
+
+## Why this matters
+
+A single navigable overview is what turns sixteen separate standards artifacts into one coherent, traversable model rather than a pile of disconnected files. The Views Map makes the dependencies between views explicit, so a reader — or an autonomous agent — can follow any concept from its glossary definition through its OWL class, its process, its data catalog entry, and the SHACL shapes that govern it. Without this entry point, the cross-references that make the model defensible would be invisible, and consumers like MS IQ would have no starting node from which to walk the graph. The overview is, in effect, the table of contents that proves the architecture is integrated rather than merely co-located.

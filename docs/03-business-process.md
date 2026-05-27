@@ -61,13 +61,13 @@ endif
 |CDA MONITOR (D5)|
 :Automated compliance check\nper station;
 if (ContaminationAlert?) then (yes — 2319 detected)
-    #pink:Trigger Protocol 2319\n(subprocess → P5);
+    :Trigger Protocol 2319\n(subprocess → P5); <<#pink>>
     note right
         CDA notified within
         30 minutes of detection
     end note
 elseif (Comedian below\nmin laugh threshold?) then (yes)
-    #pink:Station paused;
+    :Station paused; <<#pink>>
     :Supervisor intervention\nand assessment;
 else (clear)
 endif
@@ -169,6 +169,21 @@ stop
 | S7 — Remove door and return to vault | Door Technician | D3 Door Management | ChildDoor status → maintenance; vault record updated |
 | S8 — Automated compliance check | CDA Monitor | D5 CDA Compliance | CDAIncident created (if triggered); station flagged |
 | S9 — Close shift and aggregate data | Dispatcher | D2 Laugh Operations | PerformanceRecord created per Comedian |
+
+---
+
+## Semantic Definition
+
+P1 is not only a diagram: it is a `mi:BusinessProcess` individual in `ontologies/mi-process.ttl`, carrying its trigger event and the artefacts it produces and consumes, so the process can be reasoned over by SPARQL and the agent authority model in Doc 13.
+
+<!-- excerpt-from: ontologies/mi-process.ttl -->
+```turtle
+mi:P1_DailyLaughRun a mi:BusinessProcess ;
+    rdfs:label       "P1 — Daily Laugh Run" ;
+    mi:triggeredBy   mi:ShiftStartEvent ;
+    mi:produces      mi:PerformanceRecord, mi:EnergyUnit ;
+    mi:consumesInput mi:ChildDoor, mi:LaughCanister ;
+```
 
 ---
 

@@ -2,9 +2,9 @@
 
 > **View:** Data Catalog | **Standard:** DCAT 3 (W3C) | **Audience:** Data Stewards, Architects, Consumers
 
-The Monsters, Inc. Enterprise Data Catalog formally describes all 10 operational, compliance, and R&D datasets using the W3C DCAT 3 standard, enabling machine-readable discovery, licensing, and access negotiation. Each dataset is assigned to one of the six enterprise domains and published via a central SPARQL endpoint, giving downstream consumers — including the MS IQ platform — a single authoritative registry to query.
+The Monsters, Inc. Enterprise Data Catalog formally describes all 11 operational, compliance, and R&D datasets using the W3C DCAT 3 standard, enabling machine-readable discovery, licensing, and access negotiation. Each dataset is assigned to one of the six enterprise domains and published via a central SPARQL endpoint, giving downstream consumers — including the MS IQ platform — a single authoritative registry to query.
 
-> **Run it:** `make catalog` — expected output: catalog table showing 10 datasets with format, owner domain, update frequency
+> **Run it:** `make catalog` — builds a DCAT catalog from the on-disk data assets (→ `build/mi-catalog.generated.ttl`), printing a live inventory and cross-checking it against the 11 datasets in the authored `mi-catalog.ttl`
 
 **Navigation:** [← 04 Ontology BPM](04-ontology-bpm.md) | [→ 06 Data Lineage](06-data-lineage.md) | [All Views →](../README.md)
 
@@ -28,7 +28,7 @@ title Monsters, Inc. DCAT 3 Catalog Structure
 
 package "dcat:Catalog\nhttps://vocab.monstersinc.com/catalog" as CAT {
 
-    package "dcat:Dataset (×10)" as DS {
+    package "dcat:Dataset (×11)" as DS {
         component "mi:MonsterRegistry" as MR
         component "mi:DoorInventory" as DI
         component "mi:EnergyLedger" as EL
@@ -39,6 +39,7 @@ package "dcat:Catalog\nhttps://vocab.monstersinc.com/catalog" as CAT {
         component "mi:RDPrototypes" as RD
         component "mi:CDAComplianceReports" as CR
         component "mi:EnergyGridForecast" as EF
+        component "mi:KnowledgeModels" as KM
     }
 
     package "dcat:Distribution" as DIST {
@@ -62,7 +63,7 @@ EP --> PR : dcat:servesDataset
 EP --> CI : dcat:servesDataset
 
 note bottom of EP
-  Serves 5 of 10 datasets
+  Serves 5 of 11 datasets
   directly via SPARQL
 end note
 
@@ -139,6 +140,7 @@ D6 ..> D2 : new techniques feed into
 | RDPrototypes | Laugh-amplification prototypes — test results, approval, yield projections | (via SPARQL) | D6 R&D | On approval |
 | CDAComplianceReports | Periodic formal compliance reports submitted to CDA | (via SPARQL) | D5 CDA Compliance | Periodic |
 | EnergyGridForecast | Grid demand forecasts derived from laugh yield trends | (via SPARQL) | D1 Energy | Weekly |
+| KnowledgeModels | OWL/SKOS/ODRL modules an autonomous agent loads to reason within company rules: agent authority + HITL, motivation/capability, data governance + access policy, and the company constitution | Turtle | Enterprise / Governance (cross-domain) | On change |
 
 ---
 

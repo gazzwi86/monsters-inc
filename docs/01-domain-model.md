@@ -227,10 +227,11 @@ Monster <.. TrainingRecord : trainee
 
 | Restriction | Class | Constraint | Enforcement |
 |-------------|-------|-----------|-------------|
-| `owl:someValuesFrom xsd:integer` on `mi:certLevel` | `mi:Comedian` | Every Comedian must have at least one certification level | SHACL (doc 09) |
-| `owl:hasValue mi:active` on `mi:doorStatus` | `mi:ChildDoor` | Default door status is `active` at instantiation | OWL open-world (informational) |
-| `owl:hasValue "true"^^xsd:boolean` on `mi:sealStatus` | `mi:LaughCanister` | Canister must be sealed before transport | SHACL (doc 09) |
+| `owl:someValuesFrom xsd:integer` on `mi:certLevel` | `mi:Comedian` | Every Comedian must have a certification level | OWL; runtime cardinality via SHACL (doc 09) |
 | `owl:disjointWith` | `mi:Comedian` / `mi:DoorTechnician` | A monster cannot be both a Comedian and a DoorTechnician | OWL DL reasoner |
+| `owl:disjointWith` | `mi:LaughCanister` / `mi:ScreamCanister` | A canister is either current (laugh) or legacy (scream), never both | OWL DL reasoner |
+
+Runtime value constraints — a door's operational status, a canister's seal-before-transport rule — are intentionally expressed as **SHACL shapes** (doc 09), not OWL `owl:hasValue` restrictions. They are operational data-quality rules, not logical class definitions, so SHACL (closed-world validation) is the correct standard for them. The ontology also defines an abstract `mi:Canister` superclass over the current `mi:LaughCanister` and the legacy `mi:ScreamCanister`, modelling the scare→laughter transition (queryable via Q18).
 
 ---
 

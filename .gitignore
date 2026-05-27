@@ -13,3 +13,6 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# Generated build artifacts (mi-merged.ttl, mi-catalog.generated.ttl)
+build/

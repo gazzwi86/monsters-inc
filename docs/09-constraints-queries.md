@@ -2,10 +2,10 @@
 
 > **View:** Constraint / Query | **Standard:** SHACL 1.0 + SPARQL 1.1 | **Audience:** Data Engineers, Compliance Officers
 
-SHACL shapes define machine-executable rules that validate every instance in the Monsters, Inc. knowledge graph against operational and regulatory constraints. The 16 business-question SPARQL queries — alongside the compliance, agent-authority, human-centered, governance, and constitution suites — turn that same graph into actionable business intelligence, from comedian performance rankings and live floor maps to org hierarchy and data integrity checks.
+SHACL shapes define machine-executable rules that validate every instance in the Monsters, Inc. knowledge graph against operational and regulatory constraints. The 22 business-question SPARQL queries — alongside the compliance, agent-authority, human-centered, governance, and constitution suites — turn that same graph into actionable business intelligence, from comedian performance rankings and live floor maps to station throughput, training-programme coverage, and workforce-wellbeing aggregates.
 
 > **Run it:** `make validate` — expected output: SHACL violation table showing exactly 3 intentional violations (one comedian without a current certification, one door with stale maintenance, one CDA incident reported >30 min after detection).
-> **Run it:** `make query` — expected output: result tables for the 16 business questions covering comedian rankings, door maintenance status, CDA incident trends, live floor layout, shared profile anomalies, score drift, energy lineage, and strategy traceability.
+> **Run it:** `make query` — expected output: result tables for the 22 business questions covering comedian rankings, door maintenance status, CDA incident trends, live floor layout, shared profile anomalies, score drift, energy lineage, strategy traceability, the R&D pipeline, the scare→laughter energy-era transition, station throughput, training-programme coverage, door-technician span of control, and workforce wellbeing by dimension.
 
 **Navigation:** [← 08 Glossary](08-glossary.md) | [→ 10 Entity Graph](10-entity-graph.md) | [All Views →](../README.md)
 
@@ -135,7 +135,7 @@ mi:DoorContaminationShape a sh:NodeShape ;
 
 ## 6. Business Queries — `queries/business-questions.sparql`
 
-All sixteen business questions (Q1–Q16) — covering energy production, maintenance compliance, CDA incident trends, PROV-O lineage, operational layout, data integrity, score drift, org structure, and strategy traceability — are maintained in the source file. A representative excerpt (Q1) appears below.
+All twenty-two business questions (Q1–Q22) — covering energy production, maintenance compliance, CDA incident trends, PROV-O lineage, operational layout, data integrity, score drift, org structure, strategy traceability, the R&D pipeline (Q17), the scare→laughter energy-era transition (Q18), station throughput (Q19), training-programme coverage (Q20), door-technician span of control (Q21), and workforce wellbeing by dimension (Q22) — are maintained in the source file. A representative excerpt (Q1) appears below.
 
 <!-- excerpt-from: queries/business-questions.sparql -->
 ```sparql
@@ -181,7 +181,7 @@ WHERE {
 
 ## 8. Why This Matters
 
-SHACL and SPARQL turn the Monsters, Inc. knowledge graph from a passive schema into an active compliance engine: every data load is automatically validated against six operational rules and three CDA regulatory constraints, with the three intentional seed violations serving as a living test fixture. The 16 business queries close the loop — covering every domain from D1 Energy to D5 CDA — extracting actionable intelligence directly from the same graph: no ETL, no duplication. Q9 onward extend the picture to the live floor layout, shared-profile anomalies, score drift detection, the executive reporting chain, and goal-to-capability strategy traceability, demonstrating how a single semantic layer serves governance, operations, and analytics simultaneously.
+SHACL and SPARQL turn the Monsters, Inc. knowledge graph from a passive schema into an active compliance engine: every data load is automatically validated against six operational rules and three CDA regulatory constraints, with the three intentional seed violations serving as a living test fixture. The 22 business queries close the loop — covering every domain from D1 Energy to D6 R&D — extracting actionable intelligence directly from the same graph: no ETL, no duplication. Q9 onward extend the picture to the live floor layout, shared-profile anomalies, score drift detection, the executive reporting chain, goal-to-capability strategy traceability, the R&D prototype pipeline, the scare→laughter energy-era transition, station throughput, training-programme coverage, door-technician span of control, and workforce wellbeing by dimension, demonstrating how a single semantic layer serves governance, operations, and analytics simultaneously.
 
 ---
 

@@ -13,7 +13,7 @@ uv sync         # install dependencies
 make seed       # load example data (25 monsters, 50 doors, performance records)
 make ontology   # generate the core .ttl ontology files
 make validate   # SHACL validation — shows 3 intentional violations, names each
-make query      # business questions (Q1–Q16) — rich table output
+make query      # business questions (Q1–Q22) — rich table output
 make all        # run everything: seed → ontology → validate → all 6 query suites
 ```
 

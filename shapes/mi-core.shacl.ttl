@@ -216,4 +216,91 @@ mi:PerformanceRecordShape a sh:NodeShape ;
         sh:datatype xsd:decimal ;
         sh:severity sh:Warning ;
         sh:message "PerformanceRecord must have a laughScore (xsd:decimal)."
+    ] ;
+
+    sh:property [
+        sh:path mi:atStation ;
+        sh:minCount 1 ;
+        sh:class mi:LaughFloorStation ;
+        sh:severity sh:Violation ;
+        sh:message "PerformanceRecord must reference the LaughFloorStation where it was captured (BR6)."
+    ] .
+
+# ============================================================================
+# Shape 7: WellbeingPulseShape
+# A wellbeing pulse reading must identify its subject monster, carry a score in
+# the 0–10 range, and name the period it covers. Validates the Culture pillar
+# data so worker-welfare readings are well-formed, not free-text.
+# ============================================================================
+
+mi:WellbeingPulseShape a sh:NodeShape ;
+    sh:targetClass mi:WellbeingPulse ;
+    sh:name "Wellbeing Pulse Shape" ;
+
+    sh:property [
+        sh:path mi:pulseSubject ;
+        sh:minCount 1 ;
+        sh:class mi:Monster ;
+        sh:severity sh:Violation ;
+        sh:message "WellbeingPulse must identify the Monster it concerns (pulseSubject)."
+    ] ;
+
+    sh:property [
+        sh:path mi:pulseScore ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:severity sh:Violation ;
+        sh:message "WellbeingPulse must carry a pulseScore (xsd:decimal) between 0.0 and 10.0."
+    ] ;
+
+    sh:property [
+        sh:path mi:pulsePeriod ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "WellbeingPulse must name the period it covers (pulsePeriod)."
+    ] ;
+
+    sh:property [
+        sh:path mi:wellbeingDimension ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "WellbeingPulse must name the cultural value / wellbeing dimension it measures."
+    ] .
+
+# ============================================================================
+# Shape 8: RDPrototypeShape
+# An R&D prototype must name its technique, carry a lifecycle status, and state
+# a yield target — so D6 R&D records are complete enough to reason over.
+# ============================================================================
+
+mi:RDPrototypeShape a sh:NodeShape ;
+    sh:targetClass mi:RDPrototype ;
+    sh:name "R&D Prototype Shape" ;
+
+    sh:property [
+        sh:path mi:technique ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "RDPrototype must name a technique."
+    ] ;
+
+    sh:property [
+        sh:path mi:status ;
+        sh:minCount 1 ;
+        sh:class mi:PrototypeStatus ;
+        sh:severity sh:Violation ;
+        sh:message "RDPrototype must carry a lifecycle status (mi:PrototypeStatus)."
+    ] ;
+
+    sh:property [
+        sh:path mi:yieldTarget ;
+        sh:minCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:severity sh:Violation ;
+        sh:message "RDPrototype must state a yield target (MWh)."
     ] .

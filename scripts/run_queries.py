@@ -1,12 +1,14 @@
 """Execute SPARQL business queries against the knowledge graph."""
-import typer
+
 import re
 from pathlib import Path
 from typing import Optional
+
+import typer
 from rdflib import ConjunctiveGraph
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
+from rich.table import Table
 
 app = typer.Typer()
 console = Console()
@@ -51,8 +53,12 @@ def parse_queries(sparql_file: Path) -> list[tuple[str, str]]:
 
 @app.command()
 def run(
-    query: Optional[str] = typer.Option(None, "--query", "-q", help="Run a single query by ID (e.g. Q1, CV3, HC2, AA1)"),
-    file: str = typer.Option("business-questions.sparql", "--file", "-f", help="SPARQL file in queries/ to run"),
+    query: Optional[str] = typer.Option(
+        None, "--query", "-q", help="Run a single query by ID (e.g. Q1, CV3, HC2, AA1)"
+    ),
+    file: str = typer.Option(
+        "business-questions.sparql", "--file", "-f", help="SPARQL file in queries/ to run"
+    ),
 ):
     """Run SPARQL queries from a queries/*.sparql file against the Monsters Inc. knowledge graph."""
     console.rule(f"[bold blue]Monsters, Inc. — SPARQL Queries ({file})")
@@ -71,8 +77,11 @@ def run(
     # (the text before the first ":") so "Q1" does not also match "Q10".."Q16".
     if query:
         q_id = query.upper()
-        all_queries = [(label, sparql) for label, sparql in all_queries
-                       if label.split(":")[0].strip().upper() == q_id]
+        all_queries = [
+            (label, sparql)
+            for label, sparql in all_queries
+            if label.split(":")[0].strip().upper() == q_id
+        ]
         if not all_queries:
             console.print(f"[red]Query {query} not found[/red]")
             raise typer.Exit(1)
@@ -106,7 +115,9 @@ def run(
         except Exception as e:
             console.print(f"[red]Error executing query: {e}[/red]\n")
 
-    console.print(f"[green]✓ Executed {len(all_queries)} quer{'y' if len(all_queries) == 1 else 'ies'}[/green]")
+    console.print(
+        f"[green]✓ Executed {len(all_queries)} quer{'y' if len(all_queries) == 1 else 'ies'}[/green]"
+    )
 
 
 def main():

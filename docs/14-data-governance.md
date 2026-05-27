@@ -112,7 +112,7 @@ Column-level tagging is what lets a policy say "read the child profile for sched
 
 ## 4. W3C ODRL Policies — Machine-Enforceable Usage Rules
 
-Three `odrl:Set` policies turn classification into enforceable rules. Each uses standard ODRL rule nodes — `odrl:permission` / `odrl:prohibition` with `odrl:target`, `odrl:action`, `odrl:assignee`, and `odrl:constraint`. `mi:ChildProfileDataPolicy` permits a Floor Manager to `odrl:read` a child profile *only* when the purpose is active-session scheduling, and **prohibits** `odrl:distribute` outright. `mi:EmployeeDataPolicy` grants the Chief People Officer read on the monster registry; `mi:EnergyLedgerPolicy` lets the external `mi:MonstropolisGridAuthority` read and distribute energy units for reconciliation. Query GV4 audits every rule.
+Three `odrl:Set` policies turn classification into enforceable rules. Each uses standard ODRL rule nodes — `odrl:permission` / `odrl:prohibition` with `odrl:target`, `odrl:action`, `odrl:assignee`, and `odrl:constraint`. `mi:ChildProfileDataPolicy` permits a Floor Manager to `odrl:use` a child profile *only* when the purpose is active-session scheduling, and **prohibits** `odrl:distribute` outright. `mi:EmployeeDataPolicy` grants the Chief People Officer use on the monster registry; `mi:EnergyLedgerPolicy` lets the external `mi:MonstropolisGridAuthority` use and distribute energy units for reconciliation. Query GV4 audits every rule.
 
 ```plantuml
 @startuml MI-ODRL-Policy-Structure
@@ -130,7 +130,7 @@ rectangle "mi:ChildProfileDataPolicy\n(odrl:Set)\ngoverns mi:ChildProfiles" as P
 rectangle "odrl:permission" as PERM #A9DFBF
 rectangle "odrl:prohibition" as PROH #F5B7B1
 
-rectangle "target: mi:ChildProfile\naction: odrl:read\nassignee: mi:FloorManagerRole\nconstraint: purpose =\n  active-session-scheduling" as PR #EAFAF1
+rectangle "target: mi:ChildProfile\naction: odrl:use\nassignee: mi:FloorManagerRole\nconstraint: purpose =\n  active-session-scheduling" as PR #EAFAF1
 rectangle "target: mi:ChildProfile\naction: odrl:distribute\n(NEVER outside company)" as PD #FDEDEC
 
 POL -down-> PERM

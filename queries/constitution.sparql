@@ -57,7 +57,7 @@ ORDER BY ?label
 
 PREFIX mi:   <https://vocab.monstersinc.com/ontology#>
 
-SELECT (STRAFTER(STR(?pillar), "#") AS ?pillar) (COUNT(DISTINCT ?p) AS ?principleCount)
+SELECT (STRAFTER(STR(?pillar), "#") AS ?pillarName) (COUNT(DISTINCT ?p) AS ?principleCount)
 WHERE {
     ?pillar a mi:Pillar .
     OPTIONAL { ?p a mi:Principle ; mi:relatesToPillar ?pillar }

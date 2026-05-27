@@ -7,6 +7,7 @@ RDF via morph-kgc (a standard R2RML engine), and asserts that the resulting IRIs
 and the mi:doorStatus IRI-objects line up with data/seed_graph.ttl. Run via:
     make materialize   (uses `uv run --with morph-kgc`, no core dependency added)
 """
+
 import json
 import sqlite3
 import sys
@@ -26,8 +27,7 @@ def build_db() -> None:
         DB.unlink()
     con = sqlite3.connect(DB)
     c = con.cursor()
-    c.executescript(
-        """
+    c.executescript("""
         CREATE TABLE COMEDIAN (comedian_id TEXT PRIMARY KEY, name TEXT, cert_level INTEGER,
             laugh_score REAL, station_id TEXT, department_id TEXT, hire_date TEXT, is_active INTEGER);
         CREATE TABLE CHILD_DOOR (portal_code TEXT PRIMARY KEY, child_age_range TEXT, bedroom_type TEXT,
@@ -37,28 +37,48 @@ def build_db() -> None:
         CREATE TABLE TRAINING_RECORD (training_id TEXT PRIMARY KEY, comedian_id TEXT, completed_at TEXT, expires_at TEXT);
         CREATE TABLE CDA_INCIDENT (incident_id TEXT PRIMARY KEY, incident_code TEXT, severity INTEGER,
             detected_at TEXT, reported_at TEXT, resolved_at TEXT, portal_code TEXT);
-        """
-    )
+        """)
     monsters = json.loads((BASE / "data" / "monsters.json").read_text())
     for m in monsters:
         if m.get("type") == "Comedian":
             c.execute(
                 "INSERT INTO COMEDIAN VALUES (?,?,?,?,?,?,?,?)",
-                (m["id"], m["name"], m.get("certLevel"), m.get("laughScore"),
-                 m.get("stationId"), m.get("department"), m.get("hireDate"),
-                 1 if m.get("isActive") else 0),
+                (
+                    m["id"],
+                    m["name"],
+                    m.get("certLevel"),
+                    m.get("laughScore"),
+                    m.get("stationId"),
+                    m.get("department"),
+                    m.get("hireDate"),
+                    1 if m.get("isActive") else 0,
+                ),
             )
     for d in json.loads((BASE / "data" / "doors.json").read_text()):
         c.execute(
             "INSERT INTO CHILD_DOOR VALUES (?,?,?,?,?,?,?)",
-            (d["portalCode"], d.get("ageRange"), d.get("bedroomType"), d.get("doorStatus"),
-             d.get("lastMaintained"), d.get("assignedComedianId"), d.get("timezone")),
+            (
+                d["portalCode"],
+                d.get("ageRange"),
+                d.get("bedroomType"),
+                d.get("doorStatus"),
+                d.get("lastMaintained"),
+                d.get("assignedComedianId"),
+                d.get("timezone"),
+            ),
         )
     for r in json.loads((BASE / "data" / "scare_records.json").read_text()):
         c.execute(
             "INSERT INTO PERFORMANCE_RECORD VALUES (?,?,?,?,?,?,?)",
-            (r["recordId"], r["comedianId"], r["recordDate"], r.get("laughScore"),
-             r.get("energyGeneratedMwh"), r.get("stationId"), r.get("shift")),
+            (
+                r["recordId"],
+                r["comedianId"],
+                r["recordDate"],
+                r.get("laughScore"),
+                r.get("energyGeneratedMwh"),
+                r.get("stationId"),
+                r.get("shift"),
+            ),
         )
     con.commit()
     con.close()
@@ -101,11 +121,26 @@ def main():
     door99 = URIRef("https://vocab.monstersinc.com/door/nyc0099")
     station1 = URIRef("https://vocab.monstersinc.com/station/station001")
 
-    check("Comedian emp-001 materialised and typed mi:Comedian", (sulley, None, MI.Comedian) in mat or (sulley, MI.name, None) in mat)
-    check("door/nyc0099 materialised (IRI aligns with seed scheme)", any(mat.triples((door99, None, None))))
-    check("mi:doorStatus emitted as the IRI mi:active (not an xsd:string literal)", (door99, MI.doorStatus, MI.active) in mat)
-    check("mi:assignedStation emitted as station IRI station/station001 (dangling map fixed)", (sulley, MI.assignedStation, station1) in mat)
-    check("mi:hireDate present on emp-001 (declared property now materialised)", any(mat.triples((sulley, MI.hireDate, None))))
+    check(
+        "Comedian emp-001 materialised and typed mi:Comedian",
+        (sulley, None, MI.Comedian) in mat or (sulley, MI.name, None) in mat,
+    )
+    check(
+        "door/nyc0099 materialised (IRI aligns with seed scheme)",
+        any(mat.triples((door99, None, None))),
+    )
+    check(
+        "mi:doorStatus emitted as the IRI mi:active (not an xsd:string literal)",
+        (door99, MI.doorStatus, MI.active) in mat,
+    )
+    check(
+        "mi:assignedStation emitted as station IRI station/station001 (dangling map fixed)",
+        (sulley, MI.assignedStation, station1) in mat,
+    )
+    check(
+        "mi:hireDate present on emp-001 (declared property now materialised)",
+        any(mat.triples((sulley, MI.hireDate, None))),
+    )
 
     # Join check: every materialised ChildDoor subject must exist in the seed graph
     mat_doors = {s for s in mat.subjects(MI.doorStatus, None)}

@@ -1,11 +1,13 @@
 """Validate seed data against SHACL shapes."""
-import typer
+
+import sys
 from pathlib import Path
-from rdflib import Graph, Namespace
+
 from pyshacl import validate
+from rdflib import Graph, Namespace
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
+from rich.table import Table
 
 console = Console()
 BASE = Path(__file__).parent.parent
@@ -23,12 +25,21 @@ def main():
     seed_path = BASE / "data" / "seed_graph.ttl"
 
     if not seed_path.exists():
-        console.print(f"[red]✗[/red] seed_graph.ttl not found — run [bold]make seed[/bold] first")
-        raise typer.Exit(1)
+        console.print("[red]✗[/red] seed_graph.ttl not found — run [bold]make seed[/bold] first")
+        sys.exit(1)
 
     data_graph.parse(seed_path, format="turtle")
-    for onto in ("mi-core.ttl", "mi-process.ttl", "mi-agent-model.ttl",
-                 "mi-motivation.ttl", "mi-governance.ttl", "mi-constitution.ttl"):
+    for onto in (
+        "mi-core.ttl",
+        "mi-process.ttl",
+        "mi-agent-model.ttl",
+        "mi-motivation.ttl",
+        "mi-governance.ttl",
+        "mi-constitution.ttl",
+        # mi-provenance carries the only LaughCanister / EnergyUnit instances, so it
+        # must load for the canister shapes to validate real nodes (not pass empty).
+        "mi-provenance.ttl",
+    ):
         data_graph.parse(BASE / "ontologies" / onto, format="turtle")
 
     # Load SHACL shapes
@@ -50,7 +61,9 @@ def main():
     )
 
     if conforms:
-        console.print(Panel("[green]✓ Data conforms to all SHACL shapes[/green]", title="Validation Result"))
+        console.print(
+            Panel("[green]✓ Data conforms to all SHACL shapes[/green]", title="Validation Result")
+        )
     else:
         table = Table(title="SHACL Validation Results", show_header=True, header_style="bold red")
         table.add_column("#", width=3, justify="right")
@@ -85,28 +98,37 @@ def main():
             table.add_row(str(row_num), sev_str, focus_str, msg_str)
 
         console.print(table)
-        console.print(f"\n[bold]Summary:[/bold] {violation_count} violation(s), {warning_count} warning(s)")
+        console.print(
+            f"\n[bold]Summary:[/bold] {violation_count} violation(s), {warning_count} warning(s)"
+        )
 
         # Assert the intentional violations by identity (not by a brittle magic
         # count) so adding new shapes later does not falsely fail this check.
         # Identify the intentional violations by focus-node identity (not by
         # free-text message wording, which could be reworded).
         expected = {
-            "Randall Boggs — cert expired (ComedianCertShape)":
-                lambda blobs: any("emp-009" in b.lower() for b in blobs),
-            "Door NYC-0099 — maintenance >180 days (DoorDispatchShape)":
-                lambda blobs: any("nyc0099" in b.lower() for b in blobs),
-            "Late CDA incident — reported >30 min after detection (CDAReportingShape)":
-                lambda blobs: any("/incident/" in b for b in blobs),
+            "Randall Boggs — cert expired (ComedianCertShape)": lambda blobs: any(
+                "emp-009" in b.lower() for b in blobs
+            ),
+            "Door NYC-0099 — maintenance >180 days (DoorDispatchShape)": lambda blobs: any(
+                "nyc0099" in b.lower() for b in blobs
+            ),
+            "Late CDA incident — reported >30 min after detection (CDAReportingShape)": lambda blobs: any(
+                "/incident/" in b for b in blobs
+            ),
         }
         present = {label: check(violation_focuses) for label, check in expected.items()}
         for label, ok in present.items():
             mark = "[green]✓[/green]" if ok else "[red]✗ MISSING[/red]"
             console.print(f"  {mark} {label}")
         if all(present.values()) and violation_count == len(expected):
-            console.print("[green]✓ Exactly the 3 intentional violations present — no unexpected violations.[/green]")
+            console.print(
+                "[green]✓ Exactly the 3 intentional violations present — no unexpected violations.[/green]"
+            )
         elif not all(present.values()):
-            console.print("[red]⚠ One or more expected intentional violations were NOT detected — check seed/shapes.[/red]")
+            console.print(
+                "[red]⚠ One or more expected intentional violations were NOT detected — check seed/shapes.[/red]"
+            )
         else:
             console.print(
                 f"[red]⚠ {violation_count} violations found but only 3 are intentional — "

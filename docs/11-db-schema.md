@@ -4,7 +4,7 @@
 |------|----------|----------|
 | Data / Persistence | SQL + R2RML (W3C) | Data Engineers, DBAs |
 
-The operational relational database persists three core entities — comedians, child bedroom doors, and performance records — using a normalised SQL schema. R2RML (Relational to RDF Mapping Language) lifts these rows into the ontology graph defined in `mi-core.ttl`, enabling SPARQL queries and SHACL validation against the same data that drives day-to-day scare operations.
+The operational relational database persists three core entities — comedians, child bedroom doors, and performance records — using a normalised SQL schema. R2RML (Relational to RDF Mapping Language) lifts these rows into the ontology graph defined in `mi-core.ttl`, enabling SPARQL queries and SHACL validation against the same data that drives day-to-day laugh operations.
 
 **Navigation:** [← 10 Entity Graph](10-entity-graph.md) | [→ 12 Unstructured Docs](12-unstructured-docs.md) | [All Views →](../README.md)
 
@@ -224,4 +224,4 @@ The R2RML layer eliminates a manual ETL step: once deployed, any compliant R2RML
 - [10 Entity Graph](10-entity-graph.md) — entity model these tables persist
 - [09 Constraints](09-constraints-queries.md) — SHACL validates the resulting RDF
 - [01 Domain Model](01-domain-model.md) — OWL classes these tables implement (`mi:Comedian`, `mi:ChildDoor`, `mi:PerformanceRecord`)
-- [03 Business Process](03-business-process.md) — processes that write rows to PERFORMANCE_RECORD during scare shifts
+- [03 Business Process](03-business-process.md) — processes that write rows to PERFORMANCE_RECORD during laugh shifts

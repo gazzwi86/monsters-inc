@@ -53,7 +53,7 @@ ORDER BY ASC(?lastMaintained)
 
 
 # CV3: CDA incidents not reported within 30 minutes of detection
-# Mirrors: mi:CDAReportingShape (SPARQL constraint) and mi:CDAIncidentCompleteShape
+# Mirrors: mi:CDAReportingShape (the SPARQL-based 30-minute reporting constraint)
 # Business context: D5 — CDA regulations require incident reporting within
 #   30 minutes of detection (Protocol 2319). Late reporting is a regulatory
 #   violation. Returns incidents where the reporting delay exceeds 30 minutes.

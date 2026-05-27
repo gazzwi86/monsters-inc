@@ -30,7 +30,7 @@ Runs in order: seed → ontology → validate → detector tests → all six que
 | Ontology | `mi-ontology` | Core OWL 2 schema summary table |
 | Validate | `mi-validate` | **Exactly 3 violations, 0 warnings**, each named |
 | Tests | `make test` | 7 detector unit tests pass (CV5/CV6/CV3 fixtures) |
-| Business | `query` | Q1–Q16, rich tables |
+| Business | `query` | Q1–Q22, rich tables |
 | Compliance | `query-cv` | CV1–CV7 |
 | Agent | `query-agent` | AA1–AA5 (AA4 = 0 → no escalation gaps) |
 | Human | `query-human` | HC1–HC8 (incl. wellbeing + guardrails) |
@@ -64,7 +64,7 @@ been comparing an `xsd:duration` against an integer and silently matching nothin
 ## Step 3 — Business questions
 
 ```bash
-make query                 # Q1–Q16
+make query                 # Q1–Q22
 make Q=Q6 query-one        # single query (12-month energy trend — now smooth)
 make Q=Q16 query-one       # strategy → capability → process traceability
 make Q=Q8 query-one        # PROV-O lineage: laugh → canister → energy → grid

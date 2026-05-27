@@ -42,6 +42,7 @@ mi:LaughFloorStation_042 a mi:LaughFloorStation, prov:Entity ;
 mi:ChildDoor_NYC4821 a mi:ChildDoor, prov:Entity ;
     rdfs:label "Child Door NYC-4821" ;
     mi:portalCode "NYC-4821" ;
+    mi:lastMaintained "2026-05-01"^^xsd:date ;
     prov:wasGeneratedBy mi:DoorManufacturingActivity .
 
 # ── Activities: Door Manufacturing ───────────────────────────────────────────

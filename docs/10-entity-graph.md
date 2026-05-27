@@ -292,6 +292,8 @@ end note
 
 ## Entity Inventory
 
+This reprises the twelve core classes from [Doc 01](01-domain-model.md) — the schema authority — and adds the dimension Doc 01 omits: the **approximate seed instance count** per class. For the full datatype-vs-object-property split, see Doc 01's Class and Property Inventory; the table here is the instance-graph view.
+
 | Class | Domain | Key Properties | Associations | Instances in Seed |
 |-------|--------|----------------|--------------|-------------------|
 | `mi:Monster` | Root person class | `employeeId`, `name` | `role`, `department` | — (abstract superclass) |
