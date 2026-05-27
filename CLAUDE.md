@@ -24,6 +24,8 @@ make seed                # uv run mi-seed      → writes data/seed_graph.ttl
 make validate            # uv run mi-validate  → SHACL report (expects 3 intentional violations, named)
 make query               # uv run mi-query     → business questions Q1–Q16
 make query-cv            # compliance · make query-agent · make query-human · make query-gov · make query-con
+make test                # detector unit tests — isolated fixtures for CV5/CV6/CV3 (runs inside `make all`)
+make materialize         # execute the R2RML mapping (SQLite + morph-kgc) and verify it joins the seed graph
 make drift               # verify docs excerpts still match their source-of-truth files
 make catalog             # uv run mi-catalog   → appends to ontologies/mi-catalog.ttl
 ```

@@ -22,13 +22,14 @@ uv sync          # install all dependencies (rdflib, pyshacl, rich, typer)
 make all
 ```
 
-Runs in order: seed → ontology → validate → all six query suites.
+Runs in order: seed → ontology → validate → detector tests → all six query suites.
 
 | Stage | Command | Expected |
 |-------|---------|----------|
 | Seed | `mi-seed` | Instance graph → `data/seed_graph.ttl` |
 | Ontology | `mi-ontology` | Core OWL 2 schema summary table |
 | Validate | `mi-validate` | **Exactly 3 violations, 0 warnings**, each named |
+| Tests | `make test` | 7 detector unit tests pass (CV5/CV6/CV3 fixtures) |
 | Business | `query` | Q1–Q16, rich tables |
 | Compliance | `query-cv` | CV1–CV7 |
 | Agent | `query-agent` | AA1–AA5 (AA4 = 0 → no escalation gaps) |
@@ -161,7 +162,25 @@ still verbatim-present in its source (**0 drift expected**). The checker is
 
 ---
 
-## Step 9 — Documentation
+## Step 9 — Tests
+
+```bash
+make test          # detector unit tests (runs inside `make all`)
+make materialize   # execute the R2RML mapping against SQLite and check it joins the seed
+```
+
+`make test` exercises the detectors the main seed does not positively trigger —
+CV5 (filled-unsealed canister), CV6 (aged-out door, incl. the `13+` format) — plus
+a regression guard for the CV3 30-minute fix, all against isolated in-memory
+fixtures so the seed and the 3-violation invariant are untouched. `make materialize`
+is the only test that actually RUNS `mappings/mi-db.r2rml.ttl`: it builds a SQLite
+DB from the JSON sources, materialises RDF via morph-kgc, and asserts the IRIs and
+`mi:doorStatus` objects join `data/seed_graph.ttl` (it uses `uv run --with`, so
+morph-kgc is not a core dependency).
+
+---
+
+## Step 10 — Documentation
 
 16 views in `docs/` (00–15). Suggested order: 00 → 01 → 02 → 03 → 04 → 06 → 09,
 then the agent-grade layer: **13 (agent model) → 14 (data governance) → 15 (constitution)**.
@@ -183,7 +202,7 @@ mappings/     mi-db.r2rml.ttl  (5 table maps → RDF, IRIs aligned to the seed)
 queries/      business-questions, compliance-violations, agent-authority,
               human-centered, governance, constitution                       (6 suites)
 scripts/      seed_data, generate_ontology, validate_shacl, run_queries,
-              build_catalog, check_doc_drift                                  (6)
+              build_catalog, check_doc_drift, run_tests, materialize_r2rml    (9 incl __init__)
 docs/         00 … 15                                                         (16 views)
 ```
 
