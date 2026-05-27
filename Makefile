@@ -17,7 +17,7 @@ seed:
 	uv run mi-seed
 
 validate:
-	$(call BANNER,SHACL Validation — expect 2 violations)
+	$(call BANNER,SHACL Validation — expect 3 violations)
 	uv run mi-validate
 
 query:

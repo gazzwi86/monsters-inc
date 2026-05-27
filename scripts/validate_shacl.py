@@ -89,19 +89,26 @@ def main():
 
         # Assert the intentional violations by identity (not by a brittle magic
         # count) so adding new shapes later does not falsely fail this check.
+        # Identify the intentional violations by focus-node identity (not by
+        # free-text message wording, which could be reworded).
         expected = {
             "Randall Boggs — cert expired (ComedianCertShape)":
-                lambda blobs: any("emp-009" in b for b in blobs),
+                lambda blobs: any("emp-009" in b.lower() for b in blobs),
             "Door NYC-0099 — maintenance >180 days (DoorDispatchShape)":
                 lambda blobs: any("nyc0099" in b.lower() for b in blobs),
             "Late CDA incident — reported >30 min after detection (CDAReportingShape)":
-                lambda blobs: any("/incident/" in b and "30 min" in b for b in blobs),
+                lambda blobs: any("/incident/" in b for b in blobs),
         }
         present = {label: check(violation_focuses) for label, check in expected.items()}
         for label, ok in present.items():
             mark = "[green]✓[/green]" if ok else "[red]✗ MISSING[/red]"
             console.print(f"  {mark} {label}")
-        if all(present.values()):
-            console.print("[green]✓ All 3 intentional violations present and correctly detected.[/green]")
-        else:
+        if all(present.values()) and violation_count == len(expected):
+            console.print("[green]✓ Exactly the 3 intentional violations present — no unexpected violations.[/green]")
+        elif not all(present.values()):
             console.print("[red]⚠ One or more expected intentional violations were NOT detected — check seed/shapes.[/red]")
+        else:
+            console.print(
+                f"[red]⚠ {violation_count} violations found but only 3 are intentional — "
+                f"there are unexpected violations to investigate.[/red]"
+            )

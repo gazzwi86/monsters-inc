@@ -158,7 +158,7 @@ The full R2RML mapping — four TriplesMaps (COMEDIAN, CHILD_DOOR, PERFORMANCE_R
 mi:ComedianMap a rr:TriplesMap ;
     rr:logicalTable [
         a rr:R2RMLView ;
-        rr:sqlQuery "SELECT *, LOWER(comedian_id) AS comedian_key FROM COMEDIAN" ;
+        rr:sqlQuery "SELECT *, LOWER(comedian_id) AS comedian_key, LOWER(REPLACE(station_id,'-','')) AS station_key FROM COMEDIAN" ;
     ] ;
 
     rr:subjectMap [

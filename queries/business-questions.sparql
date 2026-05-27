@@ -39,6 +39,7 @@ SELECT ?door (STR(?portalCode) AS ?portalCode) (STR(?lastMaintained) AS ?lastMai
 WHERE {
     ?door a mi:ChildDoor ;
           mi:portalCode ?portalCode ;
+          mi:doorStatus mi:active ;
           mi:lastMaintained ?lastMaintained .
     FILTER (xsd:dateTime(CONCAT(STR(?lastMaintained), "T00:00:00Z")) < (NOW() - "P180D"^^xsd:duration))
 }
@@ -181,7 +182,14 @@ ORDER BY ?energyUnit
 
 PREFIX mi: <https://vocab.monstersinc.com/ontology#>
 
-SELECT (STRAFTER(STR(?childProfile), "/profile/") AS ?profileId) ?portalCode ?doorStatus ?ageRange ?bedroomType ?timezone ?totalDoors
+# One row PER DOOR. The shared profile deliberately carries inconsistent
+# attribute values (a data-quality anomaly); GROUP_CONCAT collapses those into
+# one cell per door instead of an OPTIONAL cross-product (which produced 36 rows).
+SELECT (STRAFTER(STR(?childProfile), "/profile/") AS ?profileId) ?portalCode ?doorStatus
+       (GROUP_CONCAT(DISTINCT ?ar; SEPARATOR=" | ") AS ?ageRanges)
+       (GROUP_CONCAT(DISTINCT ?bt; SEPARATOR=" | ") AS ?bedroomTypes)
+       (GROUP_CONCAT(DISTINCT ?tz; SEPARATOR=" | ") AS ?timezones)
+       ?totalDoors
 WHERE {
     {
         SELECT ?childProfile (COUNT(?d) AS ?totalDoors)
@@ -197,10 +205,11 @@ WHERE {
           mi:portalCode ?portalCode ;
           mi:doorStatus ?rawStatus .
     BIND(STRAFTER(STR(?rawStatus), "#") AS ?doorStatus)
-    OPTIONAL { ?childProfile mi:ageRange ?ageRange }
-    OPTIONAL { ?childProfile mi:bedroomType ?bedroomType }
-    OPTIONAL { ?childProfile mi:timezone ?timezone }
+    OPTIONAL { ?childProfile mi:ageRange ?ar }
+    OPTIONAL { ?childProfile mi:bedroomType ?bt }
+    OPTIONAL { ?childProfile mi:timezone ?tz }
 }
+GROUP BY ?childProfile ?portalCode ?doorStatus ?totalDoors
 ORDER BY ?childProfile ?portalCode
 
 

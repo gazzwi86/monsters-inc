@@ -4,7 +4,7 @@
 
 SHACL shapes define machine-executable rules that validate every instance in the Monsters, Inc. knowledge graph against operational and regulatory constraints. The 16 business-question SPARQL queries — alongside the compliance, agent-authority, human-centered, governance, and constitution suites — turn that same graph into actionable business intelligence, from comedian performance rankings and live floor maps to org hierarchy and data integrity checks.
 
-> **Run it:** `make validate` — expected output: SHACL violation table showing exactly 2 intentional violations (one comedian without a current certification, one door with stale maintenance).
+> **Run it:** `make validate` — expected output: SHACL violation table showing exactly 3 intentional violations (one comedian without a current certification, one door with stale maintenance, one CDA incident reported >30 min after detection).
 > **Run it:** `make query` — expected output: result tables for the 16 business questions covering comedian rankings, door maintenance status, CDA incident trends, live floor layout, shared profile anomalies, score drift, energy lineage, and strategy traceability.
 
 **Navigation:** [← 08 Glossary](08-glossary.md) | [→ 10 Entity Graph](10-entity-graph.md) | [All Views →](../README.md)
@@ -38,14 +38,15 @@ validator -> seed : load instances
 validator -> shapes : load shapes
 validator -> validator : evaluate each\nNodeShape against\ntarget class instances
 validator -> report : build SHACL report graph
-report -> console : sh:Violation entries\n(2 intentional)
+report -> console : sh:Violation entries\n(3 intentional)
 report -> console : sh:Warning entries\n(0 in clean run)
 console -> eng : table: focus node,\nconstraint, message
 
 note over report
-  Expected 2 violations:
+  Expected 3 violations:
   1. Comedian without valid TrainingRecord
   2. ChildDoor with stale lastMaintained
+  3. CDA incident reported >30 min after detection
 end note
 @enduml
 ```
@@ -180,7 +181,7 @@ WHERE {
 
 ## 8. Why This Matters
 
-SHACL and SPARQL turn the Monsters, Inc. knowledge graph from a passive schema into an active compliance engine: every data load is automatically validated against six operational rules and three CDA regulatory constraints, with the two intentional seed violations serving as a living test fixture. The 16 business queries close the loop — covering every domain from D1 Energy to D5 CDA — extracting actionable intelligence directly from the same graph: no ETL, no duplication. Q9 onward extend the picture to the live floor layout, shared-profile anomalies, score drift detection, the executive reporting chain, and goal-to-capability strategy traceability, demonstrating how a single semantic layer serves governance, operations, and analytics simultaneously.
+SHACL and SPARQL turn the Monsters, Inc. knowledge graph from a passive schema into an active compliance engine: every data load is automatically validated against six operational rules and three CDA regulatory constraints, with the three intentional seed violations serving as a living test fixture. The 16 business queries close the loop — covering every domain from D1 Energy to D5 CDA — extracting actionable intelligence directly from the same graph: no ETL, no duplication. Q9 onward extend the picture to the live floor layout, shared-profile anomalies, score drift detection, the executive reporting chain, and goal-to-capability strategy traceability, demonstrating how a single semantic layer serves governance, operations, and analytics simultaneously.
 
 ---
 

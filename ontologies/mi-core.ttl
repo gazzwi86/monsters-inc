@@ -179,6 +179,16 @@ mi:name a owl:DatatypeProperty ;
     rdfs:range xsd:string ;
     rdfs:label "name" .
 
+mi:hireDate a owl:DatatypeProperty ;
+    rdfs:domain mi:Monster ;
+    rdfs:range xsd:date ;
+    rdfs:label "hire date" .
+
+mi:isActive a owl:DatatypeProperty ;
+    rdfs:domain mi:Monster ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is active" .
+
 # Comedian properties
 mi:certLevel a owl:DatatypeProperty ;
     rdfs:domain mi:Comedian ;
@@ -214,6 +224,12 @@ mi:lastMaintained a owl:DatatypeProperty ;
     rdfs:domain mi:ChildDoor ;
     rdfs:range xsd:date ;
     rdfs:label "last maintained date" .
+
+mi:daysSinceMaintenance a owl:DatatypeProperty ;
+    rdfs:domain mi:ChildDoor ;
+    rdfs:range xsd:integer ;
+    rdfs:label "days since maintenance" ;
+    rdfs:comment "Computed elapsed days since lastMaintained; materialised by the R2RML DoorMaintenanceView." .
 
 # ChildProfile properties
 mi:ageRange a owl:DatatypeProperty ;

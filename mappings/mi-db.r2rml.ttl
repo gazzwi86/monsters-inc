@@ -24,7 +24,7 @@
 mi:ComedianMap a rr:TriplesMap ;
     rr:logicalTable [
         a rr:R2RMLView ;
-        rr:sqlQuery "SELECT *, LOWER(comedian_id) AS comedian_key FROM COMEDIAN" ;
+        rr:sqlQuery "SELECT *, LOWER(comedian_id) AS comedian_key, LOWER(REPLACE(station_id,'-','')) AS station_key FROM COMEDIAN" ;
     ] ;
 
     rr:subjectMap [
@@ -49,13 +49,10 @@ mi:ComedianMap a rr:TriplesMap ;
 
     rr:predicateObjectMap [
         rr:predicate mi:assignedStation ;
-        rr:objectMap [
-            rr:parentTriplesMap mi:LaughFloorStationMap ;
-            rr:joinCondition [
-                rr:child  "station_id" ;
-                rr:parent "station_id" ;
-            ] ;
-        ] ;
+        # Emit the station IRI directly from station_id (NULL station_id rows are
+        # skipped). No separate STATION table exists in this schema, so there is
+        # no parent TriplesMap to join.
+        rr:objectMap [ rr:template "https://vocab.monstersinc.com/station/{station_key}" ] ;
     ] ;
 
     rr:predicateObjectMap [
@@ -90,7 +87,10 @@ mi:ChildDoorMap a rr:TriplesMap ;
 
     rr:predicateObjectMap [
         rr:predicate mi:doorStatus ;
-        rr:objectMap [ rr:column "door_status" ; rr:datatype xsd:string ] ;
+        # mi:doorStatus is an ObjectProperty ranging over the DoorStatus named
+        # individuals (mi:active …). Emit the IRI, not a string literal, so the
+        # triples join the seed graph and satisfy the property's range.
+        rr:objectMap [ rr:template "https://vocab.monstersinc.com/ontology#{door_status}" ] ;
     ] ;
 
     rr:predicateObjectMap [

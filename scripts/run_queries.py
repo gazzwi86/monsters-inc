@@ -67,10 +67,12 @@ def run(
 
     all_queries = parse_queries(queries_file)
 
-    # Filter to single query if --query specified
+    # Filter to single query if --query specified. Match the id token exactly
+    # (the text before the first ":") so "Q1" does not also match "Q10".."Q16".
     if query:
         q_id = query.upper()
-        all_queries = [(label, sparql) for label, sparql in all_queries if q_id in label]
+        all_queries = [(label, sparql) for label, sparql in all_queries
+                       if label.split(":")[0].strip().upper() == q_id]
         if not all_queries:
             console.print(f"[red]Query {query} not found[/red]")
             raise typer.Exit(1)

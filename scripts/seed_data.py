@@ -323,10 +323,13 @@ def main():
     open_recent = today - timedelta(days=45)    # overdue OPEN incident (CV7)
 
     # Incident 1 — Q2 2026, severity 4, reported on time, escalated (sev>=4)
+    # and since resolved (so CV7 — overdue OPEN incidents — excludes it; inc5 is
+    # the single intentional overdue-open case).
     inc1_uri = INCIDENT_BASE + f"2319-{q2_2026.strftime('%Y%m%d')}-001"
     add_cda_incident(g, inc1_uri, "2319", 4,
                      detected=dt(q2_2026, 14, 0), reported=dt(q2_2026, 14, 22),
-                     door_uri=inc_door, status=MI.Escalated, responder=roz, affected=randall)
+                     door_uri=inc_door, status=MI.Escalated, resolved=dt(q2_2026, 16, 0),
+                     responder=roz, affected=randall)
 
     # Incident 2 — Q1 2026, severity 3, reported on time, closed & resolved
     inc2_uri = INCIDENT_BASE + f"2319-{q1_2026.strftime('%Y%m%d')}-001"

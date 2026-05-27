@@ -59,7 +59,7 @@ The project has three layers that build on each other:
 | `shapes/mi-core.shacl.ttl` | SHACL | 6 property/cardinality constraint shapes |
 | `shapes/mi-compliance.shacl.ttl` | SHACL | CDA-specific regulatory constraint shapes |
 | `mappings/mi-db.r2rml.ttl` | R2RML | Maps 3 SQL tables (COMEDIAN, CHILD_DOOR, PERFORMANCE_RECORD) to RDF |
-| `queries/business-questions.sparql` | SPARQL 1.1 | 8 analytical business queries |
+| `queries/business-questions.sparql` | SPARQL 1.1 | 16 analytical business queries (Q1–Q16) |
 | `queries/compliance-violations.sparql` | SPARQL 1.1 | 3 queries mirroring SHACL constraints |
 
 ### 3. Python / UV Project (`scripts/`)
