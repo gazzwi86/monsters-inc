@@ -10,6 +10,7 @@
 
 ```bash
 uv sync         # install dependencies
+make hooks      # (once) install the pre-commit lint hook (ruff + black)
 make seed       # load example data (25 monsters, 50 doors, performance records)
 make ontology   # generate the core .ttl ontology files
 make validate   # SHACL validation — shows 3 intentional violations, names each

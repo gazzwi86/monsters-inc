@@ -1,4 +1,4 @@
-.PHONY: all ontology validate query query-cv query-agent query-human query-gov query-con query-all catalog seed demo install status query-one drift test materialize lint format images
+.PHONY: all ontology validate query query-cv query-agent query-human query-gov query-con query-all catalog seed demo install status query-one drift test materialize lint format images hooks
 
 BANNER = @echo "──────────────────────────────────────────" && echo "  Monsters, Inc. — $(1)" && echo "──────────────────────────────────────────"
 
@@ -65,6 +65,10 @@ drift:
 images:
 	$(call BANNER,Rendering blog/doc assets → images/)
 	uv run python scripts/render_assets.py
+
+hooks:
+	$(call BANNER,Installing pre-commit lint hook)
+	uv run pre-commit install
 
 test:
 	$(call BANNER,Detector Unit Tests)

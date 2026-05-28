@@ -1,0 +1,18 @@
+# Pre-commit linting hooks. Install once per clone with:  make hooks
+# (or: uv run pre-commit install). Hooks reuse the project's pinned ruff/black
+# via `uv run`, so they always match `make lint` / `make format` — no version drift.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (lint + autofix)
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+        files: ^scripts/
+      - id: black
+        name: black (format)
+        entry: uv run black
+        language: system
+        types: [python]
+        files: ^scripts/

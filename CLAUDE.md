@@ -28,6 +28,7 @@ make test                # detector unit tests — isolated fixtures for CV5/CV6
 make materialize         # execute the R2RML mapping (SQLite + morph-kgc) and verify it joins the seed graph
 make drift               # verify docs excerpts still match their source-of-truth files
 make images              # render diagrams + query Q&A cards → images/ (PNG/SVG, gitignored)
+make hooks               # install the pre-commit lint hook (ruff + black on scripts/)
 make catalog             # uv run mi-catalog   → builds DCAT catalog from data assets → build/mi-catalog.generated.ttl
 ```
 
