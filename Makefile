@@ -1,4 +1,4 @@
-.PHONY: all ontology validate query query-cv query-agent query-human query-gov query-con query-all catalog seed demo install status query-one drift test materialize lint format
+.PHONY: all ontology validate query query-cv query-agent query-human query-gov query-con query-all catalog seed demo install status query-one drift test materialize lint format images
 
 BANNER = @echo "──────────────────────────────────────────" && echo "  Monsters, Inc. — $(1)" && echo "──────────────────────────────────────────"
 
@@ -62,6 +62,10 @@ drift:
 	$(call BANNER,Doc/Source Drift Check)
 	uv run python scripts/check_doc_drift.py
 
+images:
+	$(call BANNER,Rendering blog/doc assets → images/)
+	uv run python scripts/render_assets.py
+
 test:
 	$(call BANNER,Detector Unit Tests)
 	uv run python scripts/run_tests.py
@@ -89,4 +93,4 @@ status:
 	@printf "  shapes:     %2s/3\n"   "$$(find shapes -name '*.ttl' 2>/dev/null | wc -l | tr -d ' ')"
 	@printf "  mappings:   %2s/1\n"   "$$(find mappings -name '*.ttl' 2>/dev/null | wc -l | tr -d ' ')"
 	@printf "  queries:    %2s/6\n"   "$$(find queries -name '*.sparql' 2>/dev/null | wc -l | tr -d ' ')"
-	@printf "  scripts:    %2s/9\n"   "$$(find scripts -name '*.py' 2>/dev/null | wc -l | tr -d ' ')"
+	@printf "  scripts:    %2s/10\n"  "$$(find scripts -name '*.py' 2>/dev/null | wc -l | tr -d ' ')"

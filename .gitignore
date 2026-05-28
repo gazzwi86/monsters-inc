@@ -16,3 +16,6 @@ __pycache__/
 
 # Generated build artifacts (mi-merged.ttl, mi-catalog.generated.ttl)
 build/
+
+# Generated blog/doc assets (rendered from docs + queries via make images)
+images/

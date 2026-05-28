@@ -27,6 +27,7 @@ make query-cv            # compliance · make query-agent · make query-human ·
 make test                # detector unit tests — isolated fixtures for CV5/CV6/CV3 (runs inside `make all`)
 make materialize         # execute the R2RML mapping (SQLite + morph-kgc) and verify it joins the seed graph
 make drift               # verify docs excerpts still match their source-of-truth files
+make images              # render diagrams + query Q&A cards → images/ (PNG/SVG, gitignored)
 make catalog             # uv run mi-catalog   → builds DCAT catalog from data assets → build/mi-catalog.generated.ttl
 ```
 
@@ -74,7 +75,7 @@ The project has three layers that build on each other:
 | `queries/constitution.sparql` | SPARQL 1.1 | 4 constitution / defensibility queries (CN1–CN4) |
 
 ### 3. Python / UV Project (`scripts/`)
-Nine Python files in `scripts/` (`__init__.py` plus eight modules). Five are wired as CLI entry points via `pyproject.toml` (`mi-seed`, `mi-ontology`, `mi-validate`, `mi-query`, `mi-catalog`); `check_doc_drift`, `run_tests`, and `materialize_r2rml` are invoked via their `make` targets. Execution order matters: `seed_data` first (populates `data/seed_graph.ttl`), then `generate_ontology`, then `validate_shacl` (loads seed + the ontologies the shapes target, including `mi-provenance.ttl`), then `run_queries` (loads all ontologies + seed into one graph). `run_tests` exercises the dormant detectors (CV5/CV6/CV3) against isolated in-memory fixtures without touching the seed; `check_doc_drift` verifies doc excerpts against their source files.
+Ten Python files in `scripts/` (`__init__.py` plus nine modules). Five are wired as CLI entry points via `pyproject.toml` (`mi-seed`, `mi-ontology`, `mi-validate`, `mi-query`, `mi-catalog`); `check_doc_drift`, `run_tests`, `materialize_r2rml`, and `render_assets` are invoked via their `make` targets. Execution order matters: `seed_data` first (populates `data/seed_graph.ttl`), then `generate_ontology`, then `validate_shacl` (loads seed + the ontologies the shapes target, including `mi-provenance.ttl`), then `run_queries` (loads all ontologies + seed into one graph). `run_tests` exercises the dormant detectors (CV5/CV6/CV3) against isolated in-memory fixtures without touching the seed; `check_doc_drift` verifies doc excerpts against their source files.
 
 ---
 
@@ -121,7 +122,7 @@ docs/14 → ontologies/mi-governance.ttl (W3C ODRL) + queries/governance.sparql
 docs/15 → ontologies/mi-constitution.ttl + queries/constitution.sparql
           (motivation chain: ontologies/mi-motivation.ttl)
 scripts/ → eight modules: 5 CLI entry points (mi-seed/-ontology/-validate/-query/-catalog)
-           + check_doc_drift + run_tests + materialize_r2rml
+           + check_doc_drift + run_tests + materialize_r2rml + render_assets
 data/    → monsters.json, doors.json, scare_records.json
 README.md → navigation hub (fill last, all links known)
 ```
