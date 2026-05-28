@@ -12,6 +12,9 @@ The operational relational database persists three core entities — comedians, 
 
 ## ER Diagram
 
+<!-- diagram-image -->
+![ER-Diagram](../images/diagrams/11-db-schema__1__ER-Diagram.png)
+
 ```plantuml
 @startuml ER-Diagram
 !theme plain
@@ -63,6 +66,9 @@ COMEDIAN ||--o{ PERFORMANCE_RECORD : "recorded for"
 ---
 
 ## R2RML Mapping Flow
+
+<!-- diagram-image -->
+![R2RML-Mapping-Flow](../images/diagrams/11-db-schema__2__R2RML-Mapping-Flow.png)
 
 ```plantuml
 @startuml R2RML-Mapping-Flow

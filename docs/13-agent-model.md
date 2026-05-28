@@ -14,6 +14,9 @@ This view makes the Monsters, Inc. graph safe for an autonomous agent to act on.
 
 A `mi:Policy` bundles `mi:Permission` rules; each permission carries `mi:action`, `mi:effect` (`allow`/`deny`), `mi:onEntity`, `mi:requiresRole` and `mi:authorityLevel`. Before any action an agent resolves the applicable permission for the acting employee. A `deny` permission is an explicit prohibition that overrides authority entirely.
 
+<!-- diagram-image -->
+![agent-authority-model](../images/diagrams/13-agent-model__1__agent-authority-model.png)
+
 ```plantuml
 @startuml agent-authority-model
 !theme plain
@@ -133,6 +136,9 @@ mi:HITL_2319Contamination a mi:HITLTrigger ;
 ## 5. The Agent Decision Loop
 
 For each step an agent resolves the permission, checks whether the step is automatable, then evaluates any HITL trigger before acting. Any of three gates — explicit `deny`, a non-automatable step, or a fired trigger — routes the work to a human instead.
+
+<!-- diagram-image -->
+![agent-decision-loop](../images/diagrams/13-agent-model__2__agent-decision-loop.png)
 
 ```plantuml
 @startuml agent-decision-loop

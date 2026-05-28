@@ -12,6 +12,9 @@ The Monsters, Inc. Enterprise Data Catalog formally describes all 11 operational
 
 ## Diagram 1: DCAT Catalog Structure
 
+<!-- diagram-image -->
+![Monsters, Inc. DCAT 3 Catalog Structure](../images/diagrams/05-data-catalog__1__DCAT-Catalog-Structure.png)
+
 ```plantuml
 @startuml DCAT-Catalog-Structure
 !theme plain
@@ -73,6 +76,9 @@ end note
 ---
 
 ## Diagram 2: Dataset Owner Map by Domain
+
+<!-- diagram-image -->
+![Dataset Ownership by Enterprise Domain](../images/diagrams/05-data-catalog__2__Dataset-Owner-Map.png)
 
 ```plantuml
 @startuml Dataset-Owner-Map

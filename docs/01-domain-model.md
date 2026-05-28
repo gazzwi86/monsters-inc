@@ -12,6 +12,9 @@
 
 ## OWL Class Hierarchy
 
+<!-- diagram-image -->
+![owl-class-hierarchy](../images/diagrams/01-domain-model__1__owl-class-hierarchy.png)
+
 ```plantuml
 @startuml owl-class-hierarchy
 !theme plain
@@ -151,6 +154,9 @@ TrainingRecord --> Monster : trainee
 ---
 
 ## Domain Partitioning
+
+<!-- diagram-image -->
+![domain-partitioning](../images/diagrams/01-domain-model__2__domain-partitioning.png)
 
 ```plantuml
 @startuml domain-partitioning

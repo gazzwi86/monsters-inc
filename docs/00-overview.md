@@ -12,6 +12,9 @@ This document provides the entry point to the Monsters, Inc. enterprise architec
 
 Monsters, Inc. operates at the intersection of two worlds — Monstropolis and the Human World — mediated by a proprietary portal network of 10+ million child bedroom doors. Energy is the product; laughter is now the source.
 
+<!-- diagram-image -->
+![Monsters, Inc. — Enterprise Context Diagram — (ArchiMate: System Context View)](../images/diagrams/00-overview__1__MI-Enterprise-Context.png)
+
 ```plantuml
 @startuml MI-Enterprise-Context
 !theme plain
@@ -83,6 +86,9 @@ D1 ..> D6 : R&D funding\n(revenue share)
 
 The Open Group's six enterprise strategy pillars map cleanly to Monsters, Inc.'s current operating reality. The company's transformation from fear-based to laughter-based energy is visible in every pillar.
 
+<!-- diagram-image -->
+![Monsters, Inc. — Six Enterprise Pillars — (ArchiMate: Motivation View)](../images/diagrams/00-overview__2__MI-Six-Pillars.png)
+
 ```plantuml
 @startuml MI-Six-Pillars
 !theme plain
@@ -147,6 +153,9 @@ end note
 ## 3. Domain Landscape
 
 The six domains and their primary inter-domain data and process flows. This is the **bounded context map** — the starting point for all subsequent domain and capability modeling.
+
+<!-- diagram-image -->
+![Monsters, Inc. — Domain Landscape — (Bounded Context Map)](../images/diagrams/00-overview__3__MI-Domain-Landscape.png)
 
 ```plantuml
 @startuml MI-Domain-Landscape
@@ -234,6 +243,9 @@ end note
 
 This project produces sixteen interconnected modeling views. The table below shows which standard each view uses and which domain(s) it covers.
 
+<!-- diagram-image -->
+![Monsters, Inc. — Artifact & View Map — (How the 16 documents relate to each other)](../images/diagrams/00-overview__4__MI-Views-Map.png)
+
 ```plantuml
 @startuml MI-Views-Map
 !theme plain
@@ -295,6 +307,9 @@ V15 --> V09 : compliance\nbindings
 ## 5. Energy Production Snapshot
 
 A quick illustration of the core value chain — from child laughter through to Monstropolis city power.
+
+<!-- diagram-image -->
+![Monsters, Inc. — Core Value Chain — (Energy Production Flow)](../images/diagrams/00-overview__5__MI-Value-Chain.png)
 
 ```plantuml
 @startuml MI-Value-Chain

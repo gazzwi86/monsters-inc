@@ -14,6 +14,9 @@ The Monsters, Inc. Constitution turns "we comply" from prose into evidence: ever
 
 `mi:MonstersIncConstitution` holds seven `mi:Principle` individuals, each tied via `mi:relatesToPillar` to one or more of the six `mi:Pillar` individuals. The constitution is the post-transition charter committing the company to child safety, transparency, data minimisation, human oversight, worker wellbeing and joy-based operation.
 
+<!-- diagram-image -->
+![constitution-map](../images/diagrams/15-constitution__1__constitution-map.png)
+
 ```plantuml
 @startuml constitution-map
 !theme plain
@@ -103,6 +106,9 @@ mi:Reg_2319Reporting a mi:RegulatoryRequirement ;
 ## 4. The Defensibility Chain
 
 A principle is *defensible* only when it carries an `mi:enforcedByShape` and/or `mi:enforcedByQuery` binding. The chain runs principle → regulatory requirement → SHACL shape + SPARQL query → live evidence in the graph. `mi:Prin_JoyOverFear` deliberately carries no binding: CN2 surfaces it as the single aspirational commitment, an honest self-audit rather than an unverifiable claim.
+
+<!-- diagram-image -->
+![defensibility-chain](../images/diagrams/15-constitution__2__defensibility-chain.png)
 
 ```plantuml
 @startuml defensibility-chain

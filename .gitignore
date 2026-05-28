@@ -17,5 +17,6 @@ __pycache__/
 # Generated build artifacts (mi-merged.ttl, mi-catalog.generated.ttl)
 build/
 
-# Generated blog/doc assets (rendered from docs + queries via make images)
-images/
+# NOTE: images/ is intentionally committed (pre-rendered diagrams + query cards)
+# so non-technical readers can browse on GitHub without running anything.
+# Regenerate with `make images`.

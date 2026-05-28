@@ -34,6 +34,9 @@ The key relationships between them are:
 
 ## Diagram 1: PROV-O Lineage Graph
 
+<!-- diagram-image -->
+![PROV-O Lineage — EnergyUnit EU-20240315-042-001](../images/diagrams/06-data-lineage__1__PROV-O-Lineage.png)
+
 ```plantuml
 @startuml PROV-O-Lineage
 !theme plain
@@ -94,6 +97,9 @@ gda     --> grid   : wasAssociatedWith
 ---
 
 ## Diagram 2: Temporal Swimlane
+
+<!-- diagram-image -->
+![Laugh-to-Grid Temporal Flow — 2024-03-15](../images/diagrams/06-data-lineage__2__Temporal-Swimlane.png)
 
 ```plantuml
 @startuml Temporal-Swimlane

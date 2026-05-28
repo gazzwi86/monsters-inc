@@ -10,6 +10,9 @@ P1: Daily Laugh Run is the core value-creating process at Monsters, Inc., spanni
 
 ## Diagram 1: P1 — Daily Laugh Run (Swim Lane)
 
+<!-- diagram-image -->
+![P1 — Daily Laugh Run (BPMN Swim Lane)](../images/diagrams/03-business-process__1__P1-Daily-Laugh-Run.png)
+
 ```plantuml
 @startuml P1-Daily-Laugh-Run
 !theme plain
@@ -84,6 +87,9 @@ stop
 ---
 
 ## Diagram 2: Exception Flows
+
+<!-- diagram-image -->
+![P1 — Exception Flows](../images/diagrams/03-business-process__2__P1-Exception-Flows.png)
 
 ```plantuml
 @startuml P1-Exception-Flows

@@ -6,6 +6,21 @@
 > escalation, data governance, human-wellbeing analytics, and a queryable company constitution.
 > Built to show the direction of travel for MS IQ.
 
+## Just exploring? (no setup required)
+
+This repo accompanies a blog post and is meant to be browsable by everyone — you do
+**not** need Python, a SPARQL engine, or a PlantUML server to look around:
+
+- **[Guided tour →](docs/00-overview.md)** — 16 short, illustrated views (domains,
+  capabilities, processes, data catalog, governance, the company "constitution", …).
+  Every diagram is embedded as an image, so it renders directly on GitHub.
+- **[All diagrams →](images/diagrams/)** — every architecture diagram as a PNG.
+- **[Question → query → answer cards →](images/)** — each of the 52 example questions
+  as a single image showing the plain-English question, the SPARQL that answers it, and
+  the result table. See *what the model can tell you* without running anything.
+
+Want to run it yourself? See **Quick Start** below.
+
 ## Quick Start
 
 ```bash

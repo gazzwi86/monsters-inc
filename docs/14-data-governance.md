@@ -14,6 +14,9 @@ This view answers, in machine-queryable form, the three questions every access d
 
 Every authenticatable principal is an `mi:Identity`, split into `mi:PersonIdentity` (a login bound to a monster employee via `mi:identityFor`) and `mi:ServiceAccount` (a non-human identity a system or agent acts under). Both kinds carry `mi:assumesRole`, so a single access query treats humans and machines uniformly. An identity is explicitly *not* the person — `mi:Identity owl:disjointWith mi:Monster` — it merely represents one.
 
+<!-- diagram-image -->
+![Identity → Role → Service → Dataset Access Chain — (OWL 2 · who can reach what)](../images/diagrams/14-data-governance__1__MI-Identity-Access-Chain.png)
+
 ```plantuml
 @startuml MI-Identity-Access-Chain
 !theme plain
@@ -113,6 +116,9 @@ Column-level tagging is what lets a policy say "read the child profile for sched
 ## 4. W3C ODRL Policies — Machine-Enforceable Usage Rules
 
 Three `odrl:Set` policies turn classification into enforceable rules. Each uses standard ODRL rule nodes — `odrl:permission` / `odrl:prohibition` with `odrl:target`, `odrl:action`, `odrl:assignee`, and `odrl:constraint`. `mi:ChildProfileDataPolicy` permits a Floor Manager to `odrl:use` a child profile *only* when the purpose is active-session scheduling, and **prohibits** `odrl:distribute` outright. `mi:EmployeeDataPolicy` grants the Chief People Officer use on the monster registry; `mi:EnergyLedgerPolicy` lets the external `mi:MonstropolisGridAuthority` use and distribute energy units for reconciliation. Query GV4 audits every rule.
+
+<!-- diagram-image -->
+![ODRL Policy Structure — mi:ChildProfileDataPolicy — (W3C ODRL 2.2 · odrl:Set)](../images/diagrams/14-data-governance__2__MI-ODRL-Policy-Structure.png)
 
 ```plantuml
 @startuml MI-ODRL-Policy-Structure

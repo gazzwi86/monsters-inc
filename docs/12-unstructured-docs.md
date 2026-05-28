@@ -10,6 +10,9 @@ Monsters, Inc. generates a range of formal documents — incident forms, shift r
 
 ## Diagram 1: Document Class Hierarchy
 
+<!-- diagram-image -->
+![Document-Class-Hierarchy](../images/diagrams/12-unstructured-docs__1__Document-Class-Hierarchy.png)
+
 ```plantuml
 @startuml Document-Class-Hierarchy
 !theme plain
@@ -83,6 +86,9 @@ ML  --|> BD : rdfs:subClassOf
 ---
 
 ## Diagram 2: Document Lifecycle State Machine
+
+<!-- diagram-image -->
+![Document-Lifecycle](../images/diagrams/12-unstructured-docs__2__Document-Lifecycle.png)
 
 ```plantuml
 @startuml Document-Lifecycle

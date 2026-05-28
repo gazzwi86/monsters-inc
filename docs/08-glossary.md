@@ -18,6 +18,9 @@ The overview below shows all seven top concepts as members of the concept scheme
 
 ### Overview — Six Top Concepts
 
+<!-- diagram-image -->
+![Monsters, Inc. SKOS Concept Scheme — Top Concepts](../images/diagrams/08-glossary__1__MI-Glossary-Overview.png)
+
 ```plantuml
 @startuml MI-Glossary-Overview
 !theme plain
@@ -54,6 +57,9 @@ SCHEME --> CVal : skos:hasTopConcept
 ### EnergySource — Narrower Concepts
 
 `EnergySource` is the top concept; `LaughEnergy` and `ScreamEnergy` both sit directly under it (`skos:broader EnergySource`). `LaughEnergy` in turn has its own six narrowers.
+
+<!-- diagram-image -->
+![EnergySource — skos:narrower](../images/diagrams/08-glossary__2__MI-EnergySource-Detail.png)
 
 ```plantuml
 @startuml MI-EnergySource-Detail
@@ -100,6 +106,9 @@ end note
 
 ### DoorPortal — Narrower Concepts
 
+<!-- diagram-image -->
+![DoorPortal — skos:narrower](../images/diagrams/08-glossary__3__MI-DoorPortal-Detail.png)
+
 ```plantuml
 @startuml MI-DoorPortal-Detail
 !theme plain
@@ -134,6 +143,9 @@ DP --> DD : skos:narrower
 ```
 
 ### ComedyStation — Narrower Concepts
+
+<!-- diagram-image -->
+![ComedyStation — skos:narrower](../images/diagrams/08-glossary__4__MI-ComedyStation-Detail.png)
 
 ```plantuml
 @startuml MI-ComedyStation-Detail
@@ -172,6 +184,9 @@ CS --> LS : skos:narrower
 
 ### HumanResources — Narrower Concepts
 
+<!-- diagram-image -->
+![HumanResources — skos:narrower](../images/diagrams/08-glossary__5__MI-HumanResources-Detail.png)
+
 ```plantuml
 @startuml MI-HumanResources-Detail
 !theme plain
@@ -207,6 +222,9 @@ HR --> FM : skos:narrower
 
 ### ComplianceControl — Narrower Concepts
 
+<!-- diagram-image -->
+![ComplianceControl — skos:narrower](../images/diagrams/08-glossary__6__MI-ComplianceControl-Detail.png)
+
 ```plantuml
 @startuml MI-ComplianceControl-Detail
 !theme plain
@@ -240,6 +258,9 @@ CCon --> RR : skos:narrower
 
 ### ResearchDevelopment — Narrower Concepts
 
+<!-- diagram-image -->
+![ResearchDevelopment — skos:narrower](../images/diagrams/08-glossary__7__MI-ResearchDevelopment-Detail.png)
+
 ```plantuml
 @startuml MI-ResearchDevelopment-Detail
 !theme plain
@@ -268,6 +289,9 @@ RD --> RDC : skos:narrower
 ```
 
 ### CultureValues — Narrower Concepts
+
+<!-- diagram-image -->
+![CultureValues — skos:narrower](../images/diagrams/08-glossary__8__MI-CultureValues-Detail.png)
 
 ```plantuml
 @startuml MI-CultureValues-Detail

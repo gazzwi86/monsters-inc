@@ -15,6 +15,9 @@ SHACL shapes define machine-executable rules that validate every instance in the
 
 The SHACL validator loads the seed graph and the two shape files, then produces a structured violation report. Any instance that violates a `sh:Violation`-severity constraint appears in the report; `sh:Warning`-severity violations are surfaced separately and do not block the pipeline.
 
+<!-- diagram-image -->
+![shacl-validation-flow](../images/diagrams/09-constraints-queries__1__shacl-validation-flow.png)
+
 ```plantuml
 @startuml shacl-validation-flow
 !theme plain

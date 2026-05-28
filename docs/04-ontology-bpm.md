@@ -10,6 +10,9 @@ OBPM (Ontology-Annotated Business Process Modelling) extends a standard BPMN pro
 
 ## Diagram 1: P1 — Daily Laugh Run with OBPM Annotations
 
+<!-- diagram-image -->
+![P1 — Daily Laugh Run (OBPM Annotated)](../images/diagrams/04-ontology-bpm__1__P1-OBPM-Annotated.png)
+
 ```plantuml
 @startuml P1-OBPM-Annotated
 !theme plain
@@ -156,6 +159,9 @@ stop
 ---
 
 ## Diagram 2: OBPM Annotation Legend — BPMN Task Types to OWL/PROV-O
+
+<!-- diagram-image -->
+![OBPM Annotation Legend — BPMN Task Type to OWL Mapping](../images/diagrams/04-ontology-bpm__2__OBPM-Annotation-Legend.png)
 
 ```plantuml
 @startuml OBPM-Annotation-Legend

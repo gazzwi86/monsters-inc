@@ -12,6 +12,9 @@ The entity graph presents all twelve OWL classes as a unified relational model, 
 
 ## Diagram 1: Full UML Class Diagram with Properties and Cardinalities
 
+<!-- diagram-image -->
+![entity-class-diagram](../images/diagrams/10-entity-graph__1__entity-class-diagram.png)
+
 ```plantuml
 @startuml entity-class-diagram
 !theme plain
@@ -149,6 +152,9 @@ RDPrototype "*" --> "0..1" PrototypeStatus : status
 
 This object diagram shows concrete triples from a single AM shift, illustrating how the abstract schema materialises into linked instance data in the knowledge graph.
 
+<!-- diagram-image -->
+![RDF-Graph-Fragment](../images/diagrams/10-entity-graph__2__RDF-Graph-Fragment.png)
+
 ```plantuml
 @startuml RDF-Graph-Fragment
 !theme plain
@@ -214,6 +220,9 @@ eu --> canister : mi:source
 ## Diagram 3: OWL Restriction Patterns
 
 This diagram shows how three key OWL restriction axioms constrain class membership, translating formal Description Logic axioms into visual annotations on the affected class boxes.
+
+<!-- diagram-image -->
+![OWL-Restrictions](../images/diagrams/10-entity-graph__3__OWL-Restrictions.png)
 
 ```plantuml
 @startuml OWL-Restrictions

@@ -12,6 +12,9 @@ This view maps all twelve operational capabilities of Monsters, Inc. across six 
 
 Each capability is colour-coded by maturity level (1 = nascent, 5 = optimised). Grouping by domain surfaces where the enterprise is over- or under-invested relative to strategic need.
 
+<!-- diagram-image -->
+![Monsters, Inc. — Capability Heat-Map — (ArchiMate Capability View · Colour = Maturity Level)](../images/diagrams/02-capability-map__1__MI-Capability-Heatmap.png)
+
 ```plantuml
 @startuml MI-Capability-Heatmap
 !theme plain
@@ -73,6 +76,9 @@ endlegend
 ## 2. D2 Laugh Operations — Capability Decomposition (ArchiMate)
 
 D2 is the core value-creating domain. This diagram decomposes the top-level "Laugh Floor Operations" capability into three functional branches: assignment and execution, performance monitoring, and quality assurance. All other domains either feed into or regulate this hierarchy.
+
+<!-- diagram-image -->
+![D2: Laugh Operations — Capability Decomposition — (ArchiMate Capability Hierarchy)](../images/diagrams/02-capability-map__2__MI-D2-Capability-Decomposition.png)
 
 ```plantuml
 @startuml MI-D2-Capability-Decomposition

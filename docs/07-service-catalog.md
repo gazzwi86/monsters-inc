@@ -29,6 +29,9 @@ See [14 Data Governance, Identity & Access](14-data-governance.md) for the full 
 
 Each application service is shown as an ArchiMate-style component with its provided interface (what it exposes to consumers) and its required interface (what it needs from the technology layer). Colour coding maps each service to its owning domain.
 
+<!-- diagram-image -->
+![Monsters, Inc. — Application Layer Service Catalog — (ArchiMate 3 · Application & Component View)](../images/diagrams/07-service-catalog__1__MI-Application-Layer.png)
+
 ```plantuml
 @startuml MI-Application-Layer
 !theme plain
@@ -109,6 +112,9 @@ HRCP_out --> LFMS_in : ComedianCertStatus
 
 The technology layer exposes six platform services consumed by application services. Each node represents a distinct infrastructure concern — portal routing, energy telemetry, semantic data, analytics, regulatory exchange, and event streaming.
 
+<!-- diagram-image -->
+![Monsters, Inc. — Technology Layer Infrastructure Services — (ArchiMate 3 · Technology Layer)](../images/diagrams/07-service-catalog__2__MI-Technology-Layer.png)
+
 ```plantuml
 @startuml MI-Technology-Layer
 !theme plain
@@ -162,6 +168,9 @@ ESB ..> RDFKG : event materialisation
 ## Diagram 3: Dependency Map — Application Services to Technology Services
 
 This diagram makes explicit which application services rely on which technology services. Every application service consumes the RDF Knowledge Graph Store as its system-of-record; domain-specific services layer additional technology dependencies on top.
+
+<!-- diagram-image -->
+![Monsters, Inc. — App → Tech Dependency Map — (ArchiMate 3 · Dependency View)](../images/diagrams/07-service-catalog__3__MI-Dependency-Map.png)
 
 ```plantuml
 @startuml MI-Dependency-Map
