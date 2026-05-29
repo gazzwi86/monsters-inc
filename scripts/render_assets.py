@@ -17,6 +17,11 @@ browsable on GitHub with zero setup by:
 
 Run: make images   (or: uv run python scripts/render_assets.py)
 Needs the PlantUML server on :8080 for diagrams; `rsvg-convert` for query PNGs.
+
+Note: a few queries have tied or partial ORDER BY, so the row order (and, for the
+LIMIT-ed Q1, the exact rows) of their result tables can vary between renders. The
+committed query images are therefore a representative snapshot, not a byte-stable
+build output — re-running may produce equivalent images with reordered rows.
 """
 
 import re
@@ -69,7 +74,7 @@ def _slug(text: str) -> str:
 def _label(block: str, fallback: str) -> str:
     m = re.search(r"^title (.+)$", block, re.MULTILINE)
     raw = m.group(1) if m else fallback
-    return raw.replace("\\n", " — ").replace("]", ")").strip()
+    return raw.replace("\\n", " — ").replace("]", ")").replace("|", "\\|").strip()
 
 
 def render_diagrams() -> list[dict]:
@@ -99,8 +104,8 @@ def embed_in_docs(diagrams: list[dict]) -> int:
     changed = 0
     for stem, items in by_doc.items():
         path = BASE / "docs" / f"{stem}.md"
-        text = original = path.read_text()
-        text = _EMBED_RE.sub("", text)  # strip any previous auto-embeds
+        original = path.read_text()
+        text = _EMBED_RE.sub("", original)  # strip any previous auto-embeds
         fences = list(_FENCE_RE.finditer(text))
         if len(fences) != len(items):  # safety: counts must align 1:1
             console = Console()
@@ -231,7 +236,8 @@ def write_index(diagrams: list[dict], cards: list[dict]) -> None:
     for suite_label, items in suites.items():
         lines += [f"### {suite_label}", "", "| Question | Card |", "|----------|------|"]
         for c in items:
-            lines.append(f"| {c['title']} | [{c['qid']}](queries/{c['stem']}.png) |")
+            title = c["title"].replace("|", "\\|")
+            lines.append(f"| {title} | [{c['qid']}](queries/{c['stem']}.png) |")
         lines.append("")
     (BASE / "images" / "README.md").write_text("\n".join(lines) + "\n")
 
